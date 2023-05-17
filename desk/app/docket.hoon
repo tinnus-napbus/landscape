@@ -374,6 +374,7 @@
     |=  =wave:tire:clay
     ^-  (quip card _state)
     ?-  -.wave
+      %perm  `state
       %wait  `state
       %warp  `state
       %zest  (on-zest +.wave)

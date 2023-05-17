@@ -76,6 +76,7 @@
         %&  [(turn ~(tap in ~(key by p.p.sign)) warp:cy:cc) this]
         %|
       ?-    -.p.p.sign
+          %perm  `this
           %zest  `this
           %warp  `this
           %wait
