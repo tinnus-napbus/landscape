@@ -16,11 +16,12 @@ import { AppearancePrefs } from './AppearancePrefs';
 import { useCharges } from '../state/docket';
 import { AppPrefs } from './AppPrefs';
 import { StoragePrefs } from './StoragePrefs';
+import { InvitePrefs } from './InvitePrefs';
 import { DocketImage } from '../components/DocketImage';
 import { ErrorAlert } from '../components/ErrorAlert';
 import { useMedia } from '../logic/useMedia';
 import { LeftArrow } from '../components/icons/LeftArrow';
-import { getAppName } from '../state/util';
+import { getAppName } from '@/logic/utils';
 import { Help } from '../nav/Help';
 import TlonIcon from '../components/icons/TlonIcon';
 import HelpIcon from '../components/icons/HelpIcon';
@@ -31,6 +32,7 @@ import PencilIcon from '../components/icons/PencilIcon';
 import ForwardSlashIcon from '../components/icons/ForwardSlashIcon';
 import SlidersIcon from '../components/icons/SlidersIcon';
 import Sig16Icon from '../components/icons/Sig16Icon';
+import InvitesIcom from '../components/icons/InvitesIcon';
 import { useSystemUpdate } from '../logic/useSystemUpdate';
 import { Bullet } from '../components/icons/Bullet';
 import SearchSystemPreferences from './SearchSystemPrefences';
@@ -40,12 +42,14 @@ import { AttentionAndPrivacy } from './AttentionAndPrivacy';
 interface SystemPreferencesSectionProps {
   url: string;
   active: boolean;
+  visible?: boolean;
 }
 
 function SystemPreferencesSection({
   url,
   active,
   children,
+  visible = true,
 }: PropsWithChildren<SystemPreferencesSectionProps>) {
   return (
     <li>
@@ -53,7 +57,8 @@ function SystemPreferencesSection({
         to={url}
         className={classNames(
           'flex items-center rounded-lg px-2 py-2 hover:bg-gray-50 hover:text-black',
-          active && 'bg-gray-50 text-black'
+          active && 'bg-gray-50 text-black',
+          !visible && 'hidden'
         )}
       >
         {children}
@@ -71,8 +76,9 @@ export const SystemPreferences = (
   );
   const { systemBlocked } = useSystemUpdate();
   const charges = useCharges();
-  const filteredCharges = Object.values(charges)
-    .filter((charge) => charge.desk !== 'landscape');
+  const filteredCharges = Object.values(charges).filter(
+    (charge) => charge.desk !== 'landscape'
+  );
   const isMobile = useMedia('(max-width: 639px)');
   const settingsPath = isMobile ? `${match.url}/:submenu` : '/';
 
@@ -187,6 +193,13 @@ export const SystemPreferences = (
                   <SlidersIcon className="mr-3 h-6 w-6 rounded-md text-gray-600" />
                   Remote Storage
                 </SystemPreferencesSection>
+                <SystemPreferencesSection
+                  url={subUrl('invites')}
+                  active={matchSub('invites')}
+                >
+                  <InvitesIcom className="mr-3 h-6 w-6 rounded-md text-gray-600" />
+                  Invite Links
+                </SystemPreferencesSection>
               </ul>
             </nav>
             <nav className="flex flex-col px-2 sm:px-6">
@@ -237,6 +250,7 @@ export const SystemPreferences = (
               />
               <Route path={[`${match.url}/storage`]} component={StoragePrefs} />
               <Route path={`${match.url}/security`} component={SecurityPrefs} />
+              <Route path={[`${match.url}/invites`]} component={InvitePrefs} />
               <Route
                 path={[`${match.url}/system-updates`, match.url]}
                 component={AboutSystem}

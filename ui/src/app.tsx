@@ -6,6 +6,8 @@ import {
   Route,
   useHistory,
   useLocation,
+  RouteComponentProps,
+  Redirect,
 } from 'react-router-dom';
 import { ErrorBoundary } from 'react-error-boundary';
 import FingerprintJS from '@fingerprintjs/fingerprintjs';
@@ -14,13 +16,12 @@ import useDocketState from './state/docket';
 import { PermalinkRoutes } from './pages/PermalinkRoutes';
 import useKilnState from './state/kiln';
 import useContactState from './state/contact';
-import api from './state/api';
 import { useMedia } from './logic/useMedia';
-import { useSettingsState, useTheme } from './state/settings';
+import { useDisplay } from './state/settings';
 import { useBrowserId, useLocalState } from './state/local';
 import { ErrorAlert } from './components/ErrorAlert';
 import { useErrorHandler } from './logic/useErrorHandler';
-import useHarkState from './state/hark';
+import useSchedulerStore, { useScheduler } from './state/scheduler';
 
 const getNoteRedirect = (path: string) => {
   if (path.startsWith('/desk/')) {
@@ -46,6 +47,11 @@ const getId = async () => {
   return result.visitorId;
 };
 
+function OldLeapRedirect({ location }: RouteComponentProps) {
+  const path = location.pathname.replace('/leap', '');
+  return <Redirect to={path} />;
+}
+
 const AppRoutes = () => {
   const { push } = useHistory();
   const { search } = useLocation();
@@ -66,7 +72,7 @@ const AppRoutes = () => {
     }
   }, [search]);
 
-  const theme = useTheme();
+  const { theme } = useDisplay();
   const isDarkMode = useMedia('(prefers-color-scheme: dark)');
 
   useEffect(() => {
@@ -83,11 +89,6 @@ const AppRoutes = () => {
     handleError(() => {
       window.name = 'grid';
 
-      const { initialize: settingsInitialize, fetchAll } =
-        useSettingsState.getState();
-      settingsInitialize(api);
-      fetchAll();
-
       const { fetchDefaultAlly, fetchAllies, fetchCharges } =
         useDocketState.getState();
       fetchDefaultAlly();
@@ -97,11 +98,12 @@ const AppRoutes = () => {
       const { initializeKiln } = useKilnState.getState();
       initializeKiln();
 
-      useContactState.getState().initialize(api);
-      useHarkState.getState().start();
+      useSchedulerStore
+        .getState()
+        .wait(() => useContactState.getState().start(), 5);
 
       Mousetrap.bind(['command+/', 'ctrl+/'], () => {
-        push('/leap/search');
+        push('/search');
       });
     }),
     []
@@ -110,10 +112,16 @@ const AppRoutes = () => {
   return (
     <Switch>
       <Route path="/perma" component={PermalinkRoutes} />
-      <Route path={['/leap/:menu', '/']} component={Grid} />
+      <Route path="/leap/*" component={OldLeapRedirect} />
+      <Route path={['/:menu', '/']} component={Grid} />
     </Switch>
   );
 };
+
+function Scheduler() {
+  useScheduler();
+  return null;
+}
 
 export function App() {
   const base = import.meta.env.MODE === 'mock' ? undefined : '/apps/grid';
@@ -125,6 +133,7 @@ export function App() {
     >
       <BrowserRouter basename={base}>
         <AppRoutes />
+        <Scheduler />
       </BrowserRouter>
     </ErrorBoundary>
   );

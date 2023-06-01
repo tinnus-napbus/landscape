@@ -1,17 +1,12 @@
 import React, { useCallback, useState, FormEvent, useEffect } from 'react';
-import api from '../state/api';
-import {
-  setAccessKeyId,
-  setCurrentBucket,
-  setEndpoint,
-  setSecretAccessKey,
-} from '@urbit/api';
+import api from '../api';
 import { useForm } from 'react-hook-form';
 import cn from 'classnames';
 import { useAsyncCall } from '../logic/useAsyncCall';
-import { useStorageState } from '../state/storage';
+import { useStorage } from '../state/storage';
 import { Button } from '../components/Button';
 import { Spinner } from '../components/Spinner';
+import { Urbit } from '@urbit/http-api';
 
 interface CredentialsSubmit {
   endpoint: string;
@@ -21,8 +16,25 @@ interface CredentialsSubmit {
   bucket: string;
 }
 
+type S3Update =
+  | { 'set-region': string }
+  | { 'set-endpoint': string }
+  | { 'set-access-key-id': string }
+  | { 'set-secret-access-key': string }
+  | { 'set-current-bucket': string }
+  | { 'add-bucket': string }
+  | { 'remove-bucket': string };
+
+function storagePoke(data: S3Update | { 'set-region': string }) {
+  return {
+    app: 'storage',
+    mark: 'storage-action',
+    json: data,
+  };
+}
+
 export const StoragePrefs = () => {
-  const { s3, loaded, ...storageState } = useStorageState();
+  const { s3, loaded, ...storageState } = useStorage();
 
   const {
     register,
@@ -35,20 +47,16 @@ export const StoragePrefs = () => {
 
   const { call: addS3Credentials, status } = useAsyncCall(
     useCallback(async (data: CredentialsSubmit) => {
-      api.poke(setEndpoint(data.endpoint));
-      api.poke(setAccessKeyId(data.accessId));
-      api.poke(setSecretAccessKey(data.accessSecret));
-      api.poke(setCurrentBucket(data.bucket));
-      api.poke({
-        app: 's3-store',
-        mark: 's3-action',
-        json: { 'set-region': data.region },
-      });
+      api.poke(storagePoke({ 'set-endpoint': data.endpoint }));
+      api.poke(storagePoke({ 'set-access-key-id': data.accessId }));
+      api.poke(storagePoke({ 'set-secret-access-key': data.accessSecret }));
+      api.poke(storagePoke({ 'set-current-bucket': data.bucket }));
+      api.poke(storagePoke({ 'set-region': data.region }));
     }, [])
   );
 
   useEffect(() => {
-    useStorageState.getState().initialize(api);
+    useStorage.getState().initialize(api as unknown as Urbit);
   }, []);
 
   useEffect(() => {
@@ -85,7 +93,8 @@ export const StoragePrefs = () => {
             disabled={!loaded}
             required
             id="endpoint"
-            type="text"
+            type="url"
+            autoCorrect="off"
             defaultValue={s3.credentials?.endpoint}
             {...register('endpoint', { required: true })}
             className="input default-ring bg-gray-50"
@@ -100,6 +109,8 @@ export const StoragePrefs = () => {
             required
             id="key"
             type="text"
+            autoCorrect="off"
+            spellCheck="false"
             defaultValue={s3.credentials?.accessKeyId}
             {...register('accessId', { required: true })}
             className="input default-ring bg-gray-50"
@@ -114,6 +125,8 @@ export const StoragePrefs = () => {
             required
             id="secretAccessKey"
             type="text"
+            autoCorrect="off"
+            spellCheck="false"
             defaultValue={s3.credentials?.secretAccessKey}
             {...register('accessSecret', { required: true })}
             className="input default-ring bg-gray-50"
@@ -128,6 +141,7 @@ export const StoragePrefs = () => {
             required
             id="region"
             type="text"
+            autoCorrect="off"
             defaultValue={s3.configuration?.region}
             {...register('region', { required: true })}
             className="input default-ring bg-gray-50"
@@ -142,6 +156,7 @@ export const StoragePrefs = () => {
             required
             id="bucket"
             type="text"
+            autoCorrect="off"
             defaultValue={s3.configuration.currentBucket}
             {...register('bucket', { required: true })}
             className="input default-ring bg-gray-50"
