@@ -1,5 +1,5 @@
 /-  *treaty
-/+  dock=docket
+/+  dock=docket, perms
 |%
 ++  treaty-0-to-1  ::TODO  how safe/sane is this?
   |=  t=treaty-0:treaty
@@ -25,6 +25,23 @@
     %add  [%add (treaty-1-to-0 treaty.u)]
   ==
 ::
+++  scry-apps
+  |=  [our=@p now=@da]
+  ^-  (map desk @t)
+  =/  our  (scot %p our)
+  =/  now  (scot %da now)
+  ?.  .^(? %gu /[our]/docket/[now]/$)  ~
+  =+  .^(cup=charge-update:docket %gx /[our]/docket/[now]/charges/charge-update)
+  ?>  ?=(%initial -.cup)
+  %-  ~(run by initial.cup)
+  |=(charge:docket title.docket)
+::
+++  make-passport
+  |=  [our=@p now=@da =pers:gall]
+  ^-  passport:perms
+  %.  pers
+  (perm-tree:perms (scry-live:perms our now) (scry-apps our now))
+::
 ++  enjs
   =,  enjs:format
   |%
@@ -47,341 +64,144 @@
     ==
   ::
   ++  seal
-    |=  =pers:gall
+      |=  pes=pers:gall
+      ^-  json
+      a+(turn ~(tap in pes) perm)
+  ::
+  ++  passport
+    |=  =passport:perms
     ^-  json
-    a+(turn (sort ~(tap in pers) aor) perm)
+    %-  pairs
+    :~  ['rad' (perm-many rad.passport)]
+        ['sys' (perm-many sys.passport)]
+        ['any' (perm-many any.passport)]
+        ['new' (perm-many new.passport)]
+        :-  'app'
+        :-  %a
+        %+  turn  app.passport
+        |=  [app=@t pes=perm-many:perms]
+        ^-  json
+        %-  pairs
+        :~  ['app' s+app]
+            ['pes' (perm-many pes)]
+        ==
+    ==
+  ::
+  ++  perm-many
+    |=  many=perm-many:perms
+    ^-  json
+    a+(turn many perm-once)
+  ::
+  ++  perm-once
+    |=  once=perm-once:perms
+    ^-  json
+    ?-  -.once
+      %node  (frond 'node' (perm-node +.once))
+      %kind  (frond 'kind' (perm-kind once))
+    ==
+  ::
+  ++  perm-node
+    |=  node=perm-node:perms
+    ^-  json
+    %-  pairs
+    :~  ['desc' s+desc.node]
+        ['warn' ?~(warn.node ~ s+u.warn.node)]
+        ['have' s+have.node]
+        ['pers' a+(turn ~(tap in pers.node) perm)]
+    ==
+  ::
+  ++  perm-kind
+    |=  kind=$>(%kind perm-once:perms)
+    ^-  json
+    %-  pairs
+    :~  ['nom' s+nom.kind]
+        ['pes' a+(turn ~(tap in pes.kind) perm-node)]
+    ==
   ::
   ++  perm
     |=  p=perm:gall
     ^-  json
-    ?-    p
-        [%super *]
+    ?:  ?=(?(%super %write %watch %reads %press) -.p)
       %-  pairs
       :~  ['vane' ~]
-          ['name' s+'super']
-          ['hoon' s+(crip <p>)]
-          ['tail' (pairs ~)]
-      ==
-    ::
-        [%write *]
-      %-  pairs
-      :~  ['vane' ~]
-          ['name' s+'write']
-          ['hoon' s+(crip <p>)]
+          ['name' [%s -.p]]
           :-  'tail'
-          %-  pairs
-          :~  ['jump' b+jump.p]
-              ['dude' ?~(dude.p ~ s+dude.p)]
-      ==  ==
-    ::
-        [%watch *]
-      %-  pairs
-      :~  ['vane' ~]
-          ['name' s+'watch']
-          ['hoon' s+(crip <p>)]
-          :-  'tail'
-          %-  pairs
-          :~  ['jump' b+jump.p]
-              ['dude' ?~(dude.p ~ s+dude.p)]
-              ['path' (path path.p)]
-      ==  ==
-    ::
-        [%reads *]
-      %-  pairs
-      :~  ['vane' ~]
-          ['name' s+'reads']
-          ['hoon' s+(crip <p>)]
-          :-  'tail'
-          %-  pairs
-          :~  ['vane' s+vane.p]
-              ['care' ?~(care.p ~ s+u.care.p)]
-              ['desk' ?~(desk.p ~ s+u.desk.p)]
-              ['spur' (path spur.p)]
-      ==  ==
-    ::
-        [%press *]
-      %-  pairs
-      :~  ['vane' ~]
-          ['name' s+'press']
-          ['hoon' s+(crip <p>)]
-          ['tail' (frond 'spur' (path spur.p))]
+          ?-    -.p
+              %super  (pairs ~)
+              %write
+            (pairs ['jump' b+jump.p] ['dude' ?~(dude.p ~ s+dude.p)] ~)
+          ::
+              %watch
+            %-  pairs
+            :~  ['jump' b+jump.p]
+                ['dude' ?~(dude.p ~ s+dude.p)]
+                ['path' (path path.p)]
+            ==
+          ::
+              %reads
+            %-  pairs
+            :~  ['vane' s+vane.p]
+                ['care' ?~(care.p ~ s+u.care.p)]
+                ['desk' ?~(desk.p ~ s+u.desk.p)]
+                ['spur' (path spur.p)]
+            ==
+          ::
+              %press
+            %-  pairs
+            :~  ['vane' ~]
+                ['name' s+'press']
+                ['tail' (frond 'spur' (path spur.p))]
+            ==
+          ==
       ==
-    ::
-        [%ames %debug *]
-      %-  pairs
-      :~  ['vane' s+'ames']
-          ['name' s+'debug']
-          ['hoon' s+(crip <p>)]
-          ['tail' (pairs ~)]
-      ==
-    ::
-        [%ames %block *]
-      %-  pairs
-      :~  ['vane' s+'ames']
-          ['name' s+'block']
-          ['hoon' s+(crip <p>)]
-          ['tail' (pairs ~)]
-      ==
-    ::
-        [%ames %order *]
-      %-  pairs
-      :~  ['vane' s+'ames']
-          ['name' s+'order']
-          ['hoon' s+(crip <p>)]
-          :-  'tail'
+    %-  pairs
+    :~  ['vane' [%s -.p]]
+        ['name' [%s ?@(+.p +.p +<.p)]]
+        :-  'tail'
+        ?-    p
+            [%ames ?(%debug %block) *]                     (pairs ~)
+            [%behn %timer]                                 (pairs ~)
+            [%clay ?(%mount %creds %pulse) *]              (pairs ~)
+            [%dill ?(%views %input %print %extra)]         (pairs ~)
+            [%eyre ?(%serve %certs %perms)]                (pairs ~)
+            [%gall %guard *]                               (pairs ~)
+            [%iris %fetch]                                 (pairs ~)
+            [%jael ?(%moons %prick %creak %login %break)]  (pairs ~)
+            [%khan %tread]                                 (pairs ~)
+            [%ames ?(%order %whack) *]
           %-  pairs
           :~  ['ship' ?~(ship.p ~ (ship u.ship.p))]
               ['path' (path path.p)]
-      ==  ==
-    ::
-        [%ames %whack *]
-      %-  pairs
-      :~  ['vane' s+'ames']
-          ['name' s+'whack']
-          ['hoon' s+(crip <p>)]
-          :-  'tail'
-          %-  pairs
-          :~  ['ship' ?~(ship.p ~ (ship u.ship.p))]
-              ['path' (path path.p)]
-      ==  ==
-    ::
-        [%behn %timer]
-      %-  pairs
-      :~  ['vane' s+'behn']
-          ['name' s+'timer']
-          ['hoon' s+(crip <p>)]
-          ['tail' (pairs ~)]
-      ==
-    ::
-        [%clay %mount *]
-      %-  pairs
-      :~  ['vane' s+'clay']
-          ['name' s+'mount']
-          ['hoon' s+(crip <p>)]
-          ['tail' (pairs ~)]
-      ==
-    ::
-        [%clay %creds *]
-      %-  pairs
-      :~  ['vane' s+'clay']
-          ['name' s+'creds']
-          ['hoon' s+(crip <p>)]
-          ['tail' (pairs ~)]
-      ==
-    ::
-        [%clay %label *]
-      %-  pairs
-      :~  ['vane' s+'clay']
-          ['name' s+'label']
-          ['hoon' s+(crip <p>)]
-          ['tail' (frond 'desk' ?~(desk.p ~ s+u.desk.p))]
-      ==
-    ::
-        [%clay %write *]
-      %-  pairs
-      :~  ['vane' s+'clay']
-          ['name' s+'write']
-          ['hoon' s+(crip <p>)]
-          :-  'tail'
+          ==
+        ::
+            [%clay %label *]
+          (frond 'desk' ?~(desk.p ~ s+u.desk.p))
+        ::
+            [%clay %write *]
           %-  pairs
           :~  ['desk' ?~(desk.p ~ s+u.desk.p)]
               ['spur' (path spur.p)]
-      ==  ==
-    ::
-        [%clay %local *]
-      %-  pairs
-      :~  ['vane' s+'clay']
-          ['name' s+'local']
-          ['hoon' s+(crip <p>)]
-          :-  'tail'
+          ==
+        ::
+            [%clay ?(%local %peers) *]
           %-  pairs
           :~  ['care' ?~(care.p ~ s+u.care.p)]
               ['desk' ?~(desk.p ~ s+u.desk.p)]
               ['spur' (path spur.p)]
-      ==  ==
-    ::
-        [%clay %peers *]
-      %-  pairs
-      :~  ['vane' s+'clay']
-          ['name' s+'peers']
-          ['hoon' s+(crip <p>)]
-          :-  'tail'
-          %-  pairs
-          :~  ['care' ?~(care.p ~ s+u.care.p)]
-              ['desk' ?~(desk.p ~ s+u.desk.p)]
-              ['spur' (path spur.p)]
-      ==  ==
-    ::
-        [%clay %perms *]
-      %-  pairs
-      :~  ['vane' s+'clay']
-          ['name' s+'perms']
-          ['hoon' s+(crip <p>)]
-          ['tail' (frond 'desk' ?~(desk.p ~ s+u.desk.p))]
-      ==
-    ::
-        [%clay %plead *]
-      %-  pairs
-      :~  ['vane' s+'clay']
-          ['name' s+'plead']
-          ['hoon' s+(crip <p>)]
-          ['tail' (frond 'desk' ?~(desk.p ~ s+u.desk.p))]
-      ==
-    ::
-        [%clay %liven *]
-      %-  pairs
-      :~  ['vane' s+'clay']
-          ['name' s+'liven']
-          ['hoon' s+(crip <p>)]
-          ['tail' (frond 'desk' ?~(desk.p ~ s+u.desk.p))]
-      ==
-    ::
-        [%clay %pulse *]
-      %-  pairs
-      :~  ['vane' s+'clay']
-          ['name' s+'pulse']
-          ['hoon' s+(crip <p>)]
-          ['tail' (pairs ~)]
-      ==
-    ::
-        [%clay %grave *]
-      %-  pairs
-      :~  ['vane' s+'clay']
-          ['name' s+'grave']
-          ['hoon' s+(crip <p>)]
-          :-  'tail'
+          ==
+        ::
+            [%clay ?(%perms %plead %liven) *]
+          (frond 'desk' ?~(desk.p ~ s+u.desk.p))
+        ::
+            [%clay %grave *]
           %-  pairs
           :~  ['ship' ?~(ship.p ~ (ship u.ship.p))]
               ['desk' ?~(desk.p ~ s+u.desk.p)]
-      ==  ==
-    ::
-        [%dill %views]
-      %-  pairs
-      :~  ['vane' s+'dill']
-          ['name' s+'views']
-          ['hoon' s+(crip <p>)]
-          ['tail' (pairs ~)]
-      ==
-    ::
-        [%dill %input]
-      %-  pairs
-      :~  ['vane' s+'dill']
-          ['name' s+'input']
-          ['hoon' s+(crip <p>)]
-          ['tail' (pairs ~)]
-      ==
-    ::
-        [%dill %print]
-      %-  pairs
-      :~  ['vane' s+'dill']
-          ['name' s+'print']
-          ['hoon' s+(crip <p>)]
-          ['tail' (pairs ~)]
-      ==
-    ::
-        [%dill %extra]
-      %-  pairs
-      :~  ['vane' s+'dill']
-          ['name' s+'extra']
-          ['hoon' s+(crip <p>)]
-          ['tail' (pairs ~)]
-      ==
-    ::
-        [%eyre %serve]
-      %-  pairs
-      :~  ['vane' s+'eyre']
-          ['name' s+'serve']
-          ['hoon' s+(crip <p>)]
-          ['tail' (pairs ~)]
-      ==
-    ::
-        [%eyre %certs]
-      %-  pairs
-      :~  ['vane' s+'eyre']
-          ['name' s+'certs']
-          ['hoon' s+(crip <p>)]
-          ['tail' (pairs ~)]
-      ==
-    ::
-        [%eyre %perms]
-      %-  pairs
-      :~  ['vane' s+'eyre']
-          ['name' s+'perms']
-          ['hoon' s+(crip <p>)]
-          ['tail' (pairs ~)]
-      ==
-    ::
-        [%gall %clear *]
-      %-  pairs
-      :~  ['vane' s+'gall']
-          ['name' s+'clear']
-          ['hoon' s+(crip <p>)]
-          ['tail' (frond 'dude' ?~(dude.p ~ s+u.dude.p))]
-      ==
-    ::
-        [%gall %guard *]
-      %-  pairs
-      :~  ['vane' s+'gall']
-          ['name' s+'guard']
-          ['hoon' s+(crip <p>)]
-          ['tail' (pairs ~)]
-      ==
-    ::
-        [%iris %fetch]
-      %-  pairs
-      :~  ['vane' s+'iris']
-          ['name' s+'fetch']
-          ['hoon' s+(crip <p>)]
-          ['tail' (pairs ~)]
-      ==
-    ::
-        [%jael %moons]
-      %-  pairs
-      :~  ['vane' s+'jael']
-          ['name' s+'moons']
-          ['hoon' s+(crip <p>)]
-          ['tail' (pairs ~)]
-      ==
-    ::
-        [%jael %prick]
-      %-  pairs
-      :~  ['vane' s+'jael']
-          ['name' s+'prick']
-          ['hoon' s+(crip <p>)]
-          ['tail' (pairs ~)]
-      ==
-    ::
-        [%jael %creak]
-      %-  pairs
-      :~  ['vane' s+'jael']
-          ['name' s+'creak']
-          ['hoon' s+(crip <p>)]
-          ['tail' (pairs ~)]
-      ==
-    ::
-        [%jael %login]
-      %-  pairs
-      :~  ['vane' s+'jael']
-          ['name' s+'login']
-          ['hoon' s+(crip <p>)]
-          ['tail' (pairs ~)]
-      ==
-    ::
-        [%jael %break]
-      %-  pairs
-      :~  ['vane' s+'jael']
-          ['name' s+'break']
-          ['hoon' s+(crip <p>)]
-          ['tail' (pairs ~)]
-      ==
-    ::
-        [%khan %tread]
-      %-  pairs
-      :~  ['vane' s+'khan']
-          ['name' s+'tread']
-          ['hoon' s+(crip <p>)]
-          ['tail' (pairs ~)]
-      ==
+          ==
+        ::
+            [%gall %clear *]
+          (frond 'dude' ?~(dude.p ~ s+u.dude.p))
+        ==
     ==
   ::
   ++  case
@@ -453,6 +273,70 @@
     :~  add+ship
         del+ship
     ==
+  ++  pers  (as perm)
+  ++  perm
+    |=  jon=json
+    |^  ^-  perm:gall
+    =/  dat=[vane=(unit @tas) name=@tas]  ((ot vane+(mu so) name+so ~) jon)
+    ?+    dat  !!
+        [[~ %behn] %timer]  [%behn %timer]
+        [[~ %dill] %views]  [%dill %views]
+        [[~ %dill] %input]  [%dill %input]
+        [[~ %dill] %print]  [%dill %print]
+        [[~ %dill] %extra]  [%dill %extra]
+        [[~ %eyre] %serve]  [%eyre %serve]
+        [[~ %eyre] %certs]  [%eyre %certs]
+        [[~ %eyre] %perms]  [%eyre %perms]
+        [[~ %iris] %fetch]  [%iris %fetch]
+        [[~ %jael] %moons]  [%jael %moons]
+        [[~ %jael] %prick]  [%jael %prick]
+        [[~ %jael] %creak]  [%jael %creak]
+        [[~ %jael] %login]  [%jael %login]
+        [[~ %jael] %break]  [%jael %break]
+        [[~ %khan] %tread]  [%khan %tread]
+    ::
+        [[~ %ames] %debug]  [%ames %debug ~]
+        [[~ %ames] %block]  [%ames %block ~]
+        [[~ %clay] %mount]  [%clay %mount ~]
+        [[~ %clay] %creds]  [%clay %creds ~]
+        [[~ %clay] %pulse]  [%clay %pulse ~]
+        [[~ %gall] %guard]  [%gall %guard ~]
+    ::
+        [~ %super]      super+~
+        [~ %press]      press+((ot tail+(ot spur+pa ~) ~) jon)
+        [~ %write]
+      write+((ot tail+(ot jump+bo dude+maybe-dude ~) ~) jon)
+        [~ %watch]
+      watch+((ot tail+(ot jump+bo dude+maybe-dude path+pa ~) ~) jon)
+        [~ %reads]
+      reads+((ot tail+(ot vane+so care+(mu so) desk+(mu so) spur+pa ~) ~) jon)
+    ::
+        [[~ %ames] %order]
+      ames+order+((ot tail+(ot ship+(mu (su fed:ag)) path+pa ~) ~) jon)
+        [[~ %ames] %whack]
+      ames+whack+((ot tail+(ot ship+(mu (su fed:ag)) path+pa ~) ~) jon)
+        [[~ %clay] %label]  clay+label+((ot tail+(ot desk+(mu so) ~) ~) jon)
+        [[~ %clay] %write]
+      clay+write+((ot tail+(ot desk+(mu so) spur+pa ~) ~) jon)
+        [[~ %clay] %local]
+      clay+local+((ot tail+(ot care+(mu so) desk+(mu so) spur+pa ~) ~) jon)
+        [[~ %clay] %peers]
+      clay+peers+((ot tail+(ot care+(mu so) desk+(mu so) spur+pa ~) ~) jon)
+        [[~ %clay] %perms]  clay+perms+((ot tail+(ot desk+(mu so) ~) ~) jon)
+        [[~ %clay] %plead]  clay+plead+((ot tail+(ot desk+(mu so) ~) ~) jon)
+        [[~ %clay] %liven]  clay+liven+((ot tail+(ot desk+(mu so) ~) ~) jon)
+        [[~ %clay] %grave]
+      clay+grave+((ot tail+(ot ship+(mu (su fed:ag)) desk+(mu so) ~) ~) jon)
+        [[~ %gall] %clear]
+      gall+clear+((ot tail+(ot dude+(mu so) ~) ~) jon)
+    ==
+    ++  maybe-dude
+      |=  jon=json
+      ^-  ?(~ dude:gall)
+      ?~  dud=(so:dejs-soft:format jon)
+        (ul jon)
+      u.dud
+    --
   --
 --
 
