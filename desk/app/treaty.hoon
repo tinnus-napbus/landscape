@@ -230,6 +230,17 @@
     =/  =ship  (slav %p i.t.t.path)
     =*  desk   i.t.t.t.path
     ``(treaty:cg:cc (~(got by treaties) [ship desk]))
+  ::
+      [%x %seal @ @ ~]
+    =/  =ship    (slav %p i.t.t.path)
+    =*  desk     i.t.t.t.path
+    =/  =treaty  (~(got by treaties) [ship desk])
+    :^  ~  ~  %json
+    !>  ^-  json
+    :-  %a
+    =-  (sort - aor)
+    %+  turn  ~(tap in seal.treaty)
+    |=(=perm:gall s+(crip <perm>))
   ==
 ::
 ++  on-agent
