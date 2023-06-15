@@ -37,10 +37,14 @@
   |=(charge:docket title.docket)
 ::
 ++  make-passport
-  |=  [our=@p now=@da =pers:gall]
+  |=  [our=@p now=@da =pers:gall desk=(unit desk)]
   ^-  passport:perms
   %.  pers
-  (perm-tree:perms (scry-live:perms our now) (scry-apps our now))
+  %:  perm-tree:perms
+    (scry-live:perms our now)
+    (scry-apps our now)
+    ?~(desk *pers:gall (scry-approved:perms our now u.desk))
+  ==
 ::
 ++  enjs
   =,  enjs:format

@@ -12,6 +12,9 @@
 ;<  =bowl:spider  bind:m  get-bowl
 ?~  jun=!<((unit json) jon)
   (pure:m !>(`json`[%s 'invalid-request']))
-=/  pes=pers:gall  (pers:dejs:treaty u.jun)
-=/  pas=passport:perms  (make-passport:treaty our.bowl now.bowl pes)
+=/  [des=(unit desk) pes=pers:gall]
+  =,  dejs:format
+  ((ot desk+(mu so) seal+pers:dejs:treaty ~) u.jun)
+=/  pas=passport:perms
+  (make-passport:treaty our.bowl now.bowl pes des)
 (pure:m !>(`json`(passport:enjs:treaty pas)))
