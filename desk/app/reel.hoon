@@ -1,5 +1,5 @@
 /-  reel
-/+  default-agent, verb, dbug, *reel
+/+  default-agent, verb, dbug, logs, *reel
 |%
 +$  card  card:agent:gall
 +$  versioned-state
@@ -66,8 +66,9 @@
 %-  agent:dbug
 %+  verb  |
 |_  =bowl:gall
-+*  this       .
-    def        ~(. (default-agent this %|) bowl)
++*  this  .
+    def   ~(. (default-agent this %|) bowl)
+    log   ~(. logs [our.bowl /logs])
 ::
 ++  on-init
   ^-  (quip card _this)
@@ -174,6 +175,7 @@
     :_  this
     =/  url  (cat 3 vic token)
     =/  path  (stab (cat 3 '/v1/id-link/' id))
+    :-  (tell:log `token %info 'lure link generated' ~)
     ~[[%give %fact ~[path] %json !>(s+url)]]
   ::
       %reel-undescribe
@@ -298,7 +300,8 @@
       [%set-ship ~]
     ?>  ?=([%khan %arow *] sign-arvo)
     ?:  ?=(%.n -.p.sign-arvo)
-      ((slog 'reel: fetch bait ship failed' p.p.sign-arvo) `this)
+      :_  this
+      ~[(tell:log ~ %warn 'fetch bait ship failed' ~)]
     `this
   ::
       [%expire @ @ ~]
@@ -313,5 +316,9 @@
       (on-arvo:def wire sign-arvo)
     ==
   ==
-++  on-fail   on-fail:def
+++  on-fail
+  |=  [=term =tang]
+  ^-  (quip card _this)
+  :_  this
+  [(fail:log term tang)]~
 --

@@ -1,5 +1,5 @@
 /-  reel
-/+  default-agent, verb, dbug, server, *reel
+/+  default-agent, verb, dbug, server, logs, *reel
 |%
 +$  card  card:agent:gall
 +$  versioned-state
@@ -64,8 +64,9 @@
 %-  agent:dbug
 %+  verb  |
 |_  =bowl:gall
-+*  this       .
-    def        ~(. (default-agent this %|) bowl)
++*  this  .
+    def   ~(. (default-agent this %|) bowl)
+    log   ~(. logs [our.bowl /logs])
 ::
 ++  on-init
   ^-  (quip card _this)
@@ -115,22 +116,24 @@
     ::
         %'POST'
       ?~  body.request
+        :-  (tell:log ~ %crit 'body not found' ~)
         (give-not-found 'body not found')
       ?.  =('ship=%7E' (end [3 8] q.u.body.request))
+        :-  (tell:log ~ %crit 'ship not found in body' ~)
         (give-not-found 'ship not found in body')
       =/  joiner  (slav %p (cat 3 '~' (rsh [3 8] q.u.body.request)))
       =;  [=bite:reel inviter=(unit ship)]
         ?~  inviter
+          :-  (tell:log `token.bite %crit 'inviter not found' ~)
           (give-not-found 'inviter not found')
         ^-  (list card)
-        ::  TODO: figure out if we need to send both pokes
-        :*  :*  %pass  /bite  %agent  [u.inviter %reel]
+        :*  %^  tell:log  `token.bite  %info
+            ~[leaf+"{<joiner>} redeemed lure invite from {<u.inviter>}"]
+            ::
+            :*  %pass  /bite  %agent  [u.inviter %reel]
                 %poke  %reel-bite  !>(bite)
             ==
-            :*  %pass  /bite  %agent  [our.bowl %reel]
-                %poke  %reel-bite  !>(bite)
-            ==
-            (give (manx-response:gen:server (sent-page joiner)))
+          (give (manx-response:gen:server (sent-page joiner)))
         ==
       =/  =(pole knot)  line
       ?:  ?=([@ @ ~] line)
@@ -220,5 +223,9 @@
     [~ this]
   ==
 ::
-++  on-fail   on-fail:def
+++  on-fail
+  |=  [=term =tang]
+  ^-  (quip card _this)
+  :_  this
+  [(fail:log term tang)]~
 --
