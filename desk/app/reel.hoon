@@ -158,14 +158,20 @@
     =+  !<(confirmation:reel vase)
     =.  open-describes  (~(del in open-describes) nonce)
     ?~  md=(~(get by our-metadata) nonce)
-      ~|("no metadata for nonce: {<nonce>}" !!)
+      :_  this  :_  ~
+      %^  tell:log  %crit
+        ~[leaf+"failed to receive metadata for nonce {<nonce>}"]
+      ~['event'^s+'Nonce Missing' 'flow'^s+'lure']
     =/  ids=(list [id=cord =token:reel])
       %+  skim
         ~(tap by stable-id)
       |=  [key=cord =token:reel]
       =(nonce token)
     ?~  ids
-      ~|("no stable id for nonce: {<nonce>}" !!)
+      :_  this  :_  ~
+      %^  tell:log  %crit
+        ~[leaf+"no stable id found for nonce {<nonce>}"]
+      ~['event'^s+'Stable ID Missing' 'flow'^s+'lure']
     =*  id  -<.ids
     ::  update the token the id points to
     =.  stable-id  (~(put by stable-id) id token)
@@ -175,7 +181,9 @@
     :_  this
     =/  url  (cat 3 vic token)
     =/  path  (stab (cat 3 '/v1/id-link/' id))
-    :-  (tell:log `token %info 'lure link generated' ~)
+    :-  %^  tell:log  %info
+          ~[leaf+"invite link for {(trip id)} generated"]
+        ~['event'^s+'Invite Link Generated' 'flow'^s+'lure' 'lure-id'^s+token]
     ~[[%give %fact ~[path] %json !>(s+url)]]
   ::
       %reel-undescribe
@@ -301,7 +309,7 @@
     ?>  ?=([%khan %arow *] sign-arvo)
     ?:  ?=(%.n -.p.sign-arvo)
       :_  this
-      ~[(tell:log ~ %warn 'fetch bait ship failed' ~)]
+      ~[(tell:log %warn ~['fetch bait ship failed'] ~)]
     `this
   ::
       [%expire @ @ ~]
@@ -320,5 +328,5 @@
   |=  [=term =tang]
   ^-  (quip card _this)
   :_  this
-  [(fail:log term tang)]~
+  [(fail:log term tang ~)]~
 --
