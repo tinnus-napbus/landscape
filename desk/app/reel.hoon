@@ -157,11 +157,6 @@
     ?>  =(civ src.bowl)
     =+  !<(confirmation:reel vase)
     =.  open-describes  (~(del in open-describes) nonce)
-    ?~  md=(~(get by our-metadata) nonce)
-      :_  this  :_  ~
-      %^  tell:log  %crit
-        ~[leaf+"failed to receive metadata for nonce {<nonce>}"]
-      ~['event'^s+'Invite Creation Failed' 'flow'^s+'lure']
     =/  ids=(list [id=cord =token:reel])
       %+  skim
         ~(tap by stable-id)
@@ -169,10 +164,15 @@
       =(nonce token)
     ?~  ids
       :_  this  :_  ~
-      %^  tell:log  %crit
+      %^  tell:log  %warn
         ~[leaf+"no stable id found for nonce {<nonce>}"]
-      ~['event'^s+'Invite Creation Failed' 'flow'^s+'lure']
+      ~['event'^s+'Nonce Revoked' 'flow'^s+'lure']
     =*  id  -<.ids
+    ?~  md=(~(get by our-metadata) nonce)
+      :_  this  :_  ~
+      %^  tell:log  %crit
+        ~[leaf+"no metadata for nonce {<nonce>}"]
+      ~['event'^s+'Invite Creation Failed' 'flow'^s+'lure']
     ::  update the token the id points to
     =.  stable-id  (~(put by stable-id) id token)
     ::  swap out the nonce for the token in our-metadata
