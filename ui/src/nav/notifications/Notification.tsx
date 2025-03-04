@@ -1,4 +1,4 @@
-import React, { ReactComponentElement, useCallback } from 'react';
+import React, { ReactComponentElement, useCallback, useState } from 'react';
 import cn from 'classnames';
 import { format } from 'date-fns';
 import _ from 'lodash';
@@ -13,11 +13,12 @@ import { DeskLink } from '../../components/DeskLink';
 import { DocketImage } from '../../components/DocketImage';
 import GroupAvatar from '../../components/GroupAvatar';
 import { Charge } from '@/gear';
-import { useSawRopeMutation } from '@/state/hark';
+import { useSawRopeMutation, useYarns } from '@/state/hark';
 
 interface NotificationProps {
   bin: Skein;
   groups?: Groups;
+  sub?: boolean;
 }
 
 type NotificationType = 'group-meta' | 'channel' | 'group' | 'desk';
@@ -229,12 +230,14 @@ const NotificationContent: React.FC<NotificationContent> = ({
   );
 };
 
-export default function Notification({ bin, groups }: NotificationProps) {
+export default function Notification({ bin, groups, sub }: NotificationProps) {
   const moreCount = bin.count;
-  const { rope, con, wer, but } = bin.top;
+  const { rope, con, wer, time, but } = bin.top;
   const charge = useCharge(rope?.desk ?? '');
   const app = getAppName(charge);
   const { mutate: sawRope } = useSawRopeMutation();
+  const [showSubNotifications, setShowSubNotifications] = useState(false);
+  const data= useYarns({ desk: rope.desk, wer});
 
   if (!rope) {
     return null;
@@ -244,19 +247,31 @@ export default function Notification({ bin, groups }: NotificationProps) {
   const ship = con.find(isYarnShip)?.ship;
 
   const onClick = useCallback(() => {
-    console.log('clearing notification', rope);
-    sawRope({ rope });
+    if(sub === false){
+      console.log('clearing notification', rope);
+      sawRope({ rope });
+    }
   }, [rope]);
+  
+
+  const expandView = (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.stopPropagation()
+    setShowSubNotifications(true)
+  }
+
 
   return (
     <div
       className={cn(
-        'flex space-x-3 rounded-xl p-3 text-gray-600 transition-colors duration-1000',
+        'flex flex-col space-x-3 rounded-xl p-3 text-gray-600 transition-colors duration-1000',
         bin.unread
           ? 'bg-blue-50 mix-blend-multiply dark:mix-blend-screen'
           : 'bg-white'
       )}
     >
+      <div className={cn(
+        'flex space-x-3 p-3 text-gray-600'
+      )}>
       <DeskLink
         onClick={onClick}
         to={`?landscape-note=${encodeURIComponent(wer || '')}`}
@@ -283,22 +298,37 @@ export default function Notification({ bin, groups }: NotificationProps) {
             <NotificationContent type={type} content={con} />
           </div>
           {moreCount > 1 ? (
-            <div>
-              <p className="text-sm font-semibold text-gray-600">
-                Latest of {moreCount} new {pluralize('message', moreCount)}
-              </p>
-            </div>
-          ) : null}
+        <button style={{zIndex: 20 }} onClick={(e) => expandView(e)}>
+          <p className="text-sm font-semibold text-gray-600">
+            Latest of {moreCount} new {pluralize('message', moreCount)}
+          </p>
+        </button>
+      ) : null}
           {but?.title && <Button variant="secondary">{but.title}</Button>}
         </div>
       </DeskLink>
       <div className="flex-none">
         <div className="flex items-center">
           <span className="font-semibold text-gray-400">
-            {makePrettyTime(new Date(bin.time))}
+            {makePrettyTime(new Date(time))}
           </span>
         </div>
       </div>
+      </div>
+      {showSubNotifications && 
+        <div className={cn(
+          'flex flex-col gap-x-6 gap-y-4')}>
+          {Object.entries(data).map(([key, val]) => {
+            let bin = { time: 0, count: 0, shipCount: 0, top: val, unread: true }
+
+            return(
+              <div key={key}>
+                <Notification bin={bin} groups={groups} sub={true}/>
+              </div>
+              )
+          })}
+        </div>
+      }
     </div>
   );
 }
