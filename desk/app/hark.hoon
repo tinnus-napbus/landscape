@@ -130,6 +130,12 @@
       [%x %desk desk=@ rest=*]
     (scry-rug rest.pole desk/desk.pole (~(gut by desks) desk.pole *rug:h))
   ::
+  ::  /bulk/groups/dm/~sampel
+      [%x %bulk desk=@ wer=*]
+    =/  =rug:h  (~(got by desks) desk.pole)
+    =/  =thread:h  (~(gut by new.rug) [~ ~ desk.pole wer.pole] *thread:h)
+    (scry-yarns thread)
+  ::
       [%x %yarn uid=@ ~]
     ``hark-yarn+!>((~(got by yarns) (slav %uv uid.pole)))
   ==
@@ -167,6 +173,17 @@
     =/  idx  (slav %ud idx.pole)
     ``hark-blanket+!>((rug-to-blanket seam idx rug))
   ==
+::
+++  scry-yarns
+  |=  =thread:h
+  ^-  (unit (unit cage))
+  =/  yarns=(list [id:h yarn:h])
+    %+  sort
+      (thread-to-yarns thread)
+    |=  [a=[=id:h =yarn:h] b=[=id:h =yarn:h]]
+    (gth tim.yarn.a tim.yarn.b)
+  ``hark-yarns+!>(yarns)
+::
 ++  rug-to-skeins
   |=  [=seam:h =rug:h]
   ^-  (list skein:h)
