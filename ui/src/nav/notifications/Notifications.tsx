@@ -94,7 +94,7 @@ export const Notifications = () => {
                   <ul className="space-y-2">
                     {grouping.skeins.map((b) => (
                       <li key={b.time}>
-                        <Notification bin={b} groups={groups} />
+                        <Notification bin={b} groups={groups} sub={false}/>
                       </li>
                     ))}
                   </ul>

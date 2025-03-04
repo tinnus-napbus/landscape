@@ -15,6 +15,7 @@ import {
   isNewNotificationSupported,
   makeBrowserNotification,
 } from '@/logic/utils';
+import useReactQueryScry from '@/logic/useReactQueryScry';
 import api from '@/api';
 
 function harkAction(action: HarkAction) {
@@ -151,4 +152,19 @@ export function useAddYarnMutation() {
       await queryClient.invalidateQueries(['skeins']);
     },
   });
+}
+
+export function useYarns({desk, wer}: { desk: string; wer: string;}){
+  const { data, ...rest } = 
+  useReactQueryScry({
+    queryKey: ['bulk', wer],
+    app: 'hark',
+    path: `/bulk/${desk}${wer}`,
+    options: {
+      enabled: true,
+    },
+  })
+
+  return data || '';
+
 }
