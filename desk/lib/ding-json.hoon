@@ -1,6 +1,7 @@
 /-  d=ding
 /+  groups-json
 |%
+++  on-bu  ((on time notification:d) gte)
 ++  enjs
   =,  enjs:format
   |%
@@ -61,6 +62,29 @@
         origin+(origin origin.n)
         contents+a+(turn contents.n content)
         destination+quri
+    ==
+  ::
+  ++  bundles
+    |=  =bundles:d
+    %-  frond
+    :*  %bundles
+        %a
+        %+  turn 
+          ~(tap by bundles)
+        |=  [o=origin:d =bundle:d]
+        %-  pairs
+        :~  origin+(origin o)
+            :*  %bundle
+              %a
+              %+  turn  (tap:on-bu bundle)
+              |=  [t=@da n=notification:d]
+              ^-  json
+              %-  pairs 
+              :~  time+(numb (unm:chrono:userlib t))
+                  notification+(notification n)
+              ==
+            ==
+        ==
     ==
   --
 ::

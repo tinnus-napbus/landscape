@@ -165,7 +165,27 @@
 ::
 ++  on-agent  on-agent:def
 ++  on-leave  on-leave:def
-++  on-peek  on-peek:def  :: TODO scry endpoints & bundling logic
+++  on-peek
+:: TODO scry endpoints & bundling logic
+  |=  =(pole knot)
+  ^-  (unit (unit cage))
+  ?+    pole  [~ ~]
+      [%x %bundle %unread ~]
+    =/  dip-res=[=bundles unread=(mop time id)]
+    %^  dip:on-id  unread  ~
+      |=  [=bundles =time =id]
+      ^-  [(unit ^id) ? bundles]
+      ?~  got=(~(get by all) id)
+        [~ | bundles]
+      ?~  got-origin=(~(get by bundles) origin.u.got)
+        :*  `id  | 
+          (~(put by bundles) origin.u.got (gas:on-bu *((mop time notification)) ~[time^u.got]))]
+        ==
+      :*  `id  |
+        (~(put by bundles) origin.u.got (put:on-bu u.got-origin time u.got))
+      ==
+    ``ding-bundles+!>(bundles.dip-res)
+  ==
 ++  on-arvo  on-arvo:def
 ++  on-fail  on-fail:def
 --
