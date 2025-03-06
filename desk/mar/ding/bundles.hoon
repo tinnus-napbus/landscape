@@ -1,14 +1,14 @@
-/-  d=ding
-/+  j=ding-json
-|_  bundles=bundles:d
+/-  *ding
+/+  *ding
+|_  bun=bundles
 ++  grad  %noun
 ++  grow
   |%
-  ++  noun  bundles
-  ++  json  (bundles:enjs:j bundles)
+  ++  noun  bun
+  ++  json  (bundles:enjs bun)
   --
 ++  grab
   |%
-  ++  noun  bundles:d
+  ++  noun  bundles
   --
 --

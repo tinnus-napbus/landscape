@@ -21,8 +21,7 @@
   ==
 ::  $destination: where to link to in FE
 ::
-+$  destination  quri
-+$  quri  ~
++$  destination  quri:eyre
 ::  $notification: individual notification
 ::
 +$  notification

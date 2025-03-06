@@ -7,12 +7,12 @@
 +$  state-0
   $:  %0
       all=(map id notification)
-      unread=(mop time id)
-      read=(mop time id)
+      unread=((mop time id) gte)
+      read=((mop time id) gte)
   ==
 +$  card  card:agent:gall
-+$  on-id  ((on time id) gte)
-+$  on-bu  ((on time notification) gte)
+++  on-id  ((on time id) gte)
+++  on-bu  ((on time notification) gte)
 --
 ::
 %-  agent:dbug
@@ -20,10 +20,10 @@
 =*  state  -
 ^-  agent:gall
 =<
-|_  bol=bowl:gall
+|_  =bowl:gall
 +*  this  .
-    def   ~(. (default-agent this %.n) bol)
-    hc    ~(. +> bol)
+    def   ~(. (default-agent this %.n) bowl)
+    hc    ~(. +> bowl)
 ++  on-init  on-init:def
 ++  on-save  !>(state)
 ++  on-load
@@ -35,32 +35,34 @@
   |=  [=mark =vase]
   ^-  (quip card _this)
   ?>  =(our.bowl src.bowl)
-  ?>  ?=(%ding mark)
+  ?>  ?=(%ding-action mark)
   =+  !<  act=action  vase
   ?-    act
       [%create *]
     ?:  (~(has by all) id.act)  (on-poke:def mark vase)
     =/  n=notification  [unique +.act]
     =.  all  (~(put by all) id.act n)
-    =.  unread  (put:orm unread:hc time.n id.n)
+    =.  unread  (put:on-id unread time.n id.n)
+    =/  paths=(list path)  (origin-to-paths:hc origin.act) 
     :_  this
-    [%give %fact (origin-to-paths:hc origin.act) dong+!>(`update`[%new n])]~
+    [%give %fact paths ding-update+!>(`update`[%new n])]~
   ::
       [%read *]
     ?~  nut=(~(get by all) id.act)
       `this
     ?.  (has:on-id unread time.u.nut)
       `this
-    =.  unread  (del:on-id unread time.u.nut)
+    =.  unread  +:(del:on-id unread time.u.nut)
     =.  read  (put:on-id read time.u.nut id.act)
+    =/  paths=(list path)  (origin-to-paths:hc origin.u.nut)
     :_  this
-    [%give %fact (origin-to-paths:hc origin.u.nut) dong+!>(`update`act)]~
+    [%give %fact paths ding-update+!>(`update`act)]~
   ::
       [%read-origin *]
     =^  del=(list (pair time id))  unread
-      %^  dip:on-id  unread  ~
+      %^  (dip:on-id (list (pair time id)))  unread  ~
       |=  [del=(list (pair time id)) =time =id]
-      ^-  [(unit ^id) ? (list (pair time id))]
+      ^-  [(unit ^id) ? (list (pair ^time ^id))]
       ?~  got=(~(get by all) id)
         [~ | del]
       ?.  (match-origin:hc origin.act origin.u.got)
@@ -76,7 +78,7 @@
         $(del t.del)
       =/  =card
         =/  paths=(list path)  (origin-to-paths:hc origin.u.got)
-        [%give %fact paths dong+!>(`update`[%read q.i.del])]
+        [%give %fact paths ding-update+!>(`update`[%read q.i.del])]
       $(del t.del, cards [card cards])
     [cards this]
   ::
@@ -88,7 +90,7 @@
       ?~  got=(~(get by all) id)
         ~
       =/  paths=(list path)  (origin-to-paths:hc origin.u.got)
-      `[%give %fact paths dong+!>(`update`[%read id])]
+      `[%give %fact paths ding-update+!>(`update`[%read id])]
     =.  read  (uni:on-id read unread)
     =.  unread  ~
     [cards this]
@@ -113,7 +115,7 @@
       ^-  (unit card)
       ?~  got=(~(get by all) id)
         ~
-      `[%give %fact ~ dong+!>(`update`[%new u.got])]
+      `[%give %fact ~ ding-update+!>(`update`[%new u.got])]
     ::
         [%desk @ ~]
       =/  =desk  i.t.t.path
@@ -125,11 +127,11 @@
         ~
       ?.  =(desk des.origin.u.got)
         ~
-      `[%give %fact ~ dong+!>(`update`[%new u.got])]
+      `[%give %fact ~ ding-update+!>(`update`[%new u.got])]
     ::
         [%path @ @ *]
       =/  =desk  i.t.t.path
-      =/  =path  t.t.t.path
+      =/  pax=^path  t.t.t.path
       :_  this
       %+  murn  (tap:on-id unread)
       |=  [=time =id]
@@ -137,10 +139,10 @@
       ?~  got=(~(get by all) id)
         ~
       ?.  ?&  =(desk des.origin.u.got)
-              =(path pax.origin.u.got)
+              =(pax pax.origin.u.got)
           ==
         ~
-      `[%give %fact ~ dong+!>(`update`[%new u.got])]
+      `[%give %fact ~ ding-update+!>(`update`[%new u.got])]
     ::
         [%group @ @ ~]
       =/  =ship  (slav %p i.t.t.path)
@@ -151,40 +153,61 @@
       ^-  (unit card)
       ?~  got=(~(get by all) id)
         ~
-      ?~  gop.u.origin.got
+      ?~  gop.origin.u.got
         ~
       ?.  ?&  =(ship p.u.gop.origin.u.got)
               =(name q.u.gop.origin.u.got)
           ==
         ~
-      `[%give %fact ~ dong+!>(`update`[%new u.got])]
+      `[%give %fact ~ ding-update+!>(`update`[%new u.got])]
     ::
-    :: TODO channels
+        [%channel @ @ @ ~]
+      =/  app=term  i.t.t.path
+      =/  =ship  (slav %p i.t.t.t.path)
+      =/  name=term  i.t.t.t.t.path
+      :_  this
+      %+  murn  (tap:on-id unread)
+      |=  [=time =id]
+      ^-  (unit card)
+      ?~  got=(~(get by all) id)
+        ~
+      ?~  can.origin.u.got
+        ~
+      ?.  =([~ app ship name] can.origin.u.got)
+        ~
+      `[%give %fact ~ ding-update+!>(`update`[%new u.got])]
     ==
   ==
 ::
 ++  on-agent  on-agent:def
 ++  on-leave  on-leave:def
 ++  on-peek
-:: TODO scry endpoints & bundling logic
-  |=  =(pole knot)
+  |=  =path
   ^-  (unit (unit cage))
-  ?+    pole  [~ ~]
-      [%x %bundle %unread ~]
-    =/  dip-res=[=bundles unread=(mop time id)]
-    %^  dip:on-id  unread  ~
-      |=  [=bundles =time =id]
-      ^-  [(unit ^id) ? bundles]
-      ?~  got=(~(get by all) id)
-        [~ | bundles]
-      ?~  got-origin=(~(get by bundles) origin.u.got)
-        :*  `id  | 
-          (~(put by bundles) origin.u.got (gas:on-bu *((mop time notification)) ~[time^u.got]))]
-        ==
-      :*  `id  |
-        (~(put by bundles) origin.u.got (put:on-bu u.got-origin time u.got))
-      ==
-    ``ding-bundles+!>(bundles.dip-res)
+  ?+    path  [~ ~]
+      [%x %bundles %unread ~]
+    :^  ~  ~  %ding-bundles
+    !>  ^-  bundles
+    %+  roll  (tap:on-id unread)
+    |=  [[=time =id] =bundles]
+    ?~  got=(~(get by all) id)
+      bundles
+    ?~  b-got=(~(get by bundles) origin.u.got)
+      (~(put by bundles) origin.u.got (put:on-bu *bundle time u.got))
+    (~(put by bundles) origin.u.got (put:on-bu u.b-got time u.got))
+  ::
+      [%x %bundles %read @ @ ~]
+    :^  ~  ~  %ding-bundles
+    !>  ^-  bundles
+    =/  after=@da   (slav %da i.t.t.t.path)
+    =/  max=@ud    (slav %ud i.t.t.t.t.path)
+    %+  roll  (tab:on-id read `after max)
+    |=  [[=time =id] =bundles]
+    ?~  got=(~(get by all) id)
+      bundles
+    ?~  b-got=(~(get by bundles) origin.u.got)
+      (~(put by bundles) origin.u.got (put:on-bu *bundle time u.got))
+    (~(put by bundles) origin.u.got (put:on-bu u.b-got time u.got))
   ==
 ++  on-arvo  on-arvo:def
 ++  on-fail  on-fail:def
@@ -192,8 +215,8 @@
 ::
 |_  =bowl:gall
 ++  unique
-  ^-  @da
-  ?.  |((has:on-id unread now.bowl) (has:on-bu read now.bowl))
+  |-  ^-  @da
+  ?.  |((has:on-id unread now.bowl) (has:on-id read now.bowl))
     now.bowl
   $(now.bowl (add now.bowl ~s1))
 ::
@@ -201,11 +224,11 @@
   |=  =origin
   ^-  (list path)
   =/  paths=(list path)
-    :~  [%desk des.origin ~]
-        [%all ~]
+    :~  /desk/[des.origin]
+        /all
     ==
   =?  paths  ?=(^ pax.origin)
-    :_  paths  [%path des.origin pax.origin ~]
+    :_  paths  [%path des.origin pax.origin]
   =?  paths  ?=(^ gop.origin)
     :_  paths  [%group (scot %p p.u.gop.origin) q.u.gop.origin ~]
   =?  paths  ?=(^ can.origin)
@@ -218,7 +241,7 @@
   paths
 ::
 ++  match-origin
-  |=  a=origin b=origin
+  |=  [a=origin b=origin]
   ^-  ?
   ?.  =(des.a des.b)
     |

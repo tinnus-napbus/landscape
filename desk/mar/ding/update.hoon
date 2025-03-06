@@ -1,14 +1,15 @@
-/-  d=ding
-/+  j=ding-json
-|_  upd=update:d
+/-  *ding
+/+  *ding
+|_  upd=update
 ++  grad  %noun
 ++  grow
   |%
   ++  noun  upd
-  ++  json  (update:enjs:j upd)
+  ++  json  (update:enjs upd)
   --
 ++  grab
   |%
-  ++  noun  update:d
+  ++  noun  update
+  ++  json  update:dejs
   --
 --

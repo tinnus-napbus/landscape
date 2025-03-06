@@ -1,15 +1,15 @@
-/-  d=ding
-/+  j=ding-json
-|_  action=action:d
-++  grad  %noun
+/-  *ding
+/+  *ding
+|_  act=action
 ++  grow
   |%
-  ++  noun  action
-  ++  json  (action:enjs:j action)
+  ++  noun  act
+  ++  json  (action:enjs act)
   --
 ++  grab
   |%
-  ++  noun  action:d
-  ++  json  action:dejs:j
+  ++  noun  action
+  ++  json  action:dejs
   --
+++  grad  %noun
 --

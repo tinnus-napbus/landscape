@@ -44,7 +44,12 @@
       %emph  (frond emph+s+p.c)
     ==
   ::
-  ++  quri  ~
+  ++  quri
+    |=  =quri:eyre
+    ^-  json
+    ?:  -.quri
+      (frond ext+s+(crip (apex:en-purl:html quri)))
+    (frond int+s+(crip (apex:en-purl:html quri)))
   ::
   ++  update
     |=  upd=update:d
@@ -57,7 +62,7 @@
   ++  notification
     |=  n=notification:d
     %-  pairs
-    :~  time+(time time.n)
+    :~  time+s+(scot %da time.n)
         id+s+(scot %uv id.n)
         origin+(origin origin.n)
         contents+a+(turn contents.n content)
@@ -66,26 +71,21 @@
   ::
   ++  bundles
     |=  =bundles:d
-    %-  frond
-    :*  %bundles
-        %a
-        %+  turn 
-          ~(tap by bundles)
-        |=  [o=origin:d =bundle:d]
-        %-  pairs
-        :~  origin+(origin o)
-            :*  %bundle
-              %a
-              %+  turn  (tap:on-bu bundle)
-              |=  [t=@da n=notification:d]
-              ^-  json
-              %-  pairs 
-              :~  time+(numb (unm:chrono:userlib t))
-                  notification+(notification n)
-              ==
-            ==
-        ==
-    ==
+    %+  frond  %bundles
+    :-  %a
+    %+  turn  ~(tap by bundles)
+    |=  [o=origin:d =bundle:d]
+    %-  pairs
+    :~  origin+(origin o)
+        :-  %bundle
+        :-  %a
+        %+  turn  (tap:on-bu bundle)
+        |=  [t=@da n=notification:d]
+        ^-  json
+        %-  pairs 
+        :~  time+(scot %da t)
+            notification+(notification n)
+    ==  ==
   --
 ::
 ++  dejs
@@ -117,6 +117,7 @@
         group+(mu flag)
         channel+(mu nest)
     ==
+  ::
   ++  flag  flag:dejs:groups-json
   ++  nest  nest:dejs:groups-json
   ++  ship  ship:dejs:groups-json
@@ -132,7 +133,12 @@
         emph+so
     ==
   ::
-  ++  quri  ul
-  ::
+  ++  quri
+    |=  j=json
+    ^-  quri:eyre
+    %-  of
+    :~  ext+(su zest:de-purl:html)
+        int+(su zest:de-purl:html)
+    ==
   --
 --
