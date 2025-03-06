@@ -20,7 +20,7 @@
     :~  id+s+(scot %uv id)
         origin+(origin o)
         contents+a+(turn c content)
-        destination+quri
+        destination+(quri d)
     ==
   ::
   ++  origin
@@ -45,11 +45,11 @@
     ==
   ::
   ++  quri
-    |=  =quri:eyre
+    |=  d=destination:d
     ^-  json
-    ?:  -.quri
-      (frond ext+s+(crip (apex:en-purl:html quri)))
-    (frond int+s+(crip (apex:en-purl:html quri)))
+    ?:  -.d
+      (frond ext+s+(crip (apex:en-purl:html d)))
+    (frond int+s+(crip (apex:en-purl:html d)))
   ::
   ++  update
     |=  upd=update:d
@@ -66,7 +66,7 @@
         id+s+(scot %uv id.n)
         origin+(origin origin.n)
         contents+a+(turn contents.n content)
-        destination+quri
+        destination+(quri destination.n)
     ==
   ::
   ++  bundles
@@ -77,14 +77,15 @@
     |=  [o=origin:d =bundle:d]
     %-  pairs
     :~  origin+(origin o)
-        :-  %bundle
-        :-  %a
-        %+  turn  (tap:on-bu bundle)
-        |=  [t=@da n=notification:d]
-        ^-  json
-        %-  pairs 
-        :~  time+(scot %da t)
-            notification+(notification n)
+        :*  %bundle
+            %a
+          %+  turn  (tap:on-bu bundle)
+          |=  [t=@da n=notification:d]
+          ^-  json
+          %-  pairs 
+          :~  time+s+(scot %da t)
+              notification+(notification n)
+        ==
     ==  ==
   --
 ::
@@ -92,7 +93,7 @@
   =,  dejs:format
   |%
   ++  action
-    ^-  $-(json action:d)
+    :: ^-  $-(json action:d)
     (of action-tags)
   ::
   ++  action-tags
@@ -135,7 +136,7 @@
   ::
   ++  quri
     |=  j=json
-    ^-  quri:eyre
+    :: ^-  destination:d
     %-  of
     :~  ext+(su zest:de-purl:html)
         int+(su zest:de-purl:html)

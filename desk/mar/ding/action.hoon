@@ -1,6 +1,7 @@
 /-  *ding
 /+  *ding
 |_  act=action
+++  grad  %noun
 ++  grow
   |%
   ++  noun  act
@@ -11,5 +12,4 @@
   ++  noun  action
   ++  json  action:dejs
   --
-++  grad  %noun
 --
