@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { ErrorAlert } from '../../components/ErrorAlert';
 import { useGroups } from './groups';
 import Notification from './Notification';
+import DingNotificationItem from './DingNotification';
 import { useNotifications } from './useNotifications';
 import { useSawSeamMutation } from '@/state/hark';
 import { Spinner } from '@/components/Spinner';
@@ -63,6 +64,8 @@ export const Notifications = () => {
   const navigate = useNavigate();
   const { notifications, count, loaded } = useNotifications();
   const groups = useGroups();
+  
+  console.log(notifications, count)
 
   return (
     <ErrorBoundary
@@ -76,7 +79,7 @@ export const Notifications = () => {
         </div>
         <section className="w-full">
           {loaded ? (
-            notifications.length === 0 ? (
+            count === 0 ? (
               <div className="mt-3 flex w-full items-center justify-center">
                 <span className="text-base font-semibold text-gray-400">
                   No notifications
@@ -92,11 +95,20 @@ export const Notifications = () => {
                     {grouping.date}
                   </h2>
                   <ul className="space-y-2">
-                    {grouping.skeins.map((b) => (
-                      <li key={b.time}>
-                        <Notification bin={b} groups={groups} />
+                    {grouping.notifications.map((item) => {
+                      console.log('item', item)
+                      return(
+                      <li key={item.time}>
+                        <DingNotificationItem 
+                          firstNotification={item.firstNotification} 
+                          bundleWithOrigin={item.bundleWithOrigin}
+                          allNotifications={item.allNotifications}
+                          count={item.count}
+                          groups={groups}
+                        />
                       </li>
-                    ))}
+                      )}
+                    )}
                   </ul>
                 </div>
               ))
