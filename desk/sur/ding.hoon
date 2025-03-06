@@ -22,6 +22,7 @@
 ::  $destination: where to link to in FE
 ::
 +$  destination  quri
++$  quri  ~
 ::  $notification: individual notification
 ::
 +$  notification
