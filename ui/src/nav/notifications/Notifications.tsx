@@ -1,16 +1,17 @@
 import cn from 'classnames';
 import React, { useEffect, useCallback, useState, useRef } from 'react';
-import React, { useEffect, useCallback, useState, useRef } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import { useNavigate } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 import { ErrorAlert } from '../../components/ErrorAlert';
 import { useGroups } from './groups';
 import NotificationItem from './Notification';
-import { useNotifications, useReadNotifications, oldestInGrouping, DayGrouping, organizeGroupings } from './useNotifications';
+import { useNotifications, useReadNotifications, oldestInGrouping, DayGrouping, organizeGroupings, groupBundlesByDate } from './useNotifications';
 import { useReadAll } from '@/state/hark';
 import { Spinner } from '@/components/Spinner';
 import { useIsMobile } from '@/logic/useMedia';
 import { randomIntInRange } from '@/logic/utils';
+import { Bundles } from '@/gear';
 
 interface MarkAsReadProps {
   unreads: boolean;
@@ -19,10 +20,7 @@ interface MarkAsReadProps {
 function MarkAsRead({ unreads }: MarkAsReadProps) {
   const isMobile = useIsMobile();
   const { mutate: readAll, isLoading } = useReadAll();
-  const { mutate: readAll, isLoading } = useReadAll();
   const markAllRead = useCallback(() => {
-    readAll();
-  }, [readAll]);
     readAll();
   }, [readAll]);
 
@@ -64,13 +62,14 @@ function NotificationPlaceholder() {
 }
 
 export const Notifications = React.memo(() => {
-export const Notifications = React.memo(() => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const groups = useGroups();
   const { new: newBundles, countNew, loaded } = useNotifications();
   
-  const readNotificationsRef = useRef<DayGrouping[]>([]) 
-  const [oldestNote, setOldest] = useState('~')
+  const readNotificationsRef = useRef<DayGrouping[]>([])
+
+  const [oldestNote, setOldestNote] = useState('~')
   const [hasMore, setHasMore] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [pageNum, setPageNum] = useState(0);
@@ -79,166 +78,236 @@ export const Notifications = React.memo(() => {
   const { read, count: countRead, loaded: readLoaded } = useReadNotifications(oldestNote);
 
   useEffect(() => {
-    console.log('useEffect initial render', read, countRead, read !== readNotificationsRef.current)
-    if (oldestNote === '~' && countRead > 0 && read !== readNotificationsRef.current) {
-      console.log('Initial load, setting notifications:', read);
-      readNotificationsRef.current = read;
-      setHasMore(countRead >= 30);
+    queryClient.removeQueries({
+      predicate: (query) => {
+        return Array.isArray(query.queryKey) && 
+              query.queryKey[0] === 'bundles-read';
+      }
+    });
+  }, []);
+
+
+  useEffect(() => {
+    if (oldestNote === '~' && countRead > 0 && read.length > 0) {
+      readNotificationsRef.current = [...read];
+      setHasMore(countRead === 50);
     }
 
-  }, [read, countRead]);
+  }, [read, countRead, oldestNote]);
   
   // Create refs last, consistently
   const lastNotificationRef = useRef<HTMLLIElement | null>(null);
-
-  // Keep track of processed data to avoid infinite loops
-  //const processedDataRef = useRef(new Set());
-  
-  // Use a stateful variable to detect changes in the read data
   const readDataRef = useRef<DayGrouping[]>([]);
+  const refreshedQueryRef = useRef<string[]>([])
   
   // Handle additional data loading after getting data for pagination
   useEffect(() => {
-    console.log('loadingMore useEffect', read, loadingMore, pageNum)
-    // Don't run if not loading more or no data
-    if (!loadingMore || pageNum === 0) {
-      return;
-    }
-    
-    // Create a stable identifier for this data batch
-    console.log('alredy in read?', read === readDataRef.current)
-    // Skip if we haven't gotten new data since last time
-    if (read === readDataRef.current) {
-      return;
-    }
-    
-    // Store this data to avoid reprocessing
-    readDataRef.current = read;
-    
-    console.log('New data received for page:', pageNum);
-    
-    if (read && read.length > 0) {
-      // Safely update with functional update to avoid stale data
-      const prev = readNotificationsRef.current;
-      //setAllReadNotifications(prev => {
-        // Get existing notification IDs to avoid duplicates
-        const existingIds = new Set();
-        prev.forEach(group => {
-          group.notifications.forEach(item => {
-            item.allNotifications.forEach(n => {
-              existingIds.add(n.id);
-            });
-          });
-        });
-        
-        // Check for any new IDs
-        let hasNewItems = false;
-
-        read.forEach(group => {
-          group.notifications.forEach(bundle => {
-            bundle.allNotifications.forEach(note =>{
-              if (!existingIds.has(note.id)) {
-                hasNewItems = true;
-              }
-            })
-          });
-        });
-        
-        if (hasNewItems) {
-          // console.log('Adding new notifications to list');
-          // console.log([...prev, ...read])
-          const grouped = organizeGroupings([...prev, ...read])
-          console.log('organizedGroupings', grouped)
-          readNotificationsRef.current = grouped;
-        } else {
-          console.log('No new notifications found');
-          //readNotificationsRef.current = prev;
-        }
-      
-      // Update load more flag based on count
-      setHasMore(countRead >= 30);
-    } else {
-      // No more notifications
+  const isPaginationData = oldestNote !== '~';
+  
+  // Always process data when we have it, regardless of loading state
+  // This ensures we capture data from both loadMore and cache invalidation
+  if (read?.length === 0) {
+    if (hasMore && isPaginationData) {
+      console.log('No data but hasMore is true, setting hasMore to false', read);
+      setLoadingMore(false);
       setHasMore(false);
     }
+  }
+  
+  if (isPaginationData && refreshedQueryRef.current.length === 0) {
     
-    // Always clear loading state
-    setLoadingMore(false);
-  }, [loadingMore, pageNum]);
+    // For pagination data, always merge with existing
+    // Store the current notifications to merge with
+    const prev = readNotificationsRef.current || [];
+    
+    const existingIds = new Set();
+    prev.forEach(group => {
+      group.notifications.forEach(item => {
+        item.allNotifications.forEach(n => {
+          existingIds.add(n.id);
+        });
+      });
+    });
+
+    let hasNewData = false;
+    read.forEach(group => {
+      group.notifications.forEach(item => {
+        item.allNotifications.forEach(n => {
+          if (!existingIds.has(n.id)) {
+            hasNewData = true;
+          }
+        });
+      });
+    });
+    
+    if (hasNewData) {
+      setLoadingMore(false)
+
+      const merged = organizeGroupings([...prev, ...read]);
+      
+      // Store the merged result
+      readNotificationsRef.current = merged;
+      
+      setHasMore(countRead === 50);
+    } else {
+      console.log('No new notification IDs detected, skipping merge');
+    }
+  } else if (oldestNote === '~') {
+    // For initial data, replace existing data
+    readDataRef.current = [...read];
+    
+    if (readNotificationsRef.current.length === 0) {
+      readNotificationsRef.current = [...read];
+    } else {
+      const merged = organizeGroupings([...read]);
+      readNotificationsRef.current = merged;
+    }
+    
+    setHasMore(countRead === 50);
+  } 
+}, [loadingMore, pageNum, read, countRead, oldestNote, hasMore, refreshedQueryRef]);
 
   // Function to load more notifications
   const loadMoreNotifications = useCallback(() => {
-    console.log('loadMore notifications', hasMore && !loadingMore && readNotificationsRef.current.length > 0)
-    if (hasMore && !loadingMore && readNotificationsRef.current.length > 0) {
-      const oldest = oldestInGrouping(readNotificationsRef.current);
+
+    // Only proceed if we have more to load and we're not already loading
+    if (!hasMore) {
+      return;
+    }
+    
+    if (loadingMore) {
+      return;
+    }
+    
+    if (readNotificationsRef.current.length === 0) {
+      return;
+    }
+
+    // Get the oldest notification for the next batch
+    const oldest = oldestInGrouping(readNotificationsRef.current);
+    
+    if (!oldest) {
+      setHasMore(false);
+      return;
+    }
+
+    // Set loading state and trigger fetch
+    setLoadingMore(true);
+    setPageNum(prev => prev + 1);
+    setOldestNote(oldest.toString())
+    
+  }, [hasMore, loadingMore, readNotificationsRef.current.length]);
+
+const isInLoadingCycleRef = React.useRef(false);
+
+  // Listen for cache invalidation events
+useEffect(() => {
+  
+  const unsubscribe = queryClient.getQueryCache().subscribe(event => {
+    // The correct event types from React Query
+    if (event.type === 'updated') {
+      const queryKey = event.query.queryKey;
       
-      if (oldest) {
-        console.log('Loading more with oldest timestamp:', oldest);
+      if (Array.isArray(queryKey) && queryKey[0] === 'bundles-read-since') {
+          
+        // Get bundle data from the event
+        const readBundles = event.query.state.data && 'bundles' in event.query.state.data 
+          ? event.query.state.data.bundles as Bundles 
+          : [] as Bundles;
         
-        // Get the oldest timestamp for the next batch
-        //const timestampStr = oldest.toString();
+          
+        isInLoadingCycleRef.current = true;
+        const data = groupBundlesByDate({bundles: readBundles, isUnread: false});
+        const merged = organizeGroupings([...data]);
+        readNotificationsRef.current = merged;
         
-        // Update ref with new timestamp
-        setOldest(oldest.toString())
-        //oldestDateRef.current = timestampStr;
         
-        // Update state to trigger data loading
-        setPageNum(prev => prev + 1);
-        console.log('pageNum', pageNum)
-        setLoadingMore(true);
+        setLoadingMore(false);
+        refreshedQueryRef.current = [];
+        isInLoadingCycleRef.current = false;
       }
     }
-  }, [hasMore, loadingMore, readNotificationsRef.current]);
+  });
+    
+  return () => {
+    // Clean up the subscription
+    unsubscribe();
+  };
+}, [queryClient, oldestNote, loadingMore, refreshedQueryRef]);
 
-  // Intersection Observer to detect when we've scrolled to the bottom
-  // useEffect(() => {
-  //   const observer = new IntersectionObserver(
-  //     (entries) => {
-  //       const [entry] = entries;
-  //       if (entry.isIntersecting && hasMore && !loadingMore) {
-  //         console.log('loading more')
-  //         loadMoreNotifications();
-  //       }
-  //     },
-  //     { threshold: 0.5 }
-  //   );
-
-  //   const currentRef = lastNotificationRef.current;
-  //   if (currentRef) {
-  //     observer.observe(currentRef);
-  //   }
-
-  //   return () => {
-  //     if (currentRef) {
-  //       observer.unobserve(currentRef);
-  //     }
-  //   };
-  // }, [hasMore, loadingMore, lastNotificationRef.current]);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const [entry] = entries;
-        if (entry.isIntersecting && hasMore && !loadingMore) {
-          loadMoreNotifications();
-        }
-      },
-      { threshold: 0.5 }
-    );
+const fetchMoreData = async () => {
+  if (!hasMore || loadingMore) return Promise.resolve(); // Don't fetch if there's no more data or already loading
   
-    const currentRef = lastNotificationRef.current;
-    if (currentRef) {
-      observer.observe(currentRef);
+  try {
+    loadMoreNotifications();
+    
+    return Promise.resolve();
+  } catch (error) {
+    console.error('Error fetching more data:', error);
+    return Promise.reject(error);
+  }
+};
+
+useEffect(() => {
+  // Setup infinite scroll
+  const cleanup = setupInfiniteScroll(fetchMoreData);
+  
+  // Clean up when component unmounts
+  return cleanup;
+}, [hasMore, loadingMore]);
+
+function setupInfiniteScroll(loadMoreFunction: () => Promise<any>) {
+  const threshold = 200;
+  let isLoading = false;
+  
+  const scrollContainer = document.querySelector('.h-full.overflow-y-scroll');
+  
+  if (!scrollContainer) {
+    console.error('Scroll container not found');
+    return () => {};
+  }
+  
+  const checkIfShouldLoadMore = () => {
+    // Calculate position
+    const scrollTop = scrollContainer.scrollTop;
+    const scrollHeight = scrollContainer.scrollHeight;
+    const clientHeight = scrollContainer.clientHeight;
+    
+    // If content doesn't fill the container or we're near the bottom
+    if (!isLoading && (
+      scrollHeight <= clientHeight || 
+      scrollTop + clientHeight >= scrollHeight - threshold
+    )) {
+      isLoading = true;
+      
+      // Call your load more function
+      loadMoreFunction()
+        .then(() => {
+          isLoading = false;
+          
+          setTimeout(() => {
+            if (scrollHeight <= clientHeight) {
+              checkIfShouldLoadMore();
+            }
+          }, 100);
+        })
+        .catch(error => {
+          console.error('Error loading more content:', error);
+          isLoading = false;
+        });
     }
-  
-    return () => {
-      if (currentRef) {
-        observer.unobserve(currentRef);
-      }
-    };
-  }, [hasMore, loadingMore]); // Only trigger when hasMore or loadingMore changes
-  
+  };
 
+  setTimeout(checkIfShouldLoadMore, 100);
+  
+  const handleScroll = () => checkIfShouldLoadMore();
+  scrollContainer.addEventListener('scroll', handleScroll);
+  
+  // Return a cleanup function to remove the event listener
+  return () => {
+    scrollContainer.removeEventListener('scroll', handleScroll);
+  };
+}
 
   return (
     <ErrorBoundary
@@ -249,12 +318,10 @@ export const Notifications = React.memo(() => {
         <div className="mb-4 flex w-full items-center justify-between">
           <h2 className="text-xl font-semibold">All Notifications</h2>
           <MarkAsRead unreads={countNew > 0} />
-          <MarkAsRead unreads={countNew > 0} />
         </div>
         <section className="w-full">
           {loaded ? (
-            countNew + countRead === 0 ? (
-            countNew + countRead === 0 ? (
+            countNew + (readNotificationsRef.current?.length > 0 ? 1 : 0) === 0 ? (
               <div className="mt-3 flex w-full items-center justify-center">
                 <span className="text-base font-semibold text-gray-400">
                   No notifications
@@ -265,13 +332,7 @@ export const Notifications = React.memo(() => {
               {countNew > 0 && 
                 (newBundles?.map((grouping, index) => (
                   <div
-            ) : ( 
-              <>
-              {countNew > 0 && 
-                (newBundles?.map((grouping, index) => (
-                  <div
                   className="mb-4 rounded-xl bg-gray-50 p-4"
-                  key={index}
                   key={index}
                 >
                   <h2 className="mb-4 text-lg font-bold text-gray-400">
@@ -281,13 +342,7 @@ export const Notifications = React.memo(() => {
                     {grouping.notifications.map((item) => {
                       const isLastItem = index === grouping.notifications.length - 1 && 
                       index === countRead
-                      const isLastItem = index === grouping.notifications.length - 1 && 
-                      index === countRead
                       return(
-                      <li key={item.firstNotification.id}
-                          ref={isLastItem ? lastNotificationRef : null}
-                          className="bg-blue-50 rounded-xl"
-                      >
                       <li key={item.firstNotification.id}
                           ref={isLastItem ? lastNotificationRef : null}
                           className="bg-blue-50 rounded-xl"
@@ -296,7 +351,7 @@ export const Notifications = React.memo(() => {
                           firstNotification={item.firstNotification}
                           isUnread={item.isUnread}
                           allNotifications={item.allNotifications}
-                          count={item.count}
+                          count={item.allNotifications.length}
                           groups={groups}
                         />
                       </li>
@@ -306,43 +361,7 @@ export const Notifications = React.memo(() => {
                 </div>
                 ))
               )}
-              {countRead > 0 && 
-              (readNotificationsRef.current?.map((grouping, index) => (
-                <div
-                className="mb-4 rounded-xl bg-gray-50 p-4"
-                key={index}
-              >
-                <h2 className="mb-4 text-lg font-bold text-gray-400">
-                  {grouping.date}
-                </h2>
-                <ul className="space-y-2">
-                  {grouping.notifications.map((item) => {
-                    const isLastItem = index === readNotificationsRef.current.length - 1 && 
-                    grouping.notifications.indexOf(item) === grouping.notifications.length - 1
-                    return(
-                    <li key={item.firstNotification.id}
-                        ref={isLastItem ? lastNotificationRef : null}
-                        className="bg-white rounded-xl"
-                    >
-                      <NotificationItem 
-                        firstNotification={item.firstNotification}
-                        isUnread={item.isUnread}
-                        allNotifications={item.allNotifications}
-                        count={item.count}
-                        groups={groups}
-                      />
-                    </li>
-                    )}
-                  )}
-                </ul>
-              </div>
-              ))
-            )}
-            </>
-          )) : (
-                ))
-              )}
-              {countRead > 0 && 
+              {readNotificationsRef.current?.length > 0 && 
               (readNotificationsRef.current?.map((grouping, index) => (
                 <div
                 className="mb-4 rounded-xl bg-gray-50 p-4"
@@ -386,13 +405,7 @@ export const Notifications = React.memo(() => {
             <Spinner className="h-6 w-6" />
           </div>
         )}
-        {loadingMore && (
-          <div className="flex justify-center items-center p-4">
-            <Spinner className="h-6 w-6" />
-          </div>
-        )}
       </div>
     </ErrorBoundary>
   );
-});
 });

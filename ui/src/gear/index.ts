@@ -12,6 +12,8 @@ export * as docket from './docket';
 export * from './docket';
 export * as utils from './utils';
 export * from './utils';
+export * from './ding';
+export * as ding from './ding';
 
 // TODO: Userspace Permissions
 // export * from './permissions';
