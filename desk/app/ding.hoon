@@ -13,6 +13,7 @@
 +$  card  card:agent:gall
 ++  on-id  ((on time id) gte)
 ++  on-bu  ((on time notification) gte)
+++  api-version  0
 --
 ::
 %-  agent:dbug
@@ -100,6 +101,8 @@
   |=  =path
   ^-  (quip card _this)
   ?>  =(our.bowl src.bowl)
+  ?>  ?=([%'0' *] path)
+  =>  .(path t.path)
   ?+    path  (on-watch:def path)
       [%all ~]            `this
       [%desk @ ~]         `this
@@ -107,7 +110,8 @@
       [%group @ @ ~]      `this
       [%channel @ @ @ ~]  `this
       [%init *]
-    ?+    t.path  (on-watch:def path)
+    =>  .(path t.path)
+    ?+    path  (on-watch:def path)
         [%all ~]
       :_  this
       %+  murn  (tap:on-id unread)
@@ -118,7 +122,7 @@
       `[%give %fact ~ ding-update+!>(`update`[%new u.got])]
     ::
         [%desk @ ~]
-      =/  =desk  i.t.t.path
+      =/  =desk  i.t.path
       :_  this
       %+  murn  (tap:on-id unread)
       |=  [=time =id]
@@ -130,8 +134,8 @@
       `[%give %fact ~ ding-update+!>(`update`[%new u.got])]
     ::
         [%path @ @ *]
-      =/  =desk  i.t.t.path
-      =/  pax=^path  t.t.t.path
+      =/  =desk  i.t.path
+      =/  pax=^path  t.t.path
       :_  this
       %+  murn  (tap:on-id unread)
       |=  [=time =id]
@@ -145,8 +149,8 @@
       `[%give %fact ~ ding-update+!>(`update`[%new u.got])]
     ::
         [%group @ @ ~]
-      =/  =ship  (slav %p i.t.t.path)
-      =/  name=term  i.t.t.t.path
+      =/  =ship  (slav %p i.t.path)
+      =/  name=term  i.t.t.path
       :_  this
       %+  murn  (tap:on-id unread)
       |=  [=time =id]
@@ -162,9 +166,9 @@
       `[%give %fact ~ ding-update+!>(`update`[%new u.got])]
     ::
         [%channel @ @ @ ~]
-      =/  app=term  i.t.t.path
-      =/  =ship  (slav %p i.t.t.t.path)
-      =/  name=term  i.t.t.t.t.path
+      =/  app=term  i.t.path
+      =/  =ship  (slav %p i.t.t.path)
+      =/  name=term  i.t.t.t.path
       :_  this
       %+  murn  (tap:on-id unread)
       |=  [=time =id]
@@ -184,8 +188,12 @@
 ++  on-peek
   |=  =path
   ^-  (unit (unit cage))
+  ?:  ?=([%x %api-version ~] path)
+    ``atom+!>(api-version)
+  ?>  ?=([%x %'0' *] path)
+  =>  .(path t.t.path)
   ?+    path  [~ ~]
-      [%x %bundles %unread ~]
+      [%bundles %unread ~]
     :^  ~  ~  %ding-bundles
     !>  ^-  bundles
     %+  roll  (tap:on-id unread)
@@ -196,11 +204,11 @@
       (~(put by bundles) origin.u.got (put:on-bu *bundle time u.got))
     (~(put by bundles) origin.u.got (put:on-bu u.b-got time u.got))
   ::
-      [%x %bundles %read @ @ ~]
+      [%bundles %read @ @ ~]
     :^  ~  ~  %ding-bundles
     !>  ^-  bundles
-    =/  after=@da   (slav %da i.t.t.t.path)
-    =/  max=@ud    (slav %ud i.t.t.t.t.path)
+    =/  after=@da   (slav %da i.t.t.path)
+    =/  max=@ud    (slav %ud i.t.t.t.path)
     %+  roll  (tab:on-id read `after max)
     |=  [[=time =id] =bundles]
     ?~  got=(~(get by all) id)
