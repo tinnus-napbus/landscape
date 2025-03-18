@@ -1,10 +1,14 @@
 import cn from 'classnames';
 import React, { useEffect, useCallback, useState, useRef } from 'react';
+import React, { useEffect, useCallback, useState, useRef } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import { useNavigate } from 'react-router-dom';
 import { ErrorAlert } from '../../components/ErrorAlert';
 import { useGroups } from './groups';
 import DingNotificationItem from './DingNotification';
+import { useNotifications, useReadNotifications, oldestInGrouping, DingDayGrouping, organizeGroupings } from './useNotifications';
+import { Bundles } from '@/gear'
+import { useReadAll } from '@/state/ding';
 import { useNotifications, useReadNotifications, oldestInGrouping, DingDayGrouping, organizeGroupings } from './useNotifications';
 import { Bundles } from '@/gear'
 import { useReadAll } from '@/state/ding';
@@ -19,7 +23,10 @@ interface MarkAsReadProps {
 function MarkAsRead({ unreads }: MarkAsReadProps) {
   const isMobile = useIsMobile();
   const { mutate: readAll, isLoading } = useReadAll();
+  const { mutate: readAll, isLoading } = useReadAll();
   const markAllRead = useCallback(() => {
+    readAll();
+  }, [readAll]);
     readAll();
   }, [readAll]);
 
@@ -61,6 +68,7 @@ function NotificationPlaceholder() {
 }
 
 export const Notifications = React.memo(() => {
+export const Notifications = React.memo(() => {
   const navigate = useNavigate();
   const groups = useGroups();
   const { new: newBundles, countNew, loaded } = useNotifications();
@@ -86,7 +94,7 @@ export const Notifications = React.memo(() => {
   }, [read, countRead]);
   
   const lastNotificationRef = useRef<HTMLLIElement | null>(null);
-
+  
   // Use a stateful variable to detect changes in the read data
   const readDataRef = useRef<DingDayGrouping[]>([]);
   
@@ -138,7 +146,7 @@ export const Notifications = React.memo(() => {
         
       if (hasNewItems) {
         const grouped = organizeGroupings([...prev, ...read])
-        console.log('organizedGroupings', grouped)
+
         readNotificationsRef.current = grouped;
       } else {
         console.log('No new notifications found');
@@ -194,7 +202,6 @@ export const Notifications = React.memo(() => {
       }
     };
   }, [hasMore, loadingMore]);
-  
 
 
   return (
@@ -206,9 +213,11 @@ export const Notifications = React.memo(() => {
         <div className="mb-4 flex w-full items-center justify-between">
           <h2 className="text-xl font-semibold">All Notifications</h2>
           <MarkAsRead unreads={countNew > 0} />
+          <MarkAsRead unreads={countNew > 0} />
         </div>
         <section className="w-full">
           {loaded ? (
+            countNew + countRead === 0 ? (
             countNew + countRead === 0 ? (
               <div className="mt-3 flex w-full items-center justify-center">
                 <span className="text-base font-semibold text-gray-400">
@@ -220,7 +229,13 @@ export const Notifications = React.memo(() => {
               {countNew > 0 && 
                 (newBundles?.map((grouping, index) => (
                   <div
+            ) : ( 
+              <>
+              {countNew > 0 && 
+                (newBundles?.map((grouping, index) => (
+                  <div
                   className="mb-4 rounded-xl bg-gray-50 p-4"
+                  key={index}
                   key={index}
                 >
                   <h2 className="mb-4 text-lg font-bold text-gray-400">
@@ -230,12 +245,20 @@ export const Notifications = React.memo(() => {
                     {grouping.notifications.map((item) => {
                       const isLastItem = index === grouping.notifications.length - 1 && 
                       index === countRead
+                      const isLastItem = index === grouping.notifications.length - 1 && 
+                      index === countRead
                       return(
                       <li key={item.firstNotification.id}
                           ref={isLastItem ? lastNotificationRef : null}
                           className="bg-blue-50 rounded-xl"
                       >
+                      <li key={item.firstNotification.id}
+                          ref={isLastItem ? lastNotificationRef : null}
+                          className="bg-blue-50 rounded-xl"
+                      >
                         <DingNotificationItem 
+                          firstNotification={item.firstNotification}
+                          isUnread={item.isUnread}
                           firstNotification={item.firstNotification}
                           isUnread={item.isUnread}
                           allNotifications={item.allNotifications}
@@ -283,6 +306,42 @@ export const Notifications = React.memo(() => {
             )}
             </>
           )) : (
+                ))
+              )}
+              {countRead > 0 && 
+              (readNotificationsRef.current?.map((grouping, index) => (
+                <div
+                className="mb-4 rounded-xl bg-gray-50 p-4"
+                key={index}
+              >
+                <h2 className="mb-4 text-lg font-bold text-gray-400">
+                  {grouping.date}
+                </h2>
+                <ul className="space-y-2">
+                  {grouping.notifications.map((item) => {
+                    const isLastItem = index === readNotificationsRef.current.length - 1 && 
+                    grouping.notifications.indexOf(item) === grouping.notifications.length - 1
+                    return(
+                    <li key={item.firstNotification.id}
+                        ref={isLastItem ? lastNotificationRef : null}
+                        className="bg-white rounded-xl"
+                    >
+                      <DingNotificationItem 
+                        firstNotification={item.firstNotification}
+                        isUnread={item.isUnread}
+                        allNotifications={item.allNotifications}
+                        count={item.count}
+                        groups={groups}
+                      />
+                    </li>
+                    )}
+                  )}
+                </ul>
+              </div>
+              ))
+            )}
+            </>
+          )) : (
             new Array(15)
               .fill(true)
               .map((_, i) => <NotificationPlaceholder key={i} />)
@@ -293,7 +352,13 @@ export const Notifications = React.memo(() => {
             <Spinner className="h-6 w-6" />
           </div>
         )}
+        {loadingMore && (
+          <div className="flex justify-center items-center p-4">
+            <Spinner className="h-6 w-6" />
+          </div>
+        )}
       </div>
     </ErrorBoundary>
   );
+});
 });

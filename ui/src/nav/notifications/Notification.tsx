@@ -43,9 +43,9 @@ interface NotificationTrigger {
 }
 
 function makePrettyTime(date: Date) {
-  // Add validation to ensure we have a valid date
+
   if (!date || isNaN(date.getTime())) {
-    return '--:--'; // Return placeholder if date is invalid
+    return '--:--';
   }
   return format(date, 'HH:mm');
 }

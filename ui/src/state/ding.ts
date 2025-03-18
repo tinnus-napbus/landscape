@@ -8,8 +8,17 @@ import {
   Origin,
   Content,
   Destination
+  BundleWithOrigin,
+  Id,
+  DingUpdate,
+  DingAction,
+  Origin,
+  Content,
+  Destination
 } from '@/gear';
 import useReactQuerySubscription from '@/logic/useReactQuerySubscription';
+import useReactQueryScry from '@/logic/useReactQueryScry';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import useReactQueryScry from '@/logic/useReactQueryScry';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { SettingsState } from './settings';
@@ -27,9 +36,21 @@ function dingAction(action: DingAction) {
     json: action,
   };
 }
+import api from '@/api';
+
+
+function dingAction(action: DingAction) {
+  return {
+    app: 'ding',
+    mark: 'ding-action',
+    json: action,
+  };
+}
 
 export function useBundles() {
   const queryClient = useQueryClient();
+  const { data: dataNew, ...restNew } = useReactQuerySubscription<Bundles, DingUpdate>({
+    queryKey: ['bundles-unread'],
   const { data: dataNew, ...restNew } = useReactQuerySubscription<Bundles, DingUpdate>({
     queryKey: ['bundles-unread'],
     app: 'ding',
@@ -40,6 +61,13 @@ export function useBundles() {
       retry: 1,
     },
     onEvent: (event) => {
+
+      if (!('new' in event) && !('read' in event)) {
+        return;
+      }
+
+      if ('read' in event) {
+        queryClient.invalidateQueries(['bundles-read']);
 
       if (!('new' in event) && !('read' in event)) {
         return;
@@ -61,6 +89,7 @@ export function useBundles() {
 
       if (Notification.permission === 'granted') {
         //TODO: chenge this logic to ding update
+        makeBrowserNotification(event['new']);
         makeBrowserNotification(event['new']);
       }
       if (Notification.permission === 'default') {
@@ -113,7 +142,52 @@ export function useBundlesRead(date: string){
   const readBundles = dataRead && 'bundles' in dataRead ? dataRead.bundles as Bundles : [] as Bundles;
 
 
+  if (restNew.isLoading || restNew.isError) {
+    return {
+      newBundles: [] as Bundles,
+      ...restNew,
+    };
+  }
+
+  const newBundles = dataNew && 'bundles' in dataNew ? dataNew.bundles as Bundles : [] as Bundles;
+
+
   return {
+    newBundles: newBundles as Bundles,
+    ...restNew,
+  };
+}
+
+export function useBundlesRead(date: string){
+  // Track if this is a pagination request
+  const isPagination = date !== '~';
+
+
+  console.log('scy at', `/bundles/read/${date}/30`)
+  // Include date in query key to differentiate between requests
+  const { data: dataRead, ...rest } = useReactQueryScry<Bundles>({
+    queryKey: ['bundles-read', date], // Include date in query key
+    app: 'ding',
+    path: `/bundles/read/${date}/30`,
+    options: {
+      refetchOnMount: !isPagination,
+      retry: 1,
+      refetchOnWindowFocus: false
+    }
+  })
+
+  if (rest.isLoading || rest.isError) {
+    return {
+      read: {} as Bundles,
+      ...rest,
+    };
+  }
+
+  const readBundles = dataRead && 'bundles' in dataRead ? dataRead.bundles as Bundles : [] as Bundles;
+
+
+  return {
+    read: readBundles as Bundles,
     read: readBundles as Bundles,
     ...rest,
   };
@@ -129,7 +203,7 @@ export function useReadOrigin(){
   return useMutation(mutationFn, {
     onMutate: async () => {
       await queryClient.cancelQueries(['bundles-read']);
-      await queryClient.cancelQueries(['bundles-un;read']);
+      await queryClient.cancelQueries(['bundles-unread']);
     },
     onSettled: async (_data, _error) => {
       await queryClient.invalidateQueries(['bundles-read']);
@@ -157,7 +231,7 @@ export function useReadId(){
       await queryClient.invalidateQueries(['bundles-unread']);
     },
   });
-};
+  };
 
 export function useReadAll(){
   const queryClient = useQueryClient();
