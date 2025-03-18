@@ -40,7 +40,7 @@
   ?-    act
       [%create *]
     ?:  (~(has by all) id.act)  (on-poke:def mark vase)
-    =/  n=notification  [unique +.act]
+    =/  n=notification  [unique:hc +.act]
     =.  all  (~(put by all) id.act n)
     =.  unread  (put:on-id unread time.n id.n)
     =/  paths=(list path)  (origin-to-paths:hc origin.act) 
@@ -199,9 +199,9 @@
       [%x %bundles %read @ @ ~]
     :^  ~  ~  %ding-bundles
     !>  ^-  bundles
-    =/  after=@da   (slav %da i.t.t.t.path)
+    =/  after=(unit @da)  (di:dejs-soft:format [%n p=i.t.t.t.path])
     =/  max=@ud    (slav %ud i.t.t.t.t.path)
-    %+  roll  (tab:on-id read `after max)
+    %+  roll  (tab:on-id read after max)
     |=  [[=time =id] =bundles]
     ?~  got=(~(get by all) id)
       bundles

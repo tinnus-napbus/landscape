@@ -1,11 +1,10 @@
-import {
-  Yarn,
-  isYarnEmph,
-  isYarnShip,
+import { 
+  isNoteEmph, 
+  isNoteShip, 
+  Notification as DingNotification, 
   Docket,
   DocketHref,
-  Treaty,
-} from '@/gear';
+  Treaty, } from '@/gear'
 import { findLast } from 'lodash';
 import { hsla, parseToHsla, parseToRgba } from 'color2k';
 import _ from 'lodash';
@@ -108,21 +107,21 @@ export function isColor(color: string): boolean {
   }
 }
 
-export const makeBrowserNotification = (yarn: Yarn) => {
-  const rope = yarn.rope;
+export const makeBrowserNotification = (notification: DingNotification) => {
+  const origin = notification.origin;
   // need to capitalize desk name
-  const app = rope
-    ? rope?.desk.slice(0, 1).toUpperCase() + rope?.desk.slice(1)
+  const app = origin
+    ? origin?.desk.slice(0, 1).toUpperCase() + origin?.desk.slice(1)
     : '';
-  const { con } = yarn;
-  const ship = con.find(isYarnShip)?.ship || '';
-  const emph = con.find(isYarnEmph)?.emph || '';
-  const emphLast = findLast(con, isYarnEmph)?.emph || '';
-  const content = isYarnEmph(con[2]) ? '' : con[2] || '';
+  const { contents } = notification;
+  const ship = contents.find(isNoteShip)?.ship || '';
+  const emph = contents.find(isNoteEmph)?.emph || '';
+  const emphLast = findLast(contents, isNoteEmph)?.emph || '';
+  const content = isNoteEmph(contents[2]) ? '' : contents[2] || '';
 
   try {
     new Notification(`Landscape: ${app}`, {
-      body: `${ship ? ship : emph}${con[1]}${emphLast} ${content}`,
+      body: `${ship ? ship : emph}${contents[1]}${emphLast} ${content}`,
     });
   } catch (error) {
     console.error(error);
@@ -135,14 +134,24 @@ export function isNewNotificationSupported() {
 }
 
 export function makePrettyDay(date: Date) {
-  const diff = differenceInDays(endOfToday(), date);
-  switch (diff) {
-    case 0:
-      return 'Today';
-    case 1:
-      return 'Yesterday';
-    default:
-      return `${format(date, 'LLLL')} ${format(date, 'do')}`;
+  // Validate the date before processing
+  if (!date || !(date instanceof Date) || isNaN(date.getTime())) {
+    return 'Unknown Date';
+  }
+  
+  try {
+    const diff = differenceInDays(endOfToday(), date);
+    switch (diff) {
+      case 0:
+        return 'Today';
+      case 1:
+        return 'Yesterday';
+      default:
+        return `${format(date, 'LLLL')} ${format(date, 'do')}`;
+    }
+  } catch (error) {
+    console.error('Error formatting date:', error);
+    return 'Unknown Date';
   }
 }
 

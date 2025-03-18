@@ -62,7 +62,7 @@
   ++  notification
     |=  n=notification:d
     %-  pairs
-    :~  time+s+(scot %da time.n)
+    :~  time+(time time.n)
         id+s+(scot %uv id.n)
         origin+(origin origin.n)
         contents+a+(turn contents.n content)
@@ -83,7 +83,7 @@
           |=  [t=@da n=notification:d]
           ^-  json
           %-  pairs 
-          :~  time+s+(scot %da t)
+          :~  time+(time t)
               notification+(notification n)
         ==
     ==  ==
@@ -93,30 +93,48 @@
   =,  dejs:format
   |%
   ++  action
-    :: ^-  $-(json action:d)
+    ^-  $-(json action:d)
     (of action-tags)
   ::
   ++  action-tags
-    :~  create+create
+    :~  
         read+(ot ~[id+(se %uv)])
-        read-origin+origin
+        read-origin+org
         read-all+ul
+        create+create-note
     ==
   ::
-  ++  create
+  ++  update
+    (of update-tags)
+  ::
+  ++  update-tags
+    :~  new+notification
+        read+(ot ~[id+(se %uv)])
+    ==
+  ::
+  ++  create-note
     %-  ot
     :~  id+(se %uv)
-        origin+origin
+        origin+org
         contents+(ar content)
         destination+quri
     ==
   ::
-  ++  origin 
+  ++  org
     %-  ot
-    :~  desk+(se %tas)
+    :~  desk+so
         path+pa
         group+(mu flag)
         channel+(mu nest)
+    ==
+  ::
+  ++  notification
+    %-  ot
+    :~  time+di
+        id+(se %uv)
+        origin+org
+        contents+(ar content)
+        destination+(+:quri)
     ==
   ::
   ++  flag  flag:dejs:groups-json
@@ -135,11 +153,10 @@
     ==
   ::
   ++  quri
-    |=  j=json
-    :: ^-  destination:d
-    %-  of
-    :~  ext+(su zest:de-purl:html)
-        int+(su zest:de-purl:html)
+    %-  of 
+    :~
+      ext+(su zest:de-purl:html)
+      int+(su zest:de-purl:html)
     ==
   --
 --

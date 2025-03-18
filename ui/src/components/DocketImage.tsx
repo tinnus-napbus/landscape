@@ -13,7 +13,7 @@ interface DocketImageProps extends Pick<Docket, 'color' | 'image'> {
 const sizeMap: Record<DocketImageSizes, string> = {
   xs: 'w-6 h-6 mr-2 rounded',
   small: 'w-8 h-8 mr-3 rounded-md',
-  default: 'w-12 h-12 mr-3 rounded-lg',
+  default: 'w-12 h-12 rounded-lg',
   full: 'w-20 h-20 md:w-32 md:h-32 rounded-2xl'
 };
 

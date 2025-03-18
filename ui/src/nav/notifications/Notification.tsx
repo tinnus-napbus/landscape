@@ -43,6 +43,10 @@ interface NotificationTrigger {
 }
 
 function makePrettyTime(date: Date) {
+
+  if (!date || isNaN(date.getTime())) {
+    return '--:--';
+  }
   return format(date, 'HH:mm');
 }
 
@@ -295,7 +299,7 @@ export default function Notification({ bin, groups }: NotificationProps) {
       <div className="flex-none">
         <div className="flex items-center">
           <span className="font-semibold text-gray-400">
-            {makePrettyTime(new Date(bin.time))}
+            {makePrettyTime(bin.time ? new Date(bin.time) : new Date())}
           </span>
         </div>
       </div>
