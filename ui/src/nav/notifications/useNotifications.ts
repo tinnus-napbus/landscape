@@ -1,37 +1,12 @@
-<<<<<<< HEAD
 import { useMemo, useRef } from 'react';
 import { useBundles, useBundlesRead } from '@/state/hark';
 import _ from 'lodash';
 import { Bundles, Origin, Notification } from '@/gear'
-=======
-import { useMemo } from 'react';
-import { useSkeins } from '@/state/hark';
-import { useBundles } from '@/state/ding';
-import _ from 'lodash';
-import { Rope, Skein, Yarn } from '@/gear';
-import { Bundles, BundleWithOrigin, Notification as DingNotification } from '@/gear'
->>>>>>> 9bf1795 (scry and subscribtion to /all in FE)
 import { makePrettyDay } from '@/logic/utils';
 
 export interface DayGrouping {
   date: string;
-<<<<<<< HEAD
   notifications: GroupingNotification[];
-=======
-  latest: number;
-}
-
-export interface DingDayGrouping {
-  date: string;
-  latest: number;
-  notifications: {
-    bundleWithOrigin: BundleWithOrigin;
-    firstNotification: DingNotification;
-    time: string;
-    allNotifications: DingNotification[];
-    count: number;
-  }[];
->>>>>>> 9bf1795 (scry and subscribtion to /all in FE)
 }
 
 export interface GroupingNotification {
@@ -41,10 +16,8 @@ export interface GroupingNotification {
     allNotifications: Notification[];
     count: number;
     day: string;
-    day: string;
 }
 
-<<<<<<< HEAD
 export function oldestInGrouping(groupings: DayGrouping[]): number | null {
   if (!groupings || groupings.length === 0) {
     return null;
@@ -75,113 +48,11 @@ export function oldestInGrouping(groupings: DayGrouping[]): number | null {
     }
   }
   
-  console.log('Found oldest time:', foundValidTime ? oldestTime : 'none');
   return foundValidTime ? oldestTime : null;
 }
-=======
-function groupBundlesByDate(bundles: Bundles): DingDayGrouping[] {
-  if (!bundles) {
-    return [];
-  }
-  
-  const bundlesArray = Array.isArray(bundles) ? bundles : 
-    (bundles && typeof bundles === 'object' && 'bundles' in bundles && Array.isArray(bundles.bundles)) ? 
-    bundles.bundles : [];
-  
-  if (bundlesArray.length === 0) {
-    return [];
-  }
-  
-  const transformedBundles = bundlesArray.map(bundleWithOrigin => {
-    if (bundleWithOrigin.bundle.length === 0) {
-      return null;
-    }
-    
-    // First bundle notification
-    const firstBundle = bundleWithOrigin.bundle[0];
-    
-    let validTime = firstBundle.time;
-    try {
-      const testDate = new Date(validTime);
-      if (isNaN(testDate.getTime())) {
-        validTime = new Date().toISOString();
-      }
-    } catch (error) {
-      validTime = new Date().toISOString();
-    }
-    
-    // Keep all notifications for this origin
-    const allNotifications = bundleWithOrigin.bundle.map(b => b.notification);
-    
-    return {
-      bundleWithOrigin,
-      firstNotification: firstBundle.notification,
-      time: validTime,
-      allNotifications,
-      count: bundleWithOrigin.bundle.length
-    };
-  }).filter(Boolean);
-
-  const groups = _.groupBy(transformedBundles, item => {
-    try {
-      if (!item.time) {
-        return 'Unknown Date';
-      }
-      
-      const date = new Date(item.time);
-      if (isNaN(date.getTime())) {
-        return 'Unknown Date';
-      }
-      
-      return makePrettyDay(date);
-    } catch (error) {
-      console.error('Error grouping by date:', error);
-      return 'Unknown Date';
-    }
-  });
-
-  return Object.entries(groups)
-    .map(([k, v]) => {
-      const firstItem = _.head(v);
-      const latestTime = firstItem?.time ? new Date(firstItem.time).getTime() : 0;
-      
-      return {
-        date: k,
-        latest: isNaN(latestTime) ? 0 : latestTime,
-        notifications: v.sort((a, b) => {
-          // Safely get timestamps for sorting
-          const timeA = a.time ? new Date(a.time).getTime() : 0;
-          const timeB = b.time ? new Date(b.time).getTime() : 0;
-          
-          return (isNaN(timeB) ? 0 : timeB) - (isNaN(timeA) ? 0 : timeA);
-        }),
-      };
-    })
-    .sort((a, b) => b.latest - a.latest);
-}
-
-function countNotifications(bundles: Bundles): number {
-  if (!bundles) {
-    return 0;
-  }
-
-  const bundlesArray = Array.isArray(bundles) ? bundles : 
-    (bundles && typeof bundles === 'object' && 'bundles' in bundles && Array.isArray(bundles.bundles)) ? 
-    bundles.bundles : [];
-  
-  return bundlesArray.reduce((total, bundleItem) => {
-    return total + (bundleItem.bundle?.length || 0);
-  }, 0);
-}
-
-
-export const isMention = (yarn: Yarn) =>
-  yarn.con.some((con) => con === ' mentioned you :');
->>>>>>> 9bf1795 (scry and subscribtion to /all in FE)
 
 
 export function groupBundlesByDate({bundles, isUnread}: {bundles: Bundles, isUnread: boolean}): DayGrouping[] {
-  console.log('bundles', bundles);
 
   if (!bundles || bundles.length === 0) {
     return [];
@@ -192,7 +63,6 @@ export function groupBundlesByDate({bundles, isUnread}: {bundles: Bundles, isUnr
   
   bundles.forEach(bundleWithOrigin => {
     if (bundleWithOrigin.bundle.length === 0) {
-      return;
       return;
     }
     
@@ -205,7 +75,6 @@ export function groupBundlesByDate({bundles, isUnread}: {bundles: Bundles, isUnr
     
     // For each day, create a separate bundle entry but preserve origin
     Object.entries(notificationsByDay).forEach(([day, dayBundles]) => {
-      console.log('day', day)
       // Sort the day's bundles by time (newest first)
       const sortedDayBundles = _.sortBy(dayBundles, bundle => 
         -(bundle.notification.time || 0)
@@ -240,32 +109,38 @@ export function groupBundlesByDate({bundles, isUnread}: {bundles: Bundles, isUnr
     };
   });
 
-<<<<<<< HEAD
   return sortGroupingsByDate(groupings);
 }
 
+// Extract the date sorting logic for reuse
 function sortGroupingsByDate(groupings: DayGrouping[]): DayGrouping[] {
-
+  // Helper function to get numeric value for date strings for comparison
   const getDateValue = (dateString: string): number => {
     const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    today.setHours(0, 0, 0, 0); // Set to beginning of day
+    
+    // Handle "Today"
     if (dateString.toLowerCase() === 'today') {
       return today.getTime();
     }
     
+    // Handle "Yesterday" 
     if (dateString.toLowerCase() === 'yesterday') {
       const yesterday = new Date(today);
       yesterday.setDate(today.getDate() - 1);
       return yesterday.getTime();
     }
     
+    // Handle "Month Day" format (like "March 12th")
     const monthDayMatch = dateString.match(/^([A-Za-z]+)\s+(\d+)(st|nd|rd|th)?$/);
     if (monthDayMatch) {
       const monthName = monthDayMatch[1];
       const day = parseInt(monthDayMatch[2], 10);
       
+      // Get current year (assume recent dates)
       const year = today.getFullYear();
       
+      // Convert month name to month number (0-11)
       const months = [
         'january', 'february', 'march', 'april', 'may', 'june',
         'july', 'august', 'september', 'october', 'november', 'december'
@@ -278,6 +153,7 @@ function sortGroupingsByDate(groupings: DayGrouping[]): DayGrouping[] {
       if (monthIndex !== -1) {
         const date = new Date(year, monthIndex, day);
         
+        // If this date is in the future, it's probably from last year
         if (date > today) {
           date.setFullYear(year - 1);
         }
@@ -292,9 +168,11 @@ function sortGroupingsByDate(groupings: DayGrouping[]): DayGrouping[] {
       return fallbackDate.getTime();
     }
     
+    // If all else fails, return a very old date to sort it at the end
     return 0;
   };
 
+  // Sort groupings by date (newest first)
   return groupings.sort((a, b) => {
     const valueA = getDateValue(a.date);
     const valueB = getDateValue(b.date);
@@ -332,6 +210,7 @@ export function organizeGroupings(groupings: DayGrouping[]): DayGrouping[] {
     });
   });
   
+  // Use the shared sortGroupingsByDate function for date sorting
   return sortGroupingsByDate(organizedGroupings);
 }
 
@@ -340,8 +219,6 @@ export function countNotifications(bundles: Bundles): number {
   if (!bundles) {
     return 0;
   }
-  
-  return bundles.reduce((total, bundleItem) => {
   
   return bundles.reduce((total, bundleItem) => {
     return total + (bundleItem.bundle?.length || 0);
@@ -359,9 +236,7 @@ export const isReply = (notification: Notification) =>
   notification.contents.some((con) => con === ' replied to your message “');
 
 export const isDM = (origin: Origin) => origin.path.startsWith('/dm');
-export const isDM = (origin: Origin) => origin.path.startsWith('/dm');
 
-export const isClub = (origin: Origin) => origin.path.startsWith('/club');
 export const isClub = (origin: Origin) => origin.path.startsWith('/club');
 
 export const isGroups = (origin: Origin) => origin.desk === 'groups';
@@ -376,66 +251,29 @@ export function countGroupingNotifications(grouping: DayGrouping) {
 
 export const useNotifications = () => {
   const {newBundles: newBundles, status: bundleStatus} = useBundles()
-=======
-export const useNotifications = (mentionsOnly = false) => {
-  const {data: bundles, status: bundleStatus} = useBundles()
->>>>>>> 9bf1795 (scry and subscribtion to /all in FE)
 
   return useMemo(() => {
     if (bundleStatus !== 'success') {
       return {
-<<<<<<< HEAD
         new: [],
         countNew: 0,
-        new: [],
-        countNew: 0,
-=======
-        notifications: [],
-        mentions: [],
-        count: 0,
->>>>>>> 9bf1795 (scry and subscribtion to /all in FE)
         loaded: bundleStatus === 'error',
       };
     }
 
-<<<<<<< HEAD
 
-    const groupedNewNotifications = newBundles ? groupBundlesByDate({bundles: newBundles, isUnread: true}) : [];
 
     const groupedNewNotifications = newBundles ? groupBundlesByDate({bundles: newBundles, isUnread: true}) : [];
 
     return {
-      new: groupedNewNotifications,
-      countNew: newBundles ? countNotifications(newBundles) : 0,
       new: groupedNewNotifications,
       countNew: newBundles ? countNotifications(newBundles) : 0,
       loaded: bundleStatus === 'success' || bundleStatus === 'error',
     };
   }, [newBundles, bundleStatus]);
-=======
-    const totalNotifications = bundles ? countNotifications(bundles) : 0;
-    const groupedNotifications = bundles ? groupBundlesByDate(bundles) : [];
-
-    return {
-      notifications: groupedNotifications,
-      mentions: null,
-      count: totalNotifications,
-      loaded: bundleStatus === 'success' || bundleStatus === 'error',
-    };
-  }, [bundles, mentionsOnly, bundleStatus]);
->>>>>>> 9bf1795 (scry and subscribtion to /all in FE)
 };
 
 export const useReadNotifications = (date: string) => {
-  // Use ref to track the last date we've processed
-  const lastDateRef = useRef('');
-  
-  // Early bailout if date hasn't changed
-  if (lastDateRef.current === date) {
-  } else {
-    lastDateRef.current = date;
-  }
-  
   // Skip processing if no valid date
   if (!date || date === '') {
     return {
@@ -445,11 +283,16 @@ export const useReadNotifications = (date: string) => {
     };
   }
 
+  // Force the date to be a direct value
   const actualDate = String(date);
+  console.log('fetching bundles at:', actualDate)
   
+  // Call useBundlesRead with query option to not refetch unnecessarily
   const {read: readBundles, status: bundleStatus} = useBundlesRead(actualDate);
 
-
+  
+  // Process results without memoization
+  // This code will run on every render, but the actual API call is controlled by React Query
   if (bundleStatus !== 'success') {
     return {
       read: [],

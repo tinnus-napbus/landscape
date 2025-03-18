@@ -144,6 +144,14 @@
   ++  flag  (su ;~((glue fas) ;~(pfix sig fed:ag) sym))
   ++  nest  (su ;~((glue fas) sym ;~(pfix sig fed:ag) sym))
   ++  ship  (se %p)
+  ++  notification
+    %-  ot
+    :~  time+di
+        id+(se %uv)
+        origin+org
+        contents+(ar content)
+        destination+(+:quri)
+    ==
   ::
   ++  content
     |=  j=json
