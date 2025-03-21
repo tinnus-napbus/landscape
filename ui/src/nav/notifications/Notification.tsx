@@ -34,7 +34,7 @@ interface NotificationContentProps {
 
 function makePrettyTime(date: Date) {
   if (!date || isNaN(date.getTime())) {
-    return '--:--';
+    return '--:--'; // Return placeholder if date is invalid
   }
   return format(date, 'HH:mm');
 }

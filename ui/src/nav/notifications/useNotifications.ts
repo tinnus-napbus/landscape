@@ -289,10 +289,7 @@ export const useReadNotifications = (date: string) => {
   
   // Call useBundlesRead with query option to not refetch unnecessarily
   const {read: readBundles, status: bundleStatus} = useBundlesRead(actualDate);
-
   
-  // Process results without memoization
-  // This code will run on every render, but the actual API call is controlled by React Query
   if (bundleStatus !== 'success') {
     return {
       read: [],
