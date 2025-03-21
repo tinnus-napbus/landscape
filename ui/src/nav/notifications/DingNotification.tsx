@@ -60,12 +60,17 @@ function makePrettyTime(date: Date) {
 
 
 const NotificationContext: React.FC<NotificationContextProps> = ({origin, groups}) => {
+  const charge = useCharge('groups')
+  const app = getAppName(charge);
 
   if(origin.group !=  null){
     return(
       <div className="flex items-center space-x-2 text-gray-400">
         <span className="font-bold text-gray-400">
-          {origin.desk} • {groups?.[origin.group]?.meta?.title}
+          {app} 
+          {groups?.[origin.group]?.meta?.title && 
+            ` • ${groups?.[origin.group]?.meta?.title}`
+          }
         </span>
       </div>
     )
@@ -73,15 +78,15 @@ const NotificationContext: React.FC<NotificationContextProps> = ({origin, groups
   if(origin.group !=  null && origin.channel != null){
     return (
       <div className="flex items-center space-x-2 text-gray-400">
-        <span className="font-bold text-gray-400">{origin.desk} • {groups?.[origin.group]?.meta?.title}:{' '}
+        <span className="font-bold text-gray-400">{app} • {groups?.[origin.group]?.meta?.title}:{' '}
             {groups?.[origin.group]?.channels?.[origin.channel]?.meta?.title}
           </span>
       </div>
     )
   }
   if(origin.desk != null){
-    const charge = useCharge('groups')  //(origin.desk ?? '');
-    const app = getAppName(charge);
+    // const charge = useCharge('groups')  //(origin.desk ?? '');
+    // const app = getAppName(charge);
 
     return (
       <div className="flex items-center space-x-2 text-gray-400">
@@ -240,7 +245,7 @@ const NotificationContent: React.FC<NotificationContentProps>  = ({channel, cont
   }
 
   return (
-    <p className="leading-5 text-gray-800 line-clamp-2">
+    <p className="leading-5 text-gray-800 line-clamp-2 w-80">
       {_.map(contents, (c: Content) => renderContent(c))}
     </p>
     );
@@ -254,9 +259,11 @@ export const DingNotificationItem: React.FC<DingNotificationProps> = ({
   count, 
   groups
 }) => {
-  const [expanded, setExpanded] = useState(false);
+  const expandedRef = useRef(false);
+  const [expanded, setExpanded] = useState(expandedRef.current);
   const { mutate: readOrigin } = useReadOrigin();
   const { mutate: readId } = useReadId();
+  const [currentCount, setCurrentCount] = useState(count)
 
   const isMounted = useRef(true);
   const ship = firstNotification.contents.find(isNoteShip)?.ship
@@ -276,18 +283,26 @@ export const DingNotificationItem: React.FC<DingNotificationProps> = ({
   }, [expanded]);
   
 
-  const onOriginClick = useCallback(() => {
+  const onOriginClick = useCallback((e) => {
+    e.preventDefault();
+    e.stopPropagation();
     let origin = firstNotification.origin
     readOrigin({ origin });
   }, [firstNotification?.origin, readOrigin]);
 
   const onNotificationClick = useCallback((id) => {
-    readId({ id });
-  }, [readId]);
-
-  const unread = () => {
-    console.log('unread!')
-  }
+    readId({ id },
+        {onSuccess: () => {
+            console.log('on read of single notification, array length is ', currentCount)
+            if(currentCount > 2){
+                setCurrentCount(currentCount - 1)
+                setExpanded(expandedRef.current);
+            }else{
+                setExpanded(false);
+            }
+        }}
+    );
+  }, [readId, currentCount]);
   
   return (
     <div>
@@ -301,63 +316,74 @@ export const DingNotificationItem: React.FC<DingNotificationProps> = ({
         )}
       >
         <DeskLink
-          onClick={isUnread ? () => onOriginClick() : unread}
+          onClick={isUnread ? (e) => onOriginClick(e) : undefined}
           to={firstNotification.destination}
-          desk={firstNotification.origin.desk || ''}
-          className="flex flex-1 space-x-3"
+          desk={'groups'}
+          // desk={firstNotification.origin.desk || ''}
+          className="flex-col flex-1 space-x-3"
         >
-          <div className="relative flex-none self-start">
-            {firstNotification.origin.group != null ?
-              <GroupAvatar image={groups?.[firstNotification.origin.group]?.meta?.image} />
-              : 
-              (() => {
-                const charge = useCharge('groups');
-                return <DocketImage {...charge} size="default" />;
-              })()
-            }
-          </div>
-          <div className="w-full flex-col space-y-2">
-            <NotificationContext origin={firstNotification.origin} groups={groups}/>
-          {firstNotification.contents && firstNotification.contents.length > 0 ? (
-            <div className="flex space-x-2 items-center">
-                {firstNotification.contents.find(isNoteShip)?.ship ?  
-                <Avatar
-                  shipName={firstNotification.contents.find(isNoteShip)?.ship ?? ''}
-                  size="xs" 
-                /> :  <></>
+          <div className="flex space-x-2">
+            <div className="relative flex-none self-start">
+              {firstNotification.origin.group != null ?
+                <GroupAvatar image={groups?.[firstNotification.origin.group]?.meta?.image} />
+                : 
+                (() => {
+                  const charge = useCharge('groups');
+                  return <DocketImage {...charge} size="default" />;
+                })()
+              }
+            </div>
+            <div className="flex-col space-y-0.5 w-full">
+              <div className="w-full flex justify-between space-x-2 pl-1.5 pr-1">
+                <NotificationContext origin={firstNotification.origin} groups={groups}/>
+                <div className="flex items-center">
+                {isUnread &&
+                  <button className="font-semibold text-gray-400" onClick={(e)=> onOriginClick(e)}>Mark as read</button>
                 }
-                <NotificationContent contents={firstNotification.contents} channel={firstNotification.origin.channel}/>
+                </div>
+              </div>
+              <div className='flex w-full justify-between pl-1.5 pt-1.5 pr-1'>
+                {firstNotification.contents && firstNotification.contents.length > 0 ? (
+                  <div className="flex space-x-2 items-center">
+                      {firstNotification.contents.find(isNoteShip)?.ship ?  
+                      <Avatar
+                        shipName={firstNotification.contents.find(isNoteShip)?.ship ?? ''}
+                        size="xs" 
+                      /> :  <></>
+                      }
+                      <NotificationContent contents={firstNotification.contents} channel={firstNotification.origin.channel}/>
+                  </div>
+                      ) : (
+                    <span className=""></span>
+                  )}
+                  <div className="flex items-center">
+                    <span className="font-semibold text-gray-400 items-end w-100">
+                      {makePrettyTime(firstNotification.time ? new Date(firstNotification.time) : new Date())}
+                    </span>
+                  </div>
+                </div>
+                {count > 1 ? (
+                    <div>
+                      <button className="text-sm font-semibold text-gray-600 p-1.5" onClick={(e)=>{
+                        e.stopPropagation();
+                        toggleExpanded(e)}}>
+                        Latest of {count} new {pluralize('message', count)}
+                      </button>
+                    </div>
+                  ) : null}
             </div>
-          ) : (
-            <span className=""></span>
-          )}
-          {count > 1 ? (
-            <div>
-              <button className="text-sm font-semibold text-gray-600" onClick={(e)=>{
-                e.stopPropagation();
-                toggleExpanded(e)}}>
-                Latest of {count} new {pluralize('message', count)}
-              </button>
-            </div>
-          ) : null}
-        </div>
-        </DeskLink>
-        <div className="flex-none">
-          <div className="flex items-center">
-            <span className="font-semibold text-gray-400">
-              {makePrettyTime(firstNotification.time ? new Date(firstNotification.time) : new Date())}
-            </span>
           </div>
-        </div>
-      </div> :
-      <div className={cn('flex space-y-1 flex-col', isUnread
+        </DeskLink>
+      </div> 
+      :
+      <div className={cn('flex flex-col rounded-xl', isUnread
         ? 'bg-blue-50 mix-blend-multiply dark:mix-blend-screen'
         : 'bg-white')}>
       {allNotifications.map((notification, index) => {
         return (
         <div
           key={index}
-          className={cn('flex space-x-3 rounded-xl px-3 pb-0 text-gray-600 transition-colors duration-1000 mix-blend-multiply dark:mix-blend-screen',
+          className={cn('flex space-x-3 rounded-xl pl-3 pb-0 text-gray-600 transition-colors duration-1000 mix-blend-multiply dark:mix-blend-screen',
             index === 0 ? 'pt-3' : 'pt-1'
           )}
         >
@@ -365,62 +391,77 @@ export const DingNotificationItem: React.FC<DingNotificationProps> = ({
             onClick={isUnread ? () => onNotificationClick(notification.id) : undefined}
             to={notification.destination}
             desk={notification.origin.desk || ''}
-            className="flex flex-1 space-x-3"
+            className="flex-col flex-1 space-x-3"
           >
-            <div className="relative flex-none self-start">
-            {index === 0 ? 
-            (notification.origin.group != null ?
-              <GroupAvatar image={groups?.[notification.origin.group]?.meta?.image} /> : 
-              (() => {
-                const charge = useCharge('groups');
-                return <DocketImage {...charge} size="default" className="mr-3"/>;
-              })()
-            ) : <div className="w-12"></div>}
-          </div>
-            <div className="w-full flex-col space-y-2">
-              {index === 0 &&
-              <NotificationContext origin={notification.origin} groups={groups}/>
-              }
-            {notification.contents && notification.contents.length > 0 ? (
-              <div className="flex space-x-2 items-center">
-                {notification.contents.find(isNoteShip)?.ship ?  
-                <Avatar
-                  shipName={notification.contents.find(isNoteShip)?.ship ?? ''}
-                  size="xs" 
-                /> :  <></>
+            <div className="flex mr-2.5">
+              <div className="relative flex-none self-start">
+                {index === 0 ? 
+                (notification.origin.group != null ?
+                  <GroupAvatar image={groups?.[notification.origin.group]?.meta?.image} /> : 
+                  (() => {
+                    const charge = useCharge('groups');
+                    return <DocketImage {...charge} size="default" className=""/>;
+                  })()
+                ) : <div className="w-12"></div>}
+              </div>
+              <div className="flex-col space-y-0.5 w-full ml-2">
+                {index === 0 &&
+                <div className="w-full flex justify-between pl-1.5 pr-1.5">
+                  <NotificationContext origin={notification.origin} groups={groups}/>
+                  <div className="flex items-center">
+                    {isUnread &&
+                      <button className="font-semibold text-gray-400" onClick={(e)=> onOriginClick(e)}>Mark as read</button>
+                    }
+                  </div>
+                </div>
                 }
-                <NotificationContent contents={notification.contents} channel={notification.origin.channel}/>
-              </div>
-            ) : (
-              <span className=""></span>
-            )}
-              {index === count-1 ? (
-                <div className='pb-3'>
-                  <button className="text-sm font-semibold text-gray-600" onClick={(e)=>{
-                    e.stopPropagation();
-                    toggleExpanded(e)}}>
-                    Show Less
-                  </button>
-                </div>
-                ) : null}
-              </div>
-              </DeskLink>
-              <div className="flex-none">
-                <div className="flex items-center space-x-2">
-                  {index === 0 &&
-                    <div className="flex items-center space-x-2">
-                      {isUnread &&
-                        <button className="font-semibold text-gray-400" onClick={()=> onOriginClick()}>Mark as read</button>
+                <div className='group flex w-full justify-between hover:bg-blue-50 rounded-md transition-colors duration-300 p-1.5 mr-1'>
+                  {notification.contents && notification.contents.length > 0 ? (
+                    <div className="flex space-x-2 items-center">
+                      {notification.contents.find(isNoteShip)?.ship ?  
+                      <Avatar
+                        shipName={notification.contents.find(isNoteShip)?.ship ?? ''}
+                        size="xs" 
+                      /> :  <></>
                       }
+                      <NotificationContent contents={notification.contents} channel={notification.origin.channel}/>
                     </div>
-                  }
-                  <span className="font-semibold text-gray-400">
-                    {makePrettyTime(notification.time ? new Date(notification.time) : new Date())}
-                  </span>
+                    ) : (
+                      <span className=""></span>
+                    )}
+                    <div className="flex items-center">
+                      <span className={`font-semibold text-gray-400 ${isUnread ? 'group-hover:hidden' : ''}`}>
+                      {makePrettyTime(notification.time ? new Date(notification.time) : new Date())}
+                      </span>
+                      {isUnread && (
+                      <button 
+                        className="font-semibold text-gray-400 hidden group-hover:block"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          onNotificationClick(notification.id);
+                        }}
+                      >
+                        Mark as read
+                      </button>
+                      )}
+                    </div>
+                  </div>
+                  {index === count-1 ? (
+                    <div className='pb-3'>
+                      <button className="text-sm font-semibold text-gray-600 p-1" onClick={(e)=>{
+                        e.stopPropagation();
+                        toggleExpanded(e)}}>
+                        Show Less
+                      </button>
+                    </div>
+                    ) 
+                  : null}
                 </div>
               </div>
-            </div>)
-      })}
+            </DeskLink>
+          </div>
+        )})}
       </div>
     }
     }

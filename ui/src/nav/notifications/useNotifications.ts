@@ -503,7 +503,7 @@ export const useReadNotifications = (date: string) => {
   const actualDate = String(date);
   
   const {read: readBundles, status: bundleStatus} = useBundlesRead(actualDate);
-  
+
 
   if (bundleStatus !== 'success') {
     return {
@@ -512,7 +512,6 @@ export const useReadNotifications = (date: string) => {
       loaded: bundleStatus === 'error' ? 'error' : false
     };
   }
-  
   const totalNotifications = readBundles ? countNotifications(readBundles) : 0;
   const groupedReadNotifications = readBundles ? 
     groupBundlesByDate({bundles: readBundles, isUnread: false}) : [];

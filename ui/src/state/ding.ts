@@ -203,7 +203,7 @@ export function useReadOrigin(){
   return useMutation(mutationFn, {
     onMutate: async () => {
       await queryClient.cancelQueries(['bundles-read']);
-      await queryClient.cancelQueries(['bundles-unread']);
+      await queryClient.cancelQueries(['bundles-un;read']);
     },
     onSettled: async (_data, _error) => {
       await queryClient.invalidateQueries(['bundles-read']);
@@ -231,7 +231,7 @@ export function useReadId(){
       await queryClient.invalidateQueries(['bundles-unread']);
     },
   });
-  };
+};
 
 export function useReadAll(){
   const queryClient = useQueryClient();

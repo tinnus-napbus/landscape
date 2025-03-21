@@ -94,7 +94,7 @@ export const Notifications = React.memo(() => {
   }, [read, countRead]);
   
   const lastNotificationRef = useRef<HTMLLIElement | null>(null);
-  
+
   // Use a stateful variable to detect changes in the read data
   const readDataRef = useRef<DingDayGrouping[]>([]);
   
@@ -146,7 +146,7 @@ export const Notifications = React.memo(() => {
         
       if (hasNewItems) {
         const grouped = organizeGroupings([...prev, ...read])
-
+        console.log('organizedGroupings', grouped)
         readNotificationsRef.current = grouped;
       } else {
         console.log('No new notifications found');
@@ -202,6 +202,7 @@ export const Notifications = React.memo(() => {
       }
     };
   }, [hasMore, loadingMore]);
+  
 
 
   return (
