@@ -39,10 +39,9 @@
 ++  on-load
   |=  old=vase
   ^-  (quip card _this)
-  =+  !<  vs=versioned-state  old
+  =+  !<  any=versioned-state  old
   =^  cards  state
-    =,  load:hc
-    abet:gain:(abed vs)
+    abet:gain:(abed any):load:hc
   [cards this]
 ::
 ++  on-poke
@@ -346,8 +345,7 @@
 ::    abet:gain:(abed any):load:hc
 ++  load
   |_  [cards=(list card) any=versioned-state]
-  ++  abed  
-  |=(v=versioned-state this(any v))
+  ++  abed  |=(v=versioned-state this(any v))
   ++  abet  ?>(?=(%1 -.any) [(flop cards) `state-1`any])
   ++  emit  |=(=card this(cards [card cards]))
   ++  this  .

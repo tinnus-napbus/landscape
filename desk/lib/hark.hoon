@@ -1,5 +1,4 @@
 /-  h=hark
-/+  groups-json
 |%
 ++  on-bu  ((on time notification:h) gte)
 ++  enjs
@@ -142,9 +141,9 @@
         destination+(+:quri)
     ==
   ::
-  ++  flag  flag:dejs:groups-json
-  ++  nest  nest:dejs:groups-json
-  ++  ship  ship:dejs:groups-json
+  ++  flag  (su ;~((glue fas) ;~(pfix sig fed:ag) sym))
+  ++  nest  (su ;~((glue fas) sym ;~(pfix sig fed:ag) sym))
+  ++  ship  (se %p)
   ::
   ++  content
     |=  j=json
