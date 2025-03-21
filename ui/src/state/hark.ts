@@ -6,7 +6,6 @@ import {
   Rope,
   Seam,
   Skein,
-  Yarn,
 } from '@/gear';
 import useReactQuerySubscription from '@/logic/useReactQuerySubscription';
 import { useMutation, useQueryClient } from '@tanstack/react-query';

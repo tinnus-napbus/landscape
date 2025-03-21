@@ -47,7 +47,7 @@ export interface DingCreate {
         id: Id;
         origin: Origin;
         contents: Content[];
-        destination: string;
+        destination: Destination;
     }
 }
 

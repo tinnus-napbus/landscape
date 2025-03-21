@@ -153,6 +153,7 @@
     ==
   ::
   ++  quri
+  %+  cu  tail
     %-  of 
     :~
       ext+(su zest:de-purl:html)
