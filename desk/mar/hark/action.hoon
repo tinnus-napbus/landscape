@@ -1,6 +1,6 @@
 /-  h=hark
 /+  j=hark-json
-|_  =action:h
+|_  =action:antique:h
 ++  grad  %noun
 ++  grow
   |%
@@ -9,7 +9,7 @@
   --
 ++  grab
   |%
-  ++  noun  action:h
+  ++  noun  action:antique:h
   ++  json  action:dejs:j
   --
 --

@@ -1,12 +1,11 @@
-/-  d=ding
-/+  groups-json
+/-  h=hark
 |%
-++  on-bu  ((on time notification:d) gte)
+++  on-bu  ((on time notification:h) gte)
 ++  enjs
   =,  enjs:format
   |%
   ++  action
-    |=  act=action:d
+    |=  act=action:h
     %+  frond  -.act
     ?-  -.act
       %create       (create-act +.act)
@@ -15,7 +14,7 @@
       %read-all     ~
     ==
   ++  create-act
-    |=  [id=id:d o=origin:d c=contents:d d=destination:d]
+    |=  [id=id:h o=origin:h c=contents:h d=destination:h]
     %-  pairs
     :~  id+s+(scot %uv id)
         origin+(origin o)
@@ -24,7 +23,7 @@
     ==
   ::
   ++  origin
-    |=  o=origin:d
+    |=  o=origin:h
     %-  pairs
     :~  desk+s+des.o
         path+s+(spat pax.o)
@@ -32,11 +31,16 @@
         channel+?~(can.o ~ s/(nest u.can.o))
     ==
   ::
-  ++  flag  flag:enjs:groups-json
-  ++  nest  nest:enjs:groups-json
+  ++  flag
+    |=  f=flag:h
+    (rap 3 (scot %p p.f) '/' q.f ~)
+  ::
+  ++  nest
+    |=  n=nest:h
+    (rap 3 p.n '/' (flag q.n) ~)
   ::
   ++  content
-    |=  c=content:d
+    |=  c=content:h
     ^-  json
     ?@  c  s/c
     ?-  -.c
@@ -52,7 +56,7 @@
     (frond int+s+(crip (apex:en-purl:html d)))
   ::
   ++  update
-    |=  upd=update:d
+    |=  upd=update:h
     %+  frond  -.upd
       ?-  -.upd
         %new   (notification +.upd)
@@ -60,7 +64,7 @@
       ==
   ::
   ++  notification
-    |=  n=notification:d
+    |=  n=notification:h
     %-  pairs
     :~  time+(time time.n)
         id+s+(scot %uv id.n)
@@ -70,17 +74,17 @@
     ==
   ::
   ++  bundles
-    |=  =bundles:d
+    |=  =bundles:h
     %+  frond  %bundles
     :-  %a
     %+  turn  ~(tap by bundles)
-    |=  [o=origin:d =bundle:d]
+    |=  [o=origin:h =bundle:h]
     %-  pairs
     :~  origin+(origin o)
         :*  %bundle
             %a
           %+  turn  (tap:on-bu bundle)
-          |=  [t=@da n=notification:d]
+          |=  [t=@da n=notification:h]
           ^-  json
           %-  pairs 
           :~  time+(time t)
@@ -93,7 +97,7 @@
   =,  dejs:format
   |%
   ++  action
-    ^-  $-(json action:d)
+    ^-  $-(json action:h)
     (of action-tags)
   ::
   ++  action-tags
@@ -143,7 +147,7 @@
   ::
   ++  content
     |=  j=json
-    ^-  content:d
+    ^-  content:h
     ?:  ?=([%s *] j)  p.j
     =>  .(j `json`j)
     %.  j

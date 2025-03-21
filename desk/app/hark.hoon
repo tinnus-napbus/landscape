@@ -1,427 +1,411 @@
-/-  h=hark
-/+  default-agent, verb, dbug
-/+  mp=mop-extensions
-::  performance, keep warm
-/+  hark-json
+/-  *hark
+/+  default-agent, dbug
 |%
-+$  card  card:agent:gall
-++  mope  ((mp @ud thread:h) lte)
-++  yarns-per-update  3
-++  rug-trim-size  10
-++  blanket-size  10   :: page size for blankets
-++  gc-interval  ~h24
-::  TODO: move to stdlib
-++  zip
-  |*  [a=(list) b=(list)]
-  ^-  (list _?>(?=(^ a) ?>(?=(^ b) [i.a i.b])))
-  ?~  a  ~
-  ?~  b  ~
-  :-  [i.a i.b]
-  $(a t.a, b t.b)
-::
-++  quilt-idx
-  |=  =quilt:h
-  ?~  tal=(ram:on:quilt:h quilt)
-    0
-  +(key.u.tal)
-::
++$  versioned-state
+  $%  state-0
+      state-1
+  ==
++$  state-1
+  $:  %1
+      all=(map id notification)
+      unread=((mop time id) gte)
+      read=((mop time id) gte)
+  ==
 +$  state-0
   $:  %0
-      yarns=(map id:h yarn:h)
-      groups=(map flag:h rug:h)
-      desks=(map desk rug:h)
-      all=rug:h
+      yarns=(map id:antique yarn:antique)
+      groups=(map flag:antique rug:antique)
+      desks=(map desk rug:antique)
+      all=rug:antique
       next-gc=@da
   ==
++$  card  card:agent:gall
+++  on-id  ((on time id) gte)
+++  on-bu  ((on time notification) gte)
+++  api-version  1
 --
+::
 %-  agent:dbug
-%+  verb  |
-=|  state-0
+=|  state-1
 =*  state  -
+^-  agent:gall
 =<
-  |_  =bowl:gall
-  +*  this  .
-      cor    ~(. +> [bowl ~])
-      def   ~(. (default-agent this %|) bowl)
-  ++  on-init
-    =^  cards  state
-      abet:set-gc-wake:cor
-    [cards this]
-  ++  on-save  !>(state)
-  ++  on-load
-    |=  =vase
-    =/  old=(unit state-0)
-      (mole |.(!<(state-0 vase)))
-    ?~  old  on-init
-    `this(state u.old)
-  ++  on-poke
-    |=  [=mark =vase]
-    =^  cards  state
-      abet:(poke:cor mark vase)
-    [cards this]
-  ++  on-watch
-    |=  =path
-    =^  cards  state
-      abet:(watch:cor path)
-    [cards this]
-  ++  on-peek  peek:cor
-  ++  on-arvo
-    |=  [=wire sign=sign-arvo]
-    =^  cards  state
-      abet:(arvo:cor wire sign)
-    [cards this]
-  ++  on-agent
-    |=  [=wire =sign:agent:gall]
-    =^  cards  state
-      abet:(agent:cor wire sign)
-    [cards this]
-  ++  on-leave  on-leave:def
-  ++  on-fail   on-fail:def
-  --
-|_  [=bowl:gall cards=(list card)]
-++  abet  [(flop cards) state]
-++  cor   .
-++  emit  |=(=card cor(cards [card cards]))
-++  poke
+|_  =bowl:gall
++*  this  .
+    def   ~(. (default-agent this %.n) bowl)
+    hc    ~(. +> bowl)
+++  on-init  on-init:def
+++  on-save  !>(state)
+++  on-load
+  |=  old=vase
+  ^-  (quip card _this)
+  =+  !<  any=versioned-state  old
+  =^  cards  state
+    abet:gain:(abed any):load:hc
+  [cards this]
+::
+++  on-poke
   |=  [=mark =vase]
-  ^+  cor
-  ?+    mark  ~|(bad-mark/mark !!)
-      %hark-action
-    =+  !<(act=action:h vase)
-    =.  cor  (give-ui act)
-    ?-  -.act
-      %saw-rope       (saw-rope rope.act)
-      %saw-seam       (saw-seam seam.act)
-      %add-yarn       (add-yarn +.act)
+  |^  ^-  (quip card _this)
+  ?>  =(our.bowl src.bowl)
+  =^  cards  state
+    ?+  mark  (on-poke:def mark vase)
+      %hark-action-2  (hark-action-2 !<(action vase))
+      %hark-action-1  (hark-action-1 !<(action-1:antique vase))
+      %hark-action    (hark-action !<(action:antique vase))
     ==
+  [cards this]
   ::
-      %hark-action-1
-    =+  !<(act=action-1:h vase)
-    ?+  -.act  $(mark %hark-action)
-        %new-yarn
-      =/  =action:h
-        :*  %add-yarn
-            all.act
-            desk.act
-            :*  (end [7 1] (shax eny.bowl))
-              rop.act
-              now.bowl
-              con.act
-              wer.act
-              but.act
-            ==
-        ==
-      $(mark %hark-action, vase !>(action))
-    ==
-  ==
-++  peek
-  |=  =(pole knot)
-  ^-  (unit (unit cage))
-  ?+    pole  [~ ~]
-  ::
-      [%x %all rest=*]  (scry-rug rest.pole all/~ all)
-  ::
-      [%x %group ship=@ name=@ rest=*]
-    =/  =ship  (slav %p ship.pole)
-    =/  =flag:h  [ship name.pole]
-    =/  =rug:h  (~(got by groups) flag)
-    (scry-rug rest.pole group/flag rug)
-  ::
-      [%x %desk desk=@ rest=*]
-    (scry-rug rest.pole desk/desk.pole (~(gut by desks) desk.pole *rug:h))
-  ::
-      [%x %yarn uid=@ ~]
-    ``hark-yarn+!>((~(got by yarns) (slav %uv uid.pole)))
-  ==
-::
-++  is-us  =(our src):bowl
-::
-++  watch
-  |=  =path
-  ^+  cor
-  ?+  path  ~|(evil-watch/path !!)
-    [%ui ~]  ?>(is-us cor)
-  ==
-::
-++  arvo
-  |=  [=wire sign=sign-arvo]
-  ^+  cor
-  ?+    wire  ~|(bad-arvo-take/wire !!)
-      [%gc ~]
-    =.  cor  stale
-    set-gc-wake
-  ==
-++  agent
-  |=  [=wire =sign:agent:gall]
-  ^+  cor
-  cor
-::
-++  scry-rug
-  |=  [=(pole knot) =seam:h =rug:h]
-  ^-  (unit (unit cage))
-  ?+    pole  [~ ~]
-      [%skeins ~]  ``hark-skeins+!>((rug-to-skeins seam rug))
-      [%latest ~]  ``hark-carpet+!>((rug-to-carpet seam rug))
-  ::
-      [%quilt idx=@ ~]
-    =/  idx  (slav %ud idx.pole)
-    ``hark-blanket+!>((rug-to-blanket seam idx rug))
-  ==
-++  rug-to-skeins
-  |=  [=seam:h =rug:h]
-  ^-  (list skein:h)
-  %+  welp
-    %+  turn
-      ~(tap by new.rug)
-    |=  [* =thread:h]
-    (thread-to-skein thread &)
-  %+  turn
-    (top:mope qul.rug blanket-size)
-  |=  [* =thread:h]
-  (thread-to-skein thread |)
-::
-++  thread-to-skein
-  |=  [=thread:h unread=?]
-  =/  yrns=(list yarn:h)
-    %+  sort
-      (turn (thread-to-yarns thread) tail)
-    |=  [a=yarn:h b=yarn:h]
-    (gth tim.a tim.b)
-  =/  top=yarn:h  (head yrns)
-  ^-  skein:h
-  :*  tim.top
-      (lent yrns)
-      (ship-count yrns)
-      top
-      unread
-  ==
-::
-++  ship-count
-  |=  yrns=(list yarn:h)
-  ^-  @ud
-  %~  wyt  in
-  %+  roll
-    yrns
-  |=  [=yarn:h ships=(set ship)]
-  %-  ~(gas in ships)
-  ^-  (list ship)
-  %+  murn
-    con.yarn
-  |=  =content:h
-  ^-  (unit ship)
-  ?@  content  ~
-  ?+  -.content  ~
-    %ship  (some p.content)
-  ==
-::
-++  rug-to-carpet
-  |=  [=seam:h =rug:h]
-  ^-  carpet:h
-  =-  [seam - new.rug (quilt-idx qul.rug)]
-  %-  ~(gas by *(map id:h yarn:h))
-  %-  zing
-  %+  turn  ~(tap by new.rug)
-  |=  [=rope:h =thread:h]
-  ^-  (list [id:h yarn:h])
-  (thread-to-yarns thread)
-  ::
-++  thread-to-yarns
-  |=  =thread:h
-  ^-  (list [id:h yarn:h])
-  %+  murn   ~(tap in thread)
-  |=  =id:h
-  ^-  (unit [id:h yarn:h])
-  ?~  yar=(~(get by yarns) id)
-    ~
-  `[id u.yar]
-::
-++  index-quilt
-  |=  [=quilt:h idx=@ud]
-  (gas:on:quilt:h *quilt:h (bat:mope quilt `idx blanket-size))
-::
-++  rug-to-blanket
-  |=  [=seam:h idx=@ud =rug:h]
-  ^-  blanket:h
-  =/  indexed
-    (index-quilt qul.rug idx)
-  =/  yarns=(map id:h yarn:h)
-    %-  ~(gas by *(map id:h yarn:h))
-    %-  zing
-    %+  turn  (tap:on:quilt:h indexed)
-    |=  [num=@ud =thread:h]
-    (thread-to-yarns thread)
-  [seam yarns indexed]
-::
-++  set-gc-wake
-  =.  next-gc  (add now.bowl gc-interval)
-  (emit %pass /gc %arvo %b %wait next-gc)
-::
-++  give-ui
-  |=  =action:h
-  ^+  cor
-  (emit %give %fact ~[/ui] hark-action+!>(action))
-::
-++  threads-to-update
-  |=  [=seam:h teds=(map @ thread:h)]
-  ^-  *
-  =-  [- seam teds]
-  ^-  (map id:h yarn:h)
-  %-  ~(gas by *(map id:h yarn:h))
-  %-  zing
-  %+  turn  ~(tap by teds)
-  |=  [=time =thread:h]
-  %+  scag  yarns-per-update
-  %+  murn  ~(tap in thread)
-  |=  =id:h
-  ^-  (unit [id:h yarn:h])
-  ?~  yar=(~(get by yarns) id)  ~
-  `[id u.yar]
-::  TODO: namespacing conflicts?
-++  saw-thread
-  |=  =rope:h
-  |=  =rug:h
-  ?~  ted=(~(get by new.rug) rope)  rug
-  =.  new.rug    (~(del by new.rug) rope)
-  =/  start  (quilt-idx qul.rug)
-  =.  qul.rug  (put:on:quilt:h qul.rug start u.ted)
-  rug
-::
-++  saw-rope
-  |=  =rope:h
-  =/  saw  (saw-thread rope)
-  =.  all  (saw all)
-  =.  desks
-    (~(jab by desks) des.rope saw)
-  =?  groups  ?=(^ gop.rope)
-    (~(jab by groups) u.gop.rope saw)
-  cor
-++  rug-to-yarns
-  |=  =rug:h
-  ^-  (map id:h yarn:h)
-  %-  ~(gas by *(map id:h yarn:h))
-  ~
-    ::^-  (list [id:h yarn:h])
-    :: %-  zing
-    :: %+  turn  ~(tap by new.rug)
-    :: |=  [=rope:h =thread:h]
-
-::  +stale: garbage collection
-::
-++  stale
-  |^
-  =/  ids  ~(key by yarns)
-  =.  ids  (~(dif in ids) (ids-for-rug all))
-  =.  ids  (~(dif in ids) ids-for-groups)
-  =.  ids  (~(dif in ids) ids-for-desks)
-  =/  ids  ~(tap in ids)
-  |-
-  ?~  ids  cor
-  $(yarns (~(del by yarns) i.ids), ids t.ids)
-  ++  trim-rug
-    |=  =rug:h
-    =*  on  on:quilt:h
-    ^+  rug
-    ?~  hed=(pry:on qul.rug)
-      rug
-    ::  TODO: bad asymptotics
-    =+  siz=(lent (tap:on qul.rug))
-    ?:  (lte siz 50)
-      rug  :: bail if not much there
-    =/  dip  (dip:on ,count=@ud)
-    =.  qul.rug
-      =<  +
-      %^  dip  qul.rug  0
-      |=  [count=@ud key=@ud =thread:h]
-      ^-  [(unit thread:h) stop=? count=@ud]
-      =-  [~ - +(count)]
-      (gte count rug-trim-size)
-    rug
-  ::
-  ++  ids-for-rug
-    |=  =rug:h
-    %-  ~(gas in *(set id:h))
-    ^-  (list id:h)
-    %+  welp
-      ^-  (list id:h)
-      %-  zing
-      %+  turn  ~(val by new.rug)
-      |=  =thread:h
-      ~(tap in thread)
-    ^-  (list id:h)
-    %-  zing
-    %+  turn  (tap:on:quilt:h qul.rug)
-    |=  [idx=@ud =thread:h]
-    ~(tap in thread)
-  ::
-  ++  ids-for-desks
-    =/  des   ~(tap in ~(key by desks))
-    =|  ids=(set id:h)
-    |-  ^+  ids
-    ?~  des  ids
-    =/  =rug:h  (~(got by desks) i.des)
-    $(ids (~(uni in ids) (ids-for-rug rug)), des t.des)
-  ::
-  ++  ids-for-groups
-    =/  gop  ~(tap in ~(key by groups))
-    =|  ids=(set id:h)
-    |-  ^+  ids
-    ?~  gop  ids
-    =/  =rug:h  (~(got by groups) i.gop)
-    $(ids (~(uni in ids) (ids-for-rug rug)), gop t.gop)
-  --
-++  saw-seam
-  |=  =seam:h
-  =/  fun
-    |=  =rug:h
-    =/  start  (quilt-idx qul.rug)
-    =/  new  ~(val by new.rug)
-    %_  rug
-        new  ~
+  ++  hark-action-2
+    |=  act=action
+    ^-  (quip card _state)
+    ?-    act
+        [%create *]
+      ?:  (~(has by all) id.act)  (on-poke:def mark vase)
+      =/  n=notification  [unique +.act]
+      =.  all  (~(put by all) id.act n)
+      =.  unread  (put:on-id unread time.n id.n)
+      =/  paths=(list path)  (origin-to-paths:hc origin.act) 
+      :_  state
+      [%give %fact paths hark-update+!>(`update`[%new n])]~
     ::
-        qul
-      %+  gas:on:quilt:h  qul.rug
-      (zip (gulf start (add start (lent new))) new)
+        [%read *]
+      ?~  nut=(~(get by all) id.act)
+        `state
+      ?.  (has:on-id unread time.u.nut)
+        `state
+      =.  unread  +:(del:on-id unread time.u.nut)
+      =.  read  (put:on-id read time.u.nut id.act)
+      =/  paths=(list path)  (origin-to-paths:hc origin.u.nut)
+      :_  state
+      [%give %fact paths hark-update+!>(`update`act)]~
+    ::
+        [%read-origin *]
+      =^  del=(list (pair time id))  unread
+        %^  (dip:on-id (list (pair time id)))  unread  ~
+        |=  [del=(list (pair time id)) =time =id]
+        ^-  [(unit ^id) ? (list (pair ^time ^id))]
+        ?~  got=(~(get by all) id)
+          [~ | del]
+        ?.  (match-origin:hc origin.act origin.u.got)
+          [`id | del]
+        [~ | [time id] del]
+      =.  read  (gas:on-id read del)
+      =/  cards=(list card)
+        =|  cards=(list card)
+        |-  ^-  (list card)
+        ?~  del
+          cards
+        ?~  got=(~(get by all) q.i.del)
+          $(del t.del)
+        =/  =card
+          =/  paths=(list path)  (origin-to-paths:hc origin.u.got)
+          [%give %fact paths hark-update+!>(`update`[%read q.i.del])]
+        $(del t.del, cards [card cards])
+      [cards state]
+    ::
+        [%read-all ~]
+      =/  cards=(list card)
+        %+  murn  (tap:on-id unread)
+        |=  [=time =id]
+        ^-  (unit card)
+        ?~  got=(~(get by all) id)
+          ~
+        =/  paths=(list path)  (origin-to-paths:hc origin.u.got)
+        `[%give %fact paths hark-update+!>(`update`[%read id])]
+      =.  read  (uni:on-id read unread)
+      =.  unread  ~
+      [cards state]
     ==
-  =.  .
-    ?-  -.seam
-      %group  .(groups (~(jab by groups) flag.seam fun))
-      %desk    .(desks (~(jab by desks) desk.seam fun))
-      %all     .(all (fun all))
+  ::
+  ++  hark-action-1
+    |=  act=action-1:antique
+    ^-  (quip card _state)
+    ?-    -.act
+        %add-yarn  (hark-action `action:antique`act)
+        %saw-seam  (hark-action `action:antique`act)
+        %saw-rope  (hark-action `action:antique`act)
+        %new-yarn
+      =/  =action
+        :*  %create
+            (end [7 1] (shax eny.bowl))
+            [des ted gop can]:rop.act
+            con.act
+            [%| `wer.act ~]
+        ==
+      (hark-action-2 action)
     ==
-  cor
+  ::
+  ++  hark-action
+    |=  act=action:antique
+    ^-  (quip card _state)
+    ?-    -.act
+        %add-yarn
+      =/  =action
+        :*  %create
+            id.yarn.act
+            [des ted gop can]:rop.yarn.act
+            con.yarn.act
+            [%| `wer.yarn.act ~]
+        ==
+      (hark-action-2 action)
+    ::
+        %saw-seam
+      =/  =action
+        ?-    -.seam.act
+            %desk   [%read-origin desk.seam.act / ~ ~]
+            %group  [%read-origin %tlon ~ `flag.seam.act ~]
+            %all    [%read-all ~]
+        ==
+      (hark-action-2 action)
+    ::
+        %saw-rope
+      =/  =action  [%read-origin des ted gop can]:rope.act
+      (hark-action-2 action)
+    ==
+  --
 ::
-++  add-yarn
-  =|  [add-all=? add-desk=? =yarn:h]
-  |%
-  ++  $
-    =.  yarns  (~(put by yarns) id.yarn yarn)
-    =.  cor  weave-all
-    =.  cor  weave-group
-    weave-desk
+++  on-watch
+  |=  =path
+  ^-  (quip card _this)
+  ?>  =(our.bowl src.bowl)
+  ::  versioned: must be /1/...
+  ?>  ?=([%'1' *] path)
+  =>  .(path t.path)
+  ?+    path  (on-watch:def path)
+      [%all ~]            `this
+      [%desk @ ~]         `this
+      [%path @ @ *]       `this
+      [%group @ @ ~]      `this
+      [%channel @ @ @ ~]  `this
+      [%init *]
+    =>  .(path t.path)
+    ?+    path  (on-watch:def path)
+        [%all ~]
+      :_  this
+      %+  murn  (tap:on-id unread)
+      |=  [=time =id]
+      ^-  (unit card)
+      ?~  got=(~(get by all) id)
+        ~
+      `[%give %fact ~ hark-update+!>(`update`[%new u.got])]
+    ::
+        [%desk @ ~]
+      =/  =desk  i.t.path
+      :_  this
+      %+  murn  (tap:on-id unread)
+      |=  [=time =id]
+      ^-  (unit card)
+      ?~  got=(~(get by all) id)
+        ~
+      ?.  =(desk des.origin.u.got)
+        ~
+      `[%give %fact ~ hark-update+!>(`update`[%new u.got])]
+    ::
+        [%path @ @ *]
+      =/  =desk  i.t.path
+      =/  pax=^path  t.t.path
+      :_  this
+      %+  murn  (tap:on-id unread)
+      |=  [=time =id]
+      ^-  (unit card)
+      ?~  got=(~(get by all) id)
+        ~
+      ?.  ?&  =(desk des.origin.u.got)
+              =(pax pax.origin.u.got)
+          ==
+        ~
+      `[%give %fact ~ hark-update+!>(`update`[%new u.got])]
+    ::
+        [%group @ @ ~]
+      =/  =ship  (slav %p i.t.path)
+      =/  name=term  i.t.t.path
+      :_  this
+      %+  murn  (tap:on-id unread)
+      |=  [=time =id]
+      ^-  (unit card)
+      ?~  got=(~(get by all) id)
+        ~
+      ?~  gop.origin.u.got
+        ~
+      ?.  ?&  =(ship p.u.gop.origin.u.got)
+              =(name q.u.gop.origin.u.got)
+          ==
+        ~
+      `[%give %fact ~ hark-update+!>(`update`[%new u.got])]
+    ::
+        [%channel @ @ @ ~]
+      =/  app=term  i.t.path
+      =/  =ship  (slav %p i.t.t.path)
+      =/  name=term  i.t.t.t.path
+      :_  this
+      %+  murn  (tap:on-id unread)
+      |=  [=time =id]
+      ^-  (unit card)
+      ?~  got=(~(get by all) id)
+        ~
+      ?~  can.origin.u.got
+        ~
+      ?.  =([~ app ship name] can.origin.u.got)
+        ~
+      `[%give %fact ~ hark-update+!>(`update`[%new u.got])]
+    ==
+  ==
+::
+++  on-agent  on-agent:def
+++  on-leave  on-leave:def
+++  on-peek
+  |=  =path
+  ^-  (unit (unit cage))
+  ?:  ?=([%x %api-version ~] path)
+    ``atom+!>(api-version)
+  :: versioned: must be /x/1/...
+  ?>  ?=([%x %'1' *] path)
+  =>  .(path t.t.path)
+  ?+    path  [~ ~]
+      [%bundles %unread ~]
+    :^  ~  ~  %ding-bundles
+    !>  ^-  bundles
+    %+  roll  (tap:on-id unread)
+    |=  [[=time =id] =bundles]
+    ?~  got=(~(get by all) id)
+      bundles
+    ?~  b-got=(~(get by bundles) origin.u.got)
+      (~(put by bundles) origin.u.got (put:on-bu *bundle time u.got))
+    (~(put by bundles) origin.u.got (put:on-bu u.b-got time u.got))
   ::
-  ++  weave-all
-    ?.  add-all  cor
-    cor(all (weave-rug all all/~))
-  ++  weave-rug
-    |=  [=rug:h =seam:h]
-    =/  =thread:h   (~(gut by new.rug) rop.yarn ~)
-    =.  thread  (~(put in thread) id.yarn)
-    =.  new.rug   (~(put by new.rug) rop.yarn thread)
-    rug
-  ::
-  ++  weave-group
-    ?~  gop.rop.yarn  cor
-    =*  group  u.gop.rop.yarn
-    =/  =rug:h  (~(gut by groups) group *rug:h)
-    =.  rug  (weave-rug rug group/group)
-    =.  groups  (~(put by groups) group rug)
-    cor
-  ::
-  ++  weave-desk
-    ?.  add-desk  cor
-    =/  =rug:h  (~(gut by desks) des.rop.yarn *rug:h)
-    =.  rug     (weave-rug rug desk/des.rop.yarn)
-    =.  desks   (~(put by desks) des.rop.yarn rug)
-    cor
+      [%bundles %read @ @ ~]
+    :^  ~  ~  %ding-bundles
+    !>  ^-  bundles
+    =/  after=@da   (slav %da i.t.t.path)
+    =/  max=@ud    (slav %ud i.t.t.t.path)
+    %+  roll  (tab:on-id read `after max)
+    |=  [[=time =id] =bundles]
+    ?~  got=(~(get by all) id)
+      bundles
+    ?~  b-got=(~(get by bundles) origin.u.got)
+      (~(put by bundles) origin.u.got (put:on-bu *bundle time u.got))
+    (~(put by bundles) origin.u.got (put:on-bu u.b-got time u.got))
+  ==
+++  on-arvo  on-arvo:def
+++  on-fail  on-fail:def
+--
+::
+|_  =bowl:gall
+::  +unique: generate a unique timestamp
+::
+++  unique
+  |-  ^-  @da
+  ?.  |((has:on-id unread now.bowl) (has:on-id read now.bowl))
+    now.bowl
+  $(now.bowl (add now.bowl ~s1))
+::  +origin-to-paths: generate watch paths for facts for origin
+::
+++  origin-to-paths
+  |=  =origin
+  ^-  (list path)
+  =/  paths=(list path)
+    :~  /desk/[des.origin]
+        /all
+    ==
+  =?  paths  ?=(^ pax.origin)
+    :_  paths  [%path des.origin pax.origin]
+  =?  paths  ?=(^ gop.origin)
+    :_  paths  [%group (scot %p p.u.gop.origin) q.u.gop.origin ~]
+  =?  paths  ?=(^ can.origin)
+    :_  paths
+    :~  %channel
+        p.u.can.origin
+        (scot %p p.q.u.can.origin)
+        q.q.u.can.origin
+    ==
+  paths
+::  +match-origin: see if origin ref (a) encompasses (b)
+::    empty pax selects all pax
+::    null group selects all groups
+::    null channel selects all channels
+::
+++  match-origin
+  |=  [a=origin b=origin]
+  ^-  ?
+  ?.  =(des.a des.b)
+    |
+  ?.  |(=(~ pax.a) =(pax.a pax.b))
+    |
+  ?:  =(~ gop.a)
+    ?:  =(~ can.a)
+      &
+    =(can.a can.b)
+  ?:  =(~ can.a)
+    =(gop.a gop.b)
+  ?&  =(can.a can.b)
+      =(gop.a gop.b)
+  ==
+::  +load: handle any state transitions
+::    abet:gain:(abed any):load:hc
+++  load
+  |_  [cards=(list card) any=versioned-state]
+  ++  abed  |=(v=versioned-state this(any v))
+  ++  abet  ?>(?=(%1 -.any) [(flop cards) `state-1`any])
+  ++  emit  |=(=card this(cards [card cards]))
+  ++  this  .
+  ++  gain
+    ?-  -.any
+      %0  (state-0-to-1 any)
+      %1  this
+    ==
+  ++  state-0-to-1
+    |=  s0=state-0
+    =|  s1=state-1
+    ::  convert yarn map to notification map
+    =.  all.s1
+      ^-  (map id notification)
+      %-  ~(urn by yarns.s0)
+      |=  [=id:antique =yarn:antique]
+      ^-  notification
+      :*  tim.yarn
+          id
+          [des ted gop can]:rop.yarn
+          con.yarn
+          [%| `wer.yarn ~]
+      ==
+    ::  convert reads & unreads
+    |^
+    =/  [u=(list [time id]) r=(list [time id])]
+      (merge-rugs groups.s0 desks.s0 all.s0)
+    =.  +>.s1
+      [(gas:on-id unread u) (gas:on-id read u)]
+    =.  this
+      (emit %pass /gc-kill %arvo %b %rest next-gc.s0)
+    gain
+    ::  +merge-rugs: merge rugs & convert to time-id pair lists
+    ::
+    ++  merge-rugs
+      |=  [a=(map flag rug:antique) b=(map desk rug:antique) c=rug:antique]
+      ^-  [(list [time id]) (list [time id])]
+      =/  rugs=(list rug:antique)  [c (weld ~(val by a) ~(val by b))]
+      =/  [uid=(set id) rid=(set id)]
+        %+  roll  rugs
+        |=  [=rug:antique uid=(set id) rid=(set id)]
+        :-  %+  roll  ~(val by new.rug)
+            |:  [ted=*thread:antique uid]
+            (~(uni in uid) ted)
+        %+  roll  (tap:on:quilt:antique qul.rug)
+        |:  [[*@ud ted=*thread:antique] rid]
+        (~(uni in uid) ted)
+      :-  %+  murn  ~(tap in uid)
+          |=  =id
+          ^-  (unit [time ^id])
+          ?~  nut=(~(get by all.s1) id)
+            ~
+          `[time.u.nut id]
+      %+  murn  ~(tap in uid)
+      |=  =id
+      ^-  (unit [time ^id])
+      ?~  nut=(~(get by all.s1) id)
+        ~
+      `[time.u.nut id]
+    --
   --
 --
+
