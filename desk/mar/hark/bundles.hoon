@@ -1,5 +1,5 @@
-/-  *ding
-/+  *ding
+/-  *hark
+/+  *hark
 |_  bun=bundles
 ++  grad  %noun
 ++  grow
