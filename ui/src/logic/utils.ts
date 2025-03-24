@@ -1,6 +1,6 @@
 import { 
-  isNoteEmph, 
-  isNoteShip, 
+  isContentEmph, 
+  isContentShip, 
   Notification as DingNotification, 
   Docket,
   DocketHref,
@@ -114,10 +114,10 @@ export const makeBrowserNotification = (notification: DingNotification) => {
     ? origin?.desk.slice(0, 1).toUpperCase() + origin?.desk.slice(1)
     : '';
   const { contents } = notification;
-  const ship = contents.find(isNoteShip)?.ship || '';
-  const emph = contents.find(isNoteEmph)?.emph || '';
-  const emphLast = findLast(contents, isNoteEmph)?.emph || '';
-  const content = isNoteEmph(contents[2]) ? '' : contents[2] || '';
+  const ship = contents.find(isContentShip)?.ship || '';
+  const emph = contents.find(isContentEmph)?.emph || '';
+  const emphLast = findLast(contents, isContentEmph)?.emph || '';
+  const content = isContentEmph(contents[2]) ? '' : contents[2] || '';
 
   try {
     new Notification(`Landscape: ${app}`, {

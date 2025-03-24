@@ -6,11 +6,11 @@
 ++  grow
   |%
   ++  noun  act
-  ++  json  (action:enjs:ding act)
+  ++  json  (action:enjs act)
   --
 ++  grab
   |%
   ++  noun  action
-  ++  json  action:dejs:ding
+  ++  json  action:dejs
   --
 --

@@ -10,7 +10,7 @@ import { useTileColor } from './useTileColor';
 import { usePike } from '../state/kiln';
 import { Bullet } from '../components/icons/Bullet';
 import { dragTypes } from './TileGrid';
-import { useHasInviteToGroup } from '@/state/ding';
+import { useHasInviteToGroup } from '@/state/hark';
 import { useGroups } from '@/nav/notifications/groups';
 import { TileStatusIndicator, getTileStatus } from './TileStatusIndicator';
 

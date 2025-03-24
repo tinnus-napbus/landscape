@@ -31,11 +31,11 @@ interface YarnContentEmphasis {
 
 export type YarnContent = string | YarnContentShip | YarnContentEmphasis;
 
-export function isYarnShip(obj: YarnContent): obj is YarnContentShip {
+export function isContentShip(obj: YarnContent): obj is YarnContentShip {
   return !!obj && typeof obj !== 'string' && 'ship' in obj;
 }
 
-export function isYarnEmph(obj: YarnContent): obj is YarnContentEmphasis {
+export function isContentEmph(obj: YarnContent): obj is YarnContentEmphasis {
   return !!obj && typeof obj !== 'string' && 'emph' in obj;
 }
 
@@ -44,6 +44,13 @@ export interface Rope {
   channel: Flag | null;
   desk: string;
   thread: string;
+}
+
+export interface Origin {
+    desk: string;
+    path: string;
+    group: Flag | null;
+    channel: Flag | null;
 }
 
 export type Seam = { group: Flag } | { desk: string } | { all: null };
@@ -72,6 +79,38 @@ export interface Blanket {
   };
 }
 
+export interface Skein {
+  time: number;
+  count: number;
+  shipCount: number;
+  top: Yarn;
+  unread: boolean;
+}
+
+export type Destination = {ext: string} | {int: string};
+
+export interface Notification {
+    time: string;
+    id: Id;
+    origin: Origin;
+    contents: YarnContent[];
+    destination: Destination;
+}
+
+export interface Bundle {
+    time: string;
+    notification: Notification;
+}
+
+export type BundleArray = Bundle[];
+
+export interface BundleWithOrigin {
+    origin: Origin;
+    bundle: BundleArray;
+}
+
+export type Bundles = BundleWithOrigin[]
+
 export interface HarkAddYarn {
   'add-yarn': {
     all: boolean;
@@ -90,12 +129,17 @@ export interface HarkSawRope {
 
 export type HarkAction = HarkAddYarn | HarkSawSeam | HarkSawRope;
 export type HarkAction1 = HarkAddNewYarn | HarkAction;
+export type HarkAction2 = HarkCreate | HarkRead | HarkReadOrigin | HarkReadAll
 
-export interface HarkUpdate {
-  yarns: Yarns;
-  seam: Seam;
-  threads: Threads;
+export interface HarkUpdateNew {
+    'new': Notification;
 }
+
+export interface HarkUpdateRead {
+    'read': Id;
+}
+
+export type HarkUpdate = HarkUpdateNew | HarkUpdateRead
 
 export interface NewYarn extends Omit<Yarn, 'id' | 'time'> {
   all: boolean;
@@ -106,10 +150,23 @@ export interface HarkAddNewYarn {
   'new-yarn': NewYarn;
 }
 
-export interface Skein {
-  time: number;
-  count: number;
-  shipCount: number;
-  top: Yarn;
-  unread: boolean;
+export interface HarkCreate {
+  'create': {
+      id: Id;
+      origin: Origin;
+      contents: YarnContent[];
+      destination: Destination;
+  }
+}
+
+export interface HarkRead {
+  'read': {'id': Id};
+}
+
+export interface HarkReadOrigin {
+  'read-origin': Origin;
+}
+
+export interface HarkReadAll {
+  'read-all': null;
 }

@@ -49,7 +49,7 @@
     ==
   ::
   ++  quri
-    |=  d=destination:d
+    |=  d=destination:h
     ^-  json
     ?:  -.d
       (frond ext+s+(crip (apex:en-purl:html d)))

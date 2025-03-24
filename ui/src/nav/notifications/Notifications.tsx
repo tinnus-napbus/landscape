@@ -5,13 +5,9 @@ import { ErrorBoundary } from 'react-error-boundary';
 import { useNavigate } from 'react-router-dom';
 import { ErrorAlert } from '../../components/ErrorAlert';
 import { useGroups } from './groups';
-import DingNotificationItem from './DingNotification';
-import { useNotifications, useReadNotifications, oldestInGrouping, DingDayGrouping, organizeGroupings } from './useNotifications';
-import { Bundles } from '@/gear'
-import { useReadAll } from '@/state/ding';
-import { useNotifications, useReadNotifications, oldestInGrouping, DingDayGrouping, organizeGroupings } from './useNotifications';
-import { Bundles } from '@/gear'
-import { useReadAll } from '@/state/ding';
+import NotificationItem from './Notification';
+import { useNotifications, useReadNotifications, oldestInGrouping, DayGrouping, organizeGroupings } from './useNotifications';
+import { useReadAll } from '@/state/hark';
 import { Spinner } from '@/components/Spinner';
 import { useIsMobile } from '@/logic/useMedia';
 import { randomIntInRange } from '@/logic/utils';
@@ -73,8 +69,7 @@ export const Notifications = React.memo(() => {
   const groups = useGroups();
   const { new: newBundles, countNew, loaded } = useNotifications();
   
-  const readNotificationsRef = useRef<DingDayGrouping[]>([])
-
+  const readNotificationsRef = useRef<DayGrouping[]>([]) 
   const [oldestNote, setOldest] = useState('~')
   const [hasMore, setHasMore] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -93,10 +88,14 @@ export const Notifications = React.memo(() => {
 
   }, [read, countRead]);
   
+  // Create refs last, consistently
   const lastNotificationRef = useRef<HTMLLIElement | null>(null);
 
+  // Keep track of processed data to avoid infinite loops
+  //const processedDataRef = useRef(new Set());
+  
   // Use a stateful variable to detect changes in the read data
-  const readDataRef = useRef<DingDayGrouping[]>([]);
+  const readDataRef = useRef<DayGrouping[]>([]);
   
   // Handle additional data loading after getting data for pagination
   useEffect(() => {
@@ -121,56 +120,67 @@ export const Notifications = React.memo(() => {
     if (read && read.length > 0) {
       // Safely update with functional update to avoid stale data
       const prev = readNotificationsRef.current;
-
-      const existingIds = new Set();
-      prev.forEach(group => {
-        group.notifications.forEach(item => {
-          item.allNotifications.forEach(n => {
-            existingIds.add(n.id);
+      //setAllReadNotifications(prev => {
+        // Get existing notification IDs to avoid duplicates
+        const existingIds = new Set();
+        prev.forEach(group => {
+          group.notifications.forEach(item => {
+            item.allNotifications.forEach(n => {
+              existingIds.add(n.id);
+            });
           });
         });
-      });
         
-      // Check for any new IDs
-      let hasNewItems = false;
+        // Check for any new IDs
+        let hasNewItems = false;
 
-      read.forEach(group => {
-        group.notifications.forEach(bundle => {
-          bundle.allNotifications.forEach(note =>{
-            if (!existingIds.has(note.id)) {
-              hasNewItems = true;
-            }
-          })
+        read.forEach(group => {
+          group.notifications.forEach(bundle => {
+            bundle.allNotifications.forEach(note =>{
+              if (!existingIds.has(note.id)) {
+                hasNewItems = true;
+              }
+            })
+          });
         });
-      });
         
-      if (hasNewItems) {
-        const grouped = organizeGroupings([...prev, ...read])
-        console.log('organizedGroupings', grouped)
-        readNotificationsRef.current = grouped;
-      } else {
-        console.log('No new notifications found');
-      }
+        if (hasNewItems) {
+          // console.log('Adding new notifications to list');
+          // console.log([...prev, ...read])
+          const grouped = organizeGroupings([...prev, ...read])
+          console.log('organizedGroupings', grouped)
+          readNotificationsRef.current = grouped;
+        } else {
+          console.log('No new notifications found');
+          //readNotificationsRef.current = prev;
+        }
       
       // Update load more flag based on count
       setHasMore(countRead >= 30);
     } else {
+      // No more notifications
       setHasMore(false);
     }
     
+    // Always clear loading state
     setLoadingMore(false);
   }, [loadingMore, pageNum]);
 
-
+  // Function to load more notifications
   const loadMoreNotifications = useCallback(() => {
-
+    console.log('loadMore notifications', hasMore && !loadingMore && readNotificationsRef.current.length > 0)
     if (hasMore && !loadingMore && readNotificationsRef.current.length > 0) {
       const oldest = oldestInGrouping(readNotificationsRef.current);
       
       if (oldest) {
+        console.log('Loading more with oldest timestamp:', oldest);
+        
+        // Get the oldest timestamp for the next batch
+        //const timestampStr = oldest.toString();
         
         // Update ref with new timestamp
         setOldest(oldest.toString())
+        //oldestDateRef.current = timestampStr;
         
         // Update state to trigger data loading
         setPageNum(prev => prev + 1);
@@ -179,6 +189,31 @@ export const Notifications = React.memo(() => {
       }
     }
   }, [hasMore, loadingMore, readNotificationsRef.current]);
+
+  // Intersection Observer to detect when we've scrolled to the bottom
+  // useEffect(() => {
+  //   const observer = new IntersectionObserver(
+  //     (entries) => {
+  //       const [entry] = entries;
+  //       if (entry.isIntersecting && hasMore && !loadingMore) {
+  //         console.log('loading more')
+  //         loadMoreNotifications();
+  //       }
+  //     },
+  //     { threshold: 0.5 }
+  //   );
+
+  //   const currentRef = lastNotificationRef.current;
+  //   if (currentRef) {
+  //     observer.observe(currentRef);
+  //   }
+
+  //   return () => {
+  //     if (currentRef) {
+  //       observer.unobserve(currentRef);
+  //     }
+  //   };
+  // }, [hasMore, loadingMore, lastNotificationRef.current]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -201,7 +236,7 @@ export const Notifications = React.memo(() => {
         observer.unobserve(currentRef);
       }
     };
-  }, [hasMore, loadingMore]);
+  }, [hasMore, loadingMore]); // Only trigger when hasMore or loadingMore changes
   
 
 
@@ -257,9 +292,7 @@ export const Notifications = React.memo(() => {
                           ref={isLastItem ? lastNotificationRef : null}
                           className="bg-blue-50 rounded-xl"
                       >
-                        <DingNotificationItem 
-                          firstNotification={item.firstNotification}
-                          isUnread={item.isUnread}
+                        <NotificationItem
                           firstNotification={item.firstNotification}
                           isUnread={item.isUnread}
                           allNotifications={item.allNotifications}
@@ -291,7 +324,7 @@ export const Notifications = React.memo(() => {
                         ref={isLastItem ? lastNotificationRef : null}
                         className="bg-white rounded-xl"
                     >
-                      <DingNotificationItem 
+                      <NotificationItem 
                         firstNotification={item.firstNotification}
                         isUnread={item.isUnread}
                         allNotifications={item.allNotifications}
@@ -327,7 +360,7 @@ export const Notifications = React.memo(() => {
                         ref={isLastItem ? lastNotificationRef : null}
                         className="bg-white rounded-xl"
                     >
-                      <DingNotificationItem 
+                      <NotificationItem 
                         firstNotification={item.firstNotification}
                         isUnread={item.isUnread}
                         allNotifications={item.allNotifications}
