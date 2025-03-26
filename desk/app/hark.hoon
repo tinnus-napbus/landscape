@@ -41,7 +41,7 @@
   ^-  (quip card _this)
   =+  !<  any=versioned-state  old
   =^  cards  state
-    abet:gain:(abed any):load:hc
+    abet:gain:(abed:load:hc any)
   [cards this]
 ::
 ++  on-poke
