@@ -75,6 +75,8 @@
     [%moons ~]         moons:peek:cor
     [%moonkey @ ~]     (moonkey:peek:cor (slav %p i.t.path))
     [%agent-desk @ ~]  (agent-desk:peek:cor i.t.path)
+    [%http-ports ~]    http-ports:peek:cor
+    [%blocks ~]        blocks:peek:cor
   ==
 
 ++  on-agent  on-agent:def
@@ -158,12 +160,13 @@
   ++  blocked     .^(? %$ (en-beam (beaker %$ da+now.bowl) /zen/lag))
   ++  domains     .^((set turf) %e (en-beam (beaker %domains) ~))
   ++  quiet       .^(? %$ (en-beam (beaker %$) /fad/lac))
-  ++  ports       .^((pair @ud (unit @ud)) %e (en-beam (beaker %ports) ~))
+  ++  http-ports  .^((pair @ud (unit @ud)) %e (en-beam (beaker %ports) ~))
   ++  ames-proto  .^(@ud %ax (en-beam (beaker %$) /protocol/version))
   ++  latest      |=(=desk .^(cass:clay %cw (en-beam (beaker desk) /)))
   ++  agent-desk  |=(agent=@tas .^(=desk %gd (en-beam (beaker desk) /$)))
   ++  life        |=(=ship (need (lyfe ship))
   ++  rift        |=(=ship (need (ryft ship))
+  ++  blocks  .^(@ud %gx (en-beam (beaker %eth-watcher) /block/azimuth/noun))
   ++  ryft
     |=  =ship
     .^((unit rift) %j (en-beam (beaker %ryft) /(scot %p ship)))
@@ -182,6 +185,9 @@
    --
  ++  peek
   |%
+  ++  http-ports  ``boss-http-ports+http-ports:scry
+  ++  blocks      ``boss-blocks+blocks:scry
+  ::
   ++  moons
     :^  ~  ~  %boss-moons
     !>  ^-  (map @p [=life =rift])
