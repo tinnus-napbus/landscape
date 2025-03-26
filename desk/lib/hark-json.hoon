@@ -5,7 +5,7 @@
   =,  enjs:format
   |%
   ++  action
-    |=  a=action:h
+    |=  a=action:antique:h
     %+  frond  -.a
     ?-  -.a
       %add-yarn  (add-yarn +.a)
@@ -14,7 +14,7 @@
     ==
   ::
   ++  blanket
-    |=  b=blanket:h
+    |=  b=blanket:antique:h
     %-  pairs
     :~  seam/(seam seam.b)
         yarns/(yarns yarns.b)
@@ -22,14 +22,14 @@
     ==
   ::
   ++  quilt
-    |=  q=quilt:h
+    |=  q=quilt:antique:h
     %-  pairs
-    %+  turn  (tap:on:quilt:h q)
-    |=  [num=@ud t=thread:h]
+    %+  turn  (tap:on:quilt:antique:h q)
+    |=  [num=@ud t=thread:antique:h]
     [(scot %ud num) (thread t)]
   ::
   ++  add-yarn
-    |=  [all=? desk=? yar=yarn:h]
+    |=  [all=? desk=? yar=yarn:antique:h]
     %-  pairs
     :~  all/b/all
         desk/b/desk
@@ -37,7 +37,7 @@
     ==
   ::
   ++  carpet
-    |=  c=carpet:h
+    |=  c=carpet:antique:h
     ^-  json
     %-  pairs
     :~  seam/(seam seam.c)
@@ -47,22 +47,22 @@
     ==
   ::
   ++  cable
-    |=  c=(map rope:h thread:h)
+    |=  c=(map rope:antique:h thread:antique:h)
     ^-  json
     :-  %a
     %+  turn  ~(tap by c)
-    |=  [r=rope:h t=thread:h]
+    |=  [r=rope:antique:h t=thread:antique:h]
     %-  pairs
     :~  rope/(rope r)
         thread/(thread t)
     ==
   ::
   ++  skeins
-    |=  sks=(list skein:h)
+    |=  sks=(list skein:antique:h)
     ^-  json
     :-  %a
     %+  turn  sks
-    |=  =skein:h
+    |=  =skein:antique:h
     %-  pairs
     :~  time/(time time.skein)
         count/(numb count.skein)
@@ -71,26 +71,26 @@
         unread/b/unread.skein
     ==
   ++  id
-    |=  i=id:h
+    |=  i=id:antique:h
     ^-  json
     s/(scot %uv i)
   ::
   ++  thread
-    |=  t=thread:h
+    |=  t=thread:antique:h
     ^-  json
     :-  %a
     (turn ~(tap in t) id)
   ::
   ++  threads
-    |=  ts=(map @da thread:h)
+    |=  ts=(map @da thread:antique:h)
     %-  pairs
     %+  turn  ~(tap by ts)
-    |=  [tim=@da t=thread:h]
+    |=  [tim=@da t=thread:antique:h]
     ^-  [cord json]
     [(scot %da tim) (thread t)]
   ::
   ++  update
-    |=  u=update:h
+    |=  u=update:antique:h
     %-  pairs
     :~  yarns/(yarns yarns.u)
         seam/(seam seam.u)
@@ -98,15 +98,15 @@
     ==
   ::
   ++  yarns
-    |=  ys=(map id:h yarn:h)
+    |=  ys=(map id:antique:h yarn:antique:h)
     ^-  json
     %-  pairs
     %+  turn  ~(tap by ys)
-    |=  [i=id:h y=yarn:h]
+    |=  [i=id:antique:h y=yarn:antique:h]
     [(scot %uv i) (yarn y)]
   ::
   ++  yarn
-    |=  y=yarn:h
+    |=  y=yarn:antique:h
     ^-  json
     %-  pairs
     :~  id/s/(scot %uv id.y)
@@ -118,7 +118,7 @@
     ==
   ::
   ++  content
-    |=  c=content:h
+    |=  c=content:antique:h
     ^-  json
     ?@  c  s/c
     ?-  -.c
@@ -127,7 +127,7 @@
     ==
   ::
   ++  seam
-    |=  s=seam:h
+    |=  s=seam:antique:h
     %+  frond  -.s
     ^-  json
     ?-  -.s
@@ -140,7 +140,7 @@
   ++  nest  nest:enjs:groups-json
   ::
   ++  rope
-    |=  r=rope:h
+    |=  r=rope:antique:h
     ^-  json
     %-  pairs
     :~  group/?~(gop.r ~ s/(flag u.gop.r))
@@ -159,11 +159,11 @@
         add-yarn/add-yarn
     ==
   ++  action
-    ^-  $-(json action:h)
+    ^-  $-(json action:antique:h)
     (of action-tags)
   ::
   ++  action-1
-    ^-  $-(json action-1:h)
+    ^-  $-(json action-1:antique:h)
     (of new-yarn/new-yarn action-tags)
   ::
   ++  seam
@@ -198,7 +198,7 @@
   ::
   ++  content
     |=  j=json
-    ^-  content:h
+    ^-  content:antique:h
     ?:  ?=([%s *] j)  p.j
     =>  .(j `json`j)
     %.  j

@@ -1,6 +1,6 @@
 /-  h=hark
 /+  j=hark-json
-|_  skeins=(list skein:h)
+|_  skeins=(list skein:antique:h)
 ++  grad  %noun
 ++  grow
   |%
@@ -9,6 +9,6 @@
   --
 ++  grab
   |%
-  ++  noun  (list skein:h)
+  ++  noun  (list skein:antique:h)
   --
 --

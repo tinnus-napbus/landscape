@@ -1,6 +1,6 @@
 /-  h=hark
 /+  j=hark-json
-|_  =blanket:h
+|_  =blanket:antique:h
 ++  grad  %noun
 ++  grow
   |%
@@ -9,6 +9,6 @@
   --
 ++  grab
   |%
-  ++  noun  blanket:h
+  ++  noun  blanket:antique:h
   --
 --
