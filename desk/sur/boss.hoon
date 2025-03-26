@@ -9,4 +9,5 @@
       =rank:title
       point=(unit point:naive)
   ==
++$  snub-args  [form=?(%allow %deny) ships=(list ship)]
 --

@@ -12,11 +12,11 @@
   ++  snob  snub
   ++  moon-breach  moon-rekey
   ++  snub
-    |=  [form=?(%allow %deny) ships=(list ship)]
+    |=  snu=snub-args:boss
     ^-  json
     %-  pairs
-    :~  form+s+form
-        ships+a+(turn ships |=(=@p s+(scot %p p)))
+    :~  form+s+form.snu
+        ships+a+(turn ships.snu |=(=@p s+(scot %p p)))
     ==
   ::
   ++  moon
@@ -31,6 +31,15 @@
     ^-  json
     s+(scot %p mon)
   ::  scries
+  ::
+  ++  our
+    |=  =ship
+    ^-  json
+    s+(scot %p ship)
+  ::
+  ++  blocks
+    |=  count=@ud
+    (numb count)
   ::
   ++  moons
     |=  mons=(map @p [=life =rift])
@@ -47,6 +56,10 @@
   ++  agent-desk
     |=  [agent=@tas =desk]
     (pairs agent+s+agent desk+s+desk ~)
+  ::
+  ++  http-ports
+    |=  [http=@ud https=(unit @ud)]
+    (pairs http+(numb http) https+?~(https ~ (numb https)) ~)
   ::
   ++  our-info
     |=  inf=our-info:boss
@@ -123,8 +136,12 @@
     ==
   ::  scries
   ::
+  ++  our  (se %p)
+  ++  blocks  ni
   ++  moonkey  (ot moon+(se %p) key+(se %uw) ~)
   ++  agent-desk  (ot agent+so desk+so ~)
+  ++  http-ports  (ot http+ni https+(mu ni) ~)
+  ::
   ++  moons
     %+  ci
       |=  l=(list (trel @p @ud @ud))
