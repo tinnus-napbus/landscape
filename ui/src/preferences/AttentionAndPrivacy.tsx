@@ -78,7 +78,7 @@ export const AttentionAndPrivacy = () => {
             across all of your apps.
           </p>
         </Setting>
-        <Setting
+        {/* <Setting
           on={disableWayfinding}
           toggle={toggle(wayfinding)}
           name="Disable wayfinding"
@@ -86,7 +86,7 @@ export const AttentionAndPrivacy = () => {
           <p className="leading-5 text-gray-600">
             Turn off the "wayfinding" menu in the bottom left of Landscape.
           </p>
-        </Setting>
+        </Setting> */}
       </div>
       <div className="inner-section relative space-y-8">
         <h2 className="h4">Privacy</h2>
