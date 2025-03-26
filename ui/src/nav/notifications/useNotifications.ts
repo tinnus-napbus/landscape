@@ -263,8 +263,6 @@ export const useNotifications = () => {
 
 
 
-    const groupedNewNotifications = newBundles ? groupBundlesByDate({bundles: newBundles, isUnread: true}) : [];
-
     return {
       new: groupedNewNotifications,
       countNew: newBundles ? countNotifications(newBundles) : 0,
@@ -289,7 +287,7 @@ export const useReadNotifications = (date: string) => {
   
   // Call useBundlesRead with query option to not refetch unnecessarily
   const {read: readBundles, status: bundleStatus} = useBundlesRead(actualDate);
-  
+
   if (bundleStatus !== 'success') {
     return {
       read: [],
