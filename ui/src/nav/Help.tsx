@@ -145,7 +145,7 @@ export const Help = () => {
           />
         </div>
       ) : null}
-      <Wayfinding tlonCustomer={tlonCustomer} />
+      {/* <Wayfinding tlonCustomer={tlonCustomer} /> */}
     </div>
   );
 };
