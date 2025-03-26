@@ -4,7 +4,7 @@
 ++  grow
   |%
   ++  noun  sno
-  ++  json  (snob:enjs:lib snu)
+  ++  json  (snob:enjs:lib sno)
   --
 ++  grab
   |%

@@ -6,10 +6,9 @@
   ==
 +$  state-0
   $:  %0
-    moons=(map moon [=life =rift key=@uw])
+    moons=(map @p [=life =rift key=@uw])
   ==
 +$  card  card:agent:gall
-++  quon  ((on time (list quac:dill)) lte)
 ++  api-version  0
 --
 ::
@@ -47,27 +46,26 @@
      ==
    [cards this]
 ::
-++  on-watch
-  |=  =path
-  ^-  (quip card _this)
+++  on-watch  on-watch:def
 ::
 ++  on-arvo
   |=  [=wire sign=sign-arvo]
   ^-  (quip card _this)
-  =<  abet
-  ?+    wire  cor
-      [%jael %pubkey @ ~]
-    =/  =ship  (slav %p i.t.t.wire)
-    ?.  ?=([%jael %public-keys *] sign)
-      cor
-    (pubkey:arvo:cor ship public-keys-result.sign)
+  =^  cards  state
+    =<  abet
+    ?+    wire  cor
+        [%jael %pubkey @ ~]
+      =/  =ship  (slav %p i.t.t.wire)
+      ?.  ?=([%jael %public-keys *] sign)
+        cor
+      (pubkey:arvo:cor ship public-keys-result.sign)
+    ==
+  [cards this]
 
-  ==
-
-++  on-peek  on-peek:def
+++  on-peek
   |=  =path
   ^-  (unit (unit cage))
-  ?>  ?=([%x '0' *] path)
+  ?>  ?=([%x %'0' *] path)
   =>  .(path t.t.path)
   ?+  path  (on-peek:def path)
     [%our ~]           ``boss-our+!>(our.bowl)
@@ -93,14 +91,17 @@
   |=  [mon=@p life=@ rift=@]
   ^-  (pair pass @uw)
   =/  cub  (pit:nu:crub:crypto 512 (shaz (jam mon life eny.bowl)))
-  =/  =feed  [[%2 ~] mon rift [life sec:ex:cub]~]
+  =/  =feed:jael  [[%1 ~] mon [life sec:ex:cub]~]
   [pub:ex:cub (jam feed)]
 ::
 ++  poke
   |%
   ++  pack  |=(~ (emit %pass /poke/pack %arvo %d %pack ~))
   ++  meld  |=(~ (emit %pass /poke/meld %arvo %d %meld ~))
-  ++  exit  |=(~ (emit %pass /poke/exit %agent [our.bowl %hood] %drum-exit ~))
+  ++  exit
+    |=  ~
+    (emit %pass /poke/exit %agent [our.bowl %hood] %poke %drum-exit !>(~))
+  ::
   ++  snub
     |=  [form=?(%allow %deny) ships=(list ship)]
     (emit %pass /poke/snub %arvo %a %snub form ships)
@@ -126,16 +127,16 @@
     ?>  ?=(?(%king %duke) (clan:title our.bowl))
     =/  mon=@p
       ?~  mun
-        (add our.bowl (lsh 5 (end 5 (shaz eny))))
+        (add our.bowl (lsh 5 (end 5 (shaz eny.bowl))))
       ?>  =(%earl (clan:title u.mun))
       ?>  =(our.bowl (sein:title our.bowl now.bowl u.mun))
       u.mun
-    ?>  =(~ (lyfe:scry ship))
+    ?>  =(~ (lyfe:scry mon))
     =/  [=pass key=@uw]  (moonkey mon 1 0)
     =/  =udiff:point:jael  [*id:block:jael %keys [1 1 pass] %.n]
     =.  moons  (~(put by moons) mon 1 0 key)
     =.  cor  (emit %pass /poke/moon %arvo %j %moon mon udiff)
-    (emit %pass /jael/pubkey/(scot %p mon) %arvo %j %public-keys (silt mon))
+    (emit %pass /jael/pubkey/(scot %p mon) %arvo %j %public-keys (silt mon ~))
   ::
   ++  moon-rekey
     |=  mon=@p
@@ -157,22 +158,22 @@
 ++  scry
   |%
   ++  desks       .^((set desk) %cd (en-beam (beaker %$) /))
-  ++  blocked     .^(? %$ (en-beam (beaker %$ da+now.bowl) /zen/lag))
+  ++  blocked     .^(? %$ (en-beam (beaker %$) /zen/lag))
   ++  domains     .^((set turf) %e (en-beam (beaker %domains) ~))
   ++  quiet       .^(? %$ (en-beam (beaker %$) /fad/lac))
   ++  http-ports  .^((pair @ud (unit @ud)) %e (en-beam (beaker %ports) ~))
   ++  ames-proto  .^(@ud %ax (en-beam (beaker %$) /protocol/version))
   ++  latest      |=(=desk .^(cass:clay %cw (en-beam (beaker desk) /)))
-  ++  agent-desk  |=(agent=@tas .^(=desk %gd (en-beam (beaker desk) /$)))
-  ++  life        |=(=ship (need (lyfe ship))
-  ++  rift        |=(=ship (need (ryft ship))
+  ++  agent-desk  |=(agent=@tas .^(desk %gd (en-beam (beaker agent) /$)))
+  ++  life        |=(=ship (need (lyfe ship)))
+  ++  rift        |=(=ship (need (ryft ship)))
   ++  blocks  .^(@ud %gx (en-beam (beaker %eth-watcher) /block/azimuth/noun))
   ++  ryft
     |=  =ship
-    .^((unit rift) %j (en-beam (beaker %ryft) /(scot %p ship)))
+    .^((unit ^rift) %j (en-beam (beaker %ryft) /(scot %p ship)))
   ++  lyfe
     |=  =ship
-    .^((unit life) %j (en-beam (beaker %lyfe) /(scot %p ship)))
+    .^((unit ^life) %j (en-beam (beaker %lyfe) /(scot %p ship)))
   ++  snub
     .^  [form=?(%allow %deny) ships=(list ship)]
       %ax  (en-beam (beaker %$) /snubbed)
@@ -185,19 +186,19 @@
    --
  ++  peek
   |%
-  ++  http-ports  ``boss-http-ports+http-ports:scry
-  ++  blocks      ``boss-blocks+blocks:scry
+  ++  http-ports  ``boss-http-ports+!>(http-ports:scry)
+  ++  blocks      ``boss-blocks+!>(blocks:scry)
   ::
   ++  moons
     :^  ~  ~  %boss-moons
-    !>  ^-  (map @p [=life =rift])
-    (~(run by moons) |=((trel @ @ @) [p q]))
+    !>  ^-  (map @p [=^life =rift])
+    (~(run by ^moons) |=((trel @ @ @) [p q]))
   ::
   ++  moonkey
     |=  mon=@p
     :^  ~  ~  %boss-moonkey
     !>  ^-  [=ship key=@uw]
-    [mon (tail (tail (~(got by moons) mon)))]
+    [mon (tail (tail (~(got by ^moons) mon)))]
   ::
   ++  agent-desk
     |=  agent=@tas
@@ -207,13 +208,14 @@
   ::
   ++  our-info
     :^  ~  ~  %boss-our-info
+    !>  ^-  ^our-info
     :*  our.bowl
         (sein:title our.bowl now.bowl our.bowl)
         (saxo:title our.bowl now.bowl our.bowl)
         (life:scry our.bowl)
         (rift:scry our.bowl)
-        (clan:title our)
-        (point:scry our)
+        (clan:title our.bowl)
+        (point:scry our.bowl)
     ==
   --
 ++  arvo
@@ -227,15 +229,15 @@
         %full
       ?~  got=(~(get by points.p) ship)
         cor
-      cor(moons (~(put by moons) ship mun(life life.u.got, rift rift.u.got)))
+      cor(moons (~(put by moons) ship u.mun(life life.u.got, rift rift.u.got)))
     ::
         %diff
       ?.  =(ship who.p)
         cor
       ?-    -.diff.p
           %spon  cor
-          %rift  cor(moon (~(put by moons) ship mun(rift to.diff.p)))
-          %keys  cor(moon (~(put by moons) ship mun(life life.to.diff.p)))
+          %rift  cor(moons (~(put by moons) ship u.mun(rift to.diff.p)))
+          %keys  cor(moons (~(put by moons) ship u.mun(life life.to.diff.p)))
       ==
     ==
   --
