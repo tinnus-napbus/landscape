@@ -33,9 +33,9 @@
   ::  scries
   ::
   ++  our
-    |=  =ship
+    |=  =@p
     ^-  json
-    s+(scot %p ship)
+    s+(scot %p p)
   ::
   ++  blocks
     |=  count=@ud
@@ -50,8 +50,8 @@
     (pairs moon+s+(scot %p mon) life+(numb life) rift+(numb rift) ~)
   ::
   ++  moonkey
-    |=  [=ship key=@uw]
-    (pairs moon+s+(scot %p ship) key+s+(scot %uw key) ~)
+    |=  [=@p key=@uw]
+    (pairs moon+s+(scot %p p) key+s+(scot %uw key) ~)
   ::
   ++  agent-desk
     |=  [agent=@tas =desk]
@@ -59,7 +59,7 @@
   ::
   ++  http-ports
     |=  [http=@ud https=(unit @ud)]
-    (pairs http+(numb http) https+?~(https ~ (numb https)) ~)
+    (pairs http+(numb http) https+?~(https ~ (numb u.https)) ~)
   ::
   ++  our-info
     |=  inf=our-info:boss
@@ -67,11 +67,11 @@
     %-  pairs
     :~  our+s+(scot %p our.inf)
         sponsor+s+(scot %p sponsor.inf)
-        chain+a+(turn chain.inf |=(=ship s+(scot %p ship)))
+        chain+a+(turn chain.inf |=(=@p s+(scot %p p)))
         life+(numb life.inf)
         rift+(numb rift.inf)
         rank+s+rank.inf
-        point+(point ?~(point.inf ~ (point point.inf)))
+        point+?~(point.inf ~ (point u.point.inf))
     ==
     ::
     ++  point
@@ -92,7 +92,7 @@
           :~  rift+(numb rift.net.p)
               keys+(keys keys.net.p)
               sponsor+(sponsor sponsor.net.p)
-              escape+?~(escape.net.p ~ (scot %p u.escape.net.p))
+              escape+?~(escape.net.p ~ s+(scot %p u.escape.net.p))
       ==  ==
     ::
     ++  addr-non
@@ -129,7 +129,6 @@
   ++  moon-rekey  (se %p)
   ++  moon-breach  (se %p)
   ++  snub
-    ^-  [form=?(%allow %deny) ships=(list ship)]
     %-  ot
     :~  form+(su (perk %allow %deny ~))
         ships+(ar (se %p))
@@ -143,7 +142,7 @@
   ++  http-ports  (ot http+ni https+(mu ni) ~)
   ::
   ++  moons
-    %+  ci
+    %+  cu
       |=  l=(list (trel @p @ud @ud))
       (~(gas by *(map @p [=life =rift])) l)
     (ar (ot moon+(se %p) life+ni rift+ni ~))

@@ -8,7 +8,7 @@
   --
 ++  grab
   |%
-  ++  noun  (map @p [=life =rift])
+  ++  noun  ,(map @p [=life =rift])
   ++  json  moons:dejs:lib
   --
 ++  grad  %mime
