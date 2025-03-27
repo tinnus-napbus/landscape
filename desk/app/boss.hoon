@@ -181,7 +181,7 @@
   ++  point
     |=  =ship
     .^  (unit point:naive)
-      %gx  (en-beam (beaker %azimuth) /(scot %p ship)/noun)
+      %gx  (en-beam (beaker %azimuth) /point/(scot %p ship)/noun)
     ==
    --
  ++  peek
