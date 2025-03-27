@@ -15,6 +15,7 @@ import useVereState from '../../state/vere';
 import { disableDefault, pluralize } from '@/logic/utils';
 import { UpdatePreferences } from './UpdatePreferences';
 import { ShipCode } from '@/components/ShipCode';
+import { ControlSystem } from '../ControlSystem';
 
 function getHash(pike: Pike): string {
   const parts = pike.hash.split('.');
@@ -184,6 +185,10 @@ export const AboutSystem = () => {
           browsers and mobile applications.
         </p>
         <ShipCode />
+      </div>
+      <div className="inner-section relative mt-4 space-y-8">
+        <h2 className="h3">System Control</h2>
+        <ControlSystem />
       </div>
     </>
   );
