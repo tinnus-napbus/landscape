@@ -6,6 +6,7 @@
   |%
   ::  pokes
   ::
+  ++  dns-config  ~
   ++  pack  ~
   ++  meld  ~
   ++  exit  ~
@@ -115,6 +116,43 @@
       |=  [has=? who=@p]
       (pairs has+b+has who+s+(scot %p who) ~)
     --
+  ::
+  ++  sys-info
+    |=  sys=sys-info:boss
+    |^  ^-  json
+    %-  pairs
+    :~  pace+s+pace.sys
+        vere-version+s+vere-version.sys
+        zuse+(numb zuse.sys)
+        ota-source+?~(ota-source.sys ~ (dock u.ota-source.sys))
+        base-hash+s+(scot %uv base-hash.sys)
+        base-time+s+(scot %da base-time.sys)
+    ==
+    ::
+    ++  dock
+      |=  doc=^dock
+      ^-  json
+      %-  pairs
+      :~  ship+s+(scot %p p.doc)
+          desk+s+q.doc
+      ==
+    --
+  ::
+  ++  domains
+    |=  turfs=(set turf)
+    ^-  json
+    :-  %a
+    %+  turn  ~(tap in turfs)
+    |=  =turf
+    s+(en-turf:de-purl:html turf)
+  ::
+  ++  allowed
+    |=  [all=(set @tas) black=(set @tas)]
+    ^-  json
+    %-  pairs
+    :~  all+a+(turn ~(tap in all) (lead %s))
+        black+a+(turn ~(tap in black) (lead %s))
+    ==
   --
 ++  dejs
   =,  dejs:format
@@ -126,6 +164,7 @@
   ++  exit  ul
   ++  snob  snub
   ++  moon  (mu (se %p))
+  ++  dns-config  ul
   ++  moon-rekey  (se %p)
   ++  moon-breach  (se %p)
   ++  snub
@@ -175,5 +214,30 @@
           nonce+ni
       ==
     --
+  ::
+  ++  sys-info
+    %-  ot
+    :~  pace+so
+        vere-version+so
+        zuse+ni
+        ota-source+(mu (ot ship+(se %p) desk+so ~))
+        base-hash+(se %uv)
+        base-time+(se %da)
+    ==
+  ::
+  ++  domains
+    %-  as
+    %-  su
+    %+  sear
+      |=  =host:eyre
+      ^-  (unit turf)
+      ?.(?=(%& -.host) ~ (some p.host))
+    thos:de-purl:html
+  ::
+  ++  allowed
+    %-  ot
+    :~  all+(as so)
+        black+(as so)
+    ==
   --
 --
