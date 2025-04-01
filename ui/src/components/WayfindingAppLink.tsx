@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { Button } from './Button';
 
@@ -23,14 +23,19 @@ const WayfindingAppLink = ({
   source,
   desk,
 }: WayfindingAppLinkProps) => {
+  const [hasError, setHasError] = useState(false)
+
   return (
     <div className="flex items-center justify-between py-2 space-x-2">
       <div className="flex items-center space-x-2">
-        {image !== null && image !== '' ? (
+        {image !== null && image !== '' &&  !hasError ? (
           <img
             src={image}
             className="h-8 w-8 rounded"
             style={{ backgroundColor: color }}
+            onError={() => {
+              setHasError(true)
+            }}
           />
         ) : (
           <div className="h-8 w-8 min-w-8 rounded" style={{ backgroundColor: color }} />
