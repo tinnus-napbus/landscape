@@ -187,7 +187,7 @@ export const Nav: FunctionComponent = () => {
         />
         <HostingLink />
         <GetAppsLink />
-        {/* {!disableWayfinding && <LandscapeWayfinding className="sm:hidden" />} */}
+        {!disableWayfinding && <LandscapeWayfinding className="sm:hidden" />}
       </Portal.Root>
 
       <div
