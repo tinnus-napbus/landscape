@@ -46,6 +46,12 @@ import api from '@/api';
     who: string
  }
 
+ interface Moon{
+    moon: string,
+    life: number,
+    rift: number
+ }
+
 export function useBossOurInfo() {
   const { data, ...rest } = useReactQueryScry<ourInfo>({
     queryKey: ['our-info'],
@@ -82,15 +88,36 @@ export function useBossBlocks(){
       return {data: data as number};
 }
 
+export function useBossMoons(){
+    const { data, ...rest } = useReactQueryScry<Moon[]>({
+        queryKey: ['blocks'],
+        app: 'boss',
+        path: `/0/moons`,
+        options: {
+            refetchOnMount: true,
+            retry: 1,
+        },
+      });
+    
+      if (rest.isLoading || rest.isError) {
+        return {data: [] as Moon[]}
+      }
+    
+      return {data: data as Moon[]}
+}
+
 function pokeBoss(mark: string, data: string | null): Promise<string> {
+    if(data === ''){
+        data = null
+    }
+    console.log('sending json: ', data)
     return new Promise((resolve, reject) => {
       api.poke({
         app: 'boss',
         mark: mark,
-        json: data,
+        json: null,
       })
       .then(response => {
-        console.log('success')
         resolve('Successfully performed' + mark);
       })
       .catch(error => {
@@ -99,19 +126,21 @@ function pokeBoss(mark: string, data: string | null): Promise<string> {
     });
   }
 
-export async function bossMeld() {
+export async function bossMeld() : Promise<{ success: boolean; message: string }> {
     try {
-        await pokeBoss('boss-meld', null)
+        const result = await await pokeBoss('boss-meld', null)
+        return { success: true, message: "Successfully performed meld!" };
       } catch (error) {
-        console.error(error);
+        return { success: false, message: "Error occurred during meld." };
       }
-  }
+    }
 
-export async function bossPack() {
+export async function bossPack() : Promise<{ success: boolean; message: string }>{
     try {
-        await pokeBoss('boss-pack', null);
+        const result = await pokeBoss('boss-pack', null);
+        return { success: true, message: "Successfully performed pack!" };
       } catch (error) {
-        console.error(error);
+        return { success: false, message: "Error occurred during pack." };
       }
 }
 
@@ -136,8 +165,15 @@ export async function bossSnob(formData: string, shipsData: string[]) {
     pokeBoss('boss-snob', JSON.stringify(data))
   }
 
-export async function bossMoon(moon: string) {
-    pokeBoss('boss-moon', JSON.stringify(moon))
+  export async function bossMoon(moon: string): Promise<{ success: boolean; message: string }> {
+    try {
+        console.log('creating moon:', moon)
+        const result = await pokeBoss('boss-moon', JSON.stringify(moon));
+        return { success: true, message: result };
+      } catch (error) {
+        console.error(error);
+        return { success: false, message: 'Unexpected error: on creating moon' };
+      }
   }
 
 export async function bossMoonRekey(moon: string) {

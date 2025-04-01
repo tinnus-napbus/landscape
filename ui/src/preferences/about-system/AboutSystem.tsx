@@ -40,7 +40,7 @@ export const AboutSystem = () => {
     <>
       <div className="inner-section relative mb-4 space-y-8">
         <div className="flex items-center justify-between">
-          <h2 className="h4">About System</h2>
+          <h2 className="h3">About System</h2>
           {systemBlocked && (
             <span className="rounded-md bg-orange-50 px-2 py-1 text-sm font-semibold text-orange-500">
               System Update Blocked

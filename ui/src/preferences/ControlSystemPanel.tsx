@@ -1,16 +1,30 @@
-import React, { useCallback } from 'react';
-import { useBossOurInfo, useBossBlocks } from '../state/boss';
+import React from 'react';
+import { useBossOurInfo, useBossBlocks, useBossMoons } from '../state/boss';
+import { Moons } from './about-system/Moons'
 
 export const ControlSystemPanel = () => {
   const { data: ourInfo } = useBossOurInfo();
   const { data: number } = useBossBlocks();
-  console.log('got number: ', number)
+
+  function convertRank(rank:string){
+    if(rank === 'czar'){
+        return 'galaxy'
+    }else if(rank === 'king'){
+        return 'star'
+    }else if(rank === 'duke'){
+        return 'planet'
+    }else if(rank === 'earl'){
+        return 'moon'
+    }else{
+        return 'comet'
+    }
+  }
 
 
   return (
     <>
-      <div className="inner-section space-y-8">
-        <h2 className="h4">Control System Panel</h2>
+      <div className="inner-section space-y-8 mb-4">
+        <h2 className="h4">Identity info</h2>
         { ourInfo ?
         <>
         <div className="flex items-center space-x-4 justify-between">
@@ -19,7 +33,7 @@ export const ControlSystemPanel = () => {
         </div>
         <div className="flex items-center space-x-4 justify-between">
           <h3 className="text-md font-bold">Node Type</h3>
-          <p className="leading-5">{ourInfo.rank}</p>
+          <p className="leading-5">{convertRank(ourInfo.rank)}</p>
         </div>
           {ourInfo.point ?
             <div className="flex items-center space-x-4 justify-between">
@@ -72,6 +86,9 @@ export const ControlSystemPanel = () => {
           null
         }
       </div>
+      {ourInfo.rank != 'pawn' ?
+        <Moons/> : null
+      }
     </>
   );
 };

@@ -9,34 +9,34 @@ export const ControlSystem = () => {
   
 
     async function onPack() {
-        setMessagePack(null);
         try {
+            setMessagePack(null);
             setLoadingPack(true);
-            await bossPack();
-          } catch (error) {
-            setLoadingPack(false);
-            setMessagePack("Error occurred during pack.");
-          } finally {
-            setLoadingPack(false);
-            setMessagePack("Successfully performed pack!");
-          }
+            const result = await bossPack();
+          
+            setMessagePack(result.message);
+        } catch (error) {
+          setLoadingPack(false);
+          setMessagePack("Error occurred during pack.");
+        } finally {
+          setLoadingPack(false);
+        }
     }
 
     async function onMeld() {
         setMessageMeld(null);
         try {
             setLoadingMeld(true);
-            await bossMeld();
+            const result = await bossMeld();
+
+            setMessageMeld(result.message);
           } catch (error) {
             setLoadingMeld(false);
             setMessageMeld("Error occurred during meld.");
           } finally {
             setLoadingMeld(false);
-            setMessageMeld("Successfully performed meld!");
           }
     }
-
-
 
     return(
     <div className="space-y-3">
