@@ -81,7 +81,22 @@ export const AppInfo: FC<AppInfoProps> = ({
     }, 1250);
   }, [publisher, desk]);
 
-  const installing = installStatus === 'installing';
+  let installing = installStatus === 'installing';
+
+  function startTimer() {
+    const intervalId = setInterval(function() {
+      const newStatus = getInstallStatus(docket);
+
+      if (newStatus ==='installed') {
+        installing = false
+        clearInterval(intervalId);
+      }
+    }, 20000);
+  }
+  
+  if(installStatus === 'installing'){
+    startTimer();
+  }
 
   if (!docket) {
     // TODO: maybe replace spinner with skeletons
