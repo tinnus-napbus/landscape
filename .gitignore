@@ -8,5 +8,5 @@ stats.html
 .vercel
 .vscode
 .tags
-
 gha-creds-*
+vite.config.ts
