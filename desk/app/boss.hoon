@@ -208,7 +208,7 @@
   ++  agent-desk  |=(agent=@tas .^(desk %gd (en-beam (beaker agent) /$)))
   ++  life        |=(=ship (need (lyfe ship)))
   ++  rift        |=(=ship (need (ryft ship)))
-  ++  sources  .^((map desk dock) %gx (en-beam (beaker %hood) /kiln/sources))
+  ++  sources  .^((map desk dock) %gx (en-beam (beaker %hood) /kiln/sources/noun))
   ++  blocks  .^(@ud %gx (en-beam (beaker %eth-watcher) /block/azimuth/noun))
   ++  ryft
     |=  =ship

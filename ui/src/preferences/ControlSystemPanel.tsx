@@ -1,10 +1,12 @@
 import React from 'react';
-import { useBossOurInfo, useBossBlocks, useBossMoons } from '../state/boss';
+import { useBossOurInfo, useBossBlocks } from '../state/boss';
 import { Moons } from './about-system/Moons'
 
 export const ControlSystemPanel = () => {
   const { data: ourInfo } = useBossOurInfo();
   const { data: number } = useBossBlocks();
+
+
 
   function convertRank(rank:string){
     if(rank === 'czar'){
