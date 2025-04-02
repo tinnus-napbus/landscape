@@ -2,7 +2,7 @@ import useReactQueryScry from '@/logic/useReactQueryScry';
 import api from '@/api';
 
 
- export interface ourInfo {
+export interface OurInfo {
     our: string,
     sponsor: string,
     chain: string[],
@@ -10,6 +10,15 @@ import api from '@/api';
     rift: number,
     rank: string,
     point: undefined | Point
+};
+
+export interface SysInfo {
+  pace: string,
+  'vere-version': string,
+  zuse: number,
+  'ota-source': undefined | Dock,
+  'base-hash': string,
+  'base-time': string,
 };
 
  interface Point {
@@ -52,8 +61,33 @@ import api from '@/api';
     rift: number
  }
 
+ interface Dock{
+  ship: string,
+  desk: string
+ }
+
+ interface MoonKey{
+  moon: string,
+  key: string
+ }
+
+ interface AgentDesk{ 
+  agent:string, 
+  desk:string 
+}
+
+interface HttpPorts{
+  http: number,
+  https: undefined | number,
+}
+
+interface Allowed{
+  all: string[],
+  black: string[],
+}
+
 export function useBossOurInfo() {
-  const { data, ...rest } = useReactQueryScry<ourInfo>({
+  const { data, ...rest } = useReactQueryScry<OurInfo>({
     queryKey: ['our-info'],
     app: 'boss',
     path: `/0/our-info`,
@@ -64,33 +98,34 @@ export function useBossOurInfo() {
   });
 
   if (rest.isLoading || rest.isError) {
-    return {data: {} as ourInfo}
+    return { data: {} as OurInfo }
   }
 
-  return {data: data as ourInfo};
+  return { data: data as OurInfo };
 }
 
-export function useBossBlocks(){
-    const { data, ...rest } = useReactQueryScry<number>({
-        queryKey: ['blocks'],
-        app: 'boss',
-        path: `/0/blocks`,
-        options: {
-            refetchOnMount: true,
-            retry: 1,
-        },
-      });
-    
-      if (rest.isLoading || rest.isError) {
-        return {data: 0 as number}
-      }
-    
-      return {data: data as number};
+export function useBossSysInfo() {
+  const { data, ...rest } = useReactQueryScry<SysInfo>({
+    queryKey: ['sys-info'],
+    app: 'boss',
+    path: `/0/sys-info`,
+    options: {
+        refetchOnMount: true,
+        retry: 1,
+    },
+  });
+
+  if (rest.isLoading || rest.isError) {
+    return { data: {} as SysInfo }
+  }
+
+  return { data: data as SysInfo };
 }
+
 
 export function useBossMoons(){
     const { data, ...rest } = useReactQueryScry<Moon[]>({
-        queryKey: ['blocks'],
+        queryKey: ['moons'],
         app: 'boss',
         path: `/0/moons`,
         options: {
@@ -104,6 +139,117 @@ export function useBossMoons(){
       }
     
       return {data: data as Moon[]}
+}
+
+export function useBossMoonKey(moon:string){
+  if(moon !== ''){
+    const { data, ...rest } = useReactQueryScry<MoonKey>({
+        queryKey: [`moonkey-${moon}`],
+        app: 'boss',
+        path: `/0/moonkey/${moon}`,
+        options: {
+            refetchOnMount: true,
+            retry: 1,
+        },
+      });
+    
+      if (rest.isLoading || rest.isError) {
+        return {data: {} as MoonKey}
+      }
+    
+      return {data: data as MoonKey}
+  }
+}
+
+export function useAgentDesk(agent:string){
+  if(agent !== ''){
+    const { data, ...rest } = useReactQueryScry<AgentDesk>({
+        queryKey: [`agent-desk-${agent}`],
+        app: 'boss',
+        path: `/0/agent-desk/${agent}`,
+        options: {
+            refetchOnMount: true,
+            retry: 1,
+        },
+      });
+    
+      if (rest.isLoading || rest.isError) {
+        return { data: {} as AgentDesk }
+      }
+    
+      return { data: data as AgentDesk }
+  }
+}
+export function useHttpPorts(){
+  const { data, ...rest } = useReactQueryScry<HttpPorts>({
+      queryKey: [`http-ports`],
+      app: 'boss',
+      path: `/0/http-ports`,
+      options: {
+          refetchOnMount: true,
+          retry: 1,
+      },
+    });
+  
+    if (rest.isLoading || rest.isError) {
+      return { data: {} as HttpPorts }
+    }
+  
+    return { data: data as HttpPorts }
+}
+
+export function useBossBlocks(){
+  const { data, ...rest } = useReactQueryScry<number>({
+      queryKey: ['blocks'],
+      app: 'boss',
+      path: `/0/blocks`,
+      options: {
+          refetchOnMount: true,
+          retry: 1,
+      },
+    });
+  
+    if (rest.isLoading || rest.isError) {
+      return { data: 0 as number }
+    }
+  
+    return { data: data as number };
+}
+
+export function useBossDomains() {
+  const { data, ...rest } = useReactQueryScry<String[]>({
+    queryKey: ['domains'],
+    app: 'boss',
+    path: `/0/domains`,
+    options: {
+        refetchOnMount: true,
+        retry: 1,
+    },
+  });
+
+  if (rest.isLoading || rest.isError) {
+    return { data: [] as String[] }
+  }
+
+  return { data: data as String[] };
+}
+
+export function useBossAllowed(){
+  const { data, ...rest } = useReactQueryScry<Allowed>({
+      queryKey: ['allowed'],
+      app: 'boss',
+      path: `/0/allowed`,
+      options: {
+          refetchOnMount: true,
+          retry: 1,
+      },
+    });
+  
+    if (rest.isLoading || rest.isError) {
+      return { data: {} as Allowed }
+    }
+  
+    return { data: data as Allowed };
 }
 
 function pokeBoss(mark: string, data: string | null): Promise<string> {

@@ -12,6 +12,7 @@ import { FullTlon16Icon } from '../../components/icons/FullTlon16Icon';
 import { useSystemUpdate } from '../../logic/useSystemUpdate';
 import { usePike, useLag } from '../../state/kiln';
 import useVereState from '../../state/vere';
+import { useBossSysInfo} from '../../state/boss';
 import { disableDefault, pluralize } from '@/logic/utils';
 import { UpdatePreferences } from './UpdatePreferences';
 import { ShipCode } from '@/components/ShipCode';
@@ -26,6 +27,8 @@ export const AboutSystem = () => {
   const basePike = usePike('base');
   const { systemBlocked, blockedCharges, blockedCount, freezeApps } =
     useSystemUpdate();
+  const { data: sysInfo } = useBossSysInfo();
+  console.log(sysInfo)
   const gardenBlocked =
     null != blockedCharges.find((charge) => charge.desk == 'landscape');
   const hash = basePike && getHash(basePike);
@@ -52,6 +55,32 @@ export const AboutSystem = () => {
           <div>
             <p>Urbit Kernel Version ({hash})</p>
           </div>
+        {sysInfo && Object.keys(sysInfo).length > 0 &&
+          <div>
+            <p>Pace {sysInfo.pace}</p>
+          </div>
+        }
+        {sysInfo['ota-source'] && sysInfo['ota-source'].ship && sysInfo['ota-source'].desk && (
+          <div>
+            <p>OTA Source {sysInfo['ota-source'].ship} {sysInfo['ota-source'].desk}</p>
+          </div>
+        )}
+        {sysInfo && Object.keys(sysInfo).length > 0 &&
+          <div>
+            <p>Base Zuse Version {sysInfo.zuse}</p>
+          </div>
+        }
+        {sysInfo && Object.keys(sysInfo).length > 0 &&
+          <div>
+            <p>Base desk hash</p>
+            <p className='break-words'> {sysInfo['base-hash']}</p>
+          </div>
+        }
+        {sysInfo && Object.keys(sysInfo).length > 0 &&
+          <div>
+            <p>Base desk time {sysInfo['base-time']}</p>
+          </div>
+        }
           {systemBlocked ? (
             <>
               {lag ? (
