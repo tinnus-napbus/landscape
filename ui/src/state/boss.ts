@@ -18,7 +18,7 @@ export interface SysInfo {
   zuse: number,
   'ota-source': undefined | Dock,
   'base-hash': string,
-  'base-time': string,
+  'base-time': number,
 };
 
  interface Point {
@@ -55,7 +55,7 @@ export interface SysInfo {
     who: string
  }
 
- interface Moon{
+export interface Moon{
     moon: string,
     life: number,
     rift: number
@@ -66,7 +66,7 @@ export interface SysInfo {
   desk: string
  }
 
- interface MoonKey{
+export interface MoonKey{
   moon: string,
   key: string
  }
@@ -161,7 +161,7 @@ export function useBossMoonKey(moon:string){
   }
 }
 
-export function useAgentDesk(agent:string){
+export function useBossAgentDesk(agent:string){
   if(agent !== ''){
     const { data, ...rest } = useReactQueryScry<AgentDesk>({
         queryKey: [`agent-desk-${agent}`],
@@ -180,7 +180,7 @@ export function useAgentDesk(agent:string){
       return { data: data as AgentDesk }
   }
 }
-export function useHttpPorts(){
+export function useBossHttpPorts(){
   const { data, ...rest } = useReactQueryScry<HttpPorts>({
       queryKey: [`http-ports`],
       app: 'boss',
@@ -322,10 +322,32 @@ export async function bossSnob(formData: string, shipsData: string[]) {
       }
   }
 
-export async function bossMoonRekey(moon: string) {
-    pokeBoss('boss-moon-rekey', moon)
+  export async function bossMoonRekey(moon: string): Promise<{ success: boolean; message: string }> {
+    try {
+        const result = await pokeBoss('boss-moon-rekey', JSON.stringify(moon));
+        return { success: true, message: result };
+      } catch (error) {
+        console.error(error);
+        return { success: false, message: `Unexpected error: on changing keys for ${moon}` };
+      }
   }
 
-export async function bossMoonBreach(moon: string) {
-    pokeBoss('boss-moon-breach', moon)
+  export async function bossMoonBreach(moon: string): Promise<{ success: boolean; message: string }> {
+    try {
+        const result = await pokeBoss('boss-moon-breach', JSON.stringify(moon));
+        return { success: true, message: result };
+      } catch (error) {
+        console.error(error);
+        return { success: false, message: `Unexpected error: on breaching ${moon}` };
+      }
+  }
+
+  export async function bossMoonConfigDNS(): Promise<{ success: boolean; message: string }> {
+    try {
+        const result = await pokeBoss('boss-dns-config', null);
+        return { success: true, message: result };
+      } catch (error) {
+        console.error(error);
+        return { success: false, message: `Unexpected error: on DNS` };
+      }
   }

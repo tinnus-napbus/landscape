@@ -23,10 +23,33 @@ function getHash(pike: Pike): string {
   return parts[parts.length - 1];
 }
 
+function capitalizeFirstLetter(str: string): string {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+function formatToCustomDate(input: number): string {
+  const date = new Date(input);
+  if (isNaN(date.getTime())) {
+    return ''; 
+  }
+
+  const options: Intl.DateTimeFormatOptions = {
+    weekday: 'short',
+    year: 'numeric',
+    month: 'short',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false,
+  };
+
+  return date.toLocaleString('en-US', options).replace(',', '');
+}
+
 export const AboutSystem = () => {
   const basePike = usePike('base');
-  const { systemBlocked, blockedCharges, blockedCount, freezeApps } =
-    useSystemUpdate();
+  const { systemBlocked, blockedCharges, blockedCount, freezeApps } = useSystemUpdate();
   const { data: sysInfo } = useBossSysInfo();
   console.log(sysInfo)
   const gardenBlocked =
@@ -52,33 +75,38 @@ export const AboutSystem = () => {
         </div>
         <div className="space-y-4 leading-5">
           <FullTlon16Icon className="h-4" />
-          <div>
-            <p>Urbit Kernel Version ({hash})</p>
+          <div className='flex items-center space-x-4'>
+            <h3 className='text-md font-bold whitespace-nowrap'>Urbit Kernel Version:</h3>
+            <p>{hash}</p>
           </div>
         {sysInfo && Object.keys(sysInfo).length > 0 &&
-          <div>
-            <p>Pace {sysInfo.pace}</p>
+          <div className='flex items-center space-x-4'>
+            <h3 className='text-md font-bold whitespace-nowrap'>Pace:</h3>
+            <p>{capitalizeFirstLetter(sysInfo.pace)}</p>
+          </div>
+        }
+        {sysInfo && Object.keys(sysInfo).length > 0 &&
+          <div className='flex items-center space-x-4'>
+            <h3 className='text-md font-bold whitespace-nowrap'>Zuse:</h3>
+            <p>{sysInfo.zuse}K</p>
           </div>
         }
         {sysInfo['ota-source'] && sysInfo['ota-source'].ship && sysInfo['ota-source'].desk && (
-          <div>
-            <p>OTA Source {sysInfo['ota-source'].ship} {sysInfo['ota-source'].desk}</p>
+          <div className='flex items-center space-x-4'>
+            <h3 className='text-md font-bold whitespace-nowrap'>OTA Source:</h3>
+            <p>{sysInfo['ota-source'].ship} {sysInfo['ota-source'].desk}</p>
           </div>
         )}
         {sysInfo && Object.keys(sysInfo).length > 0 &&
-          <div>
-            <p>Base Zuse Version {sysInfo.zuse}</p>
-          </div>
-        }
-        {sysInfo && Object.keys(sysInfo).length > 0 &&
-          <div>
-            <p>Base desk hash</p>
+          <div className=''>
+            <h3 className='text-md font-bold whitespace-nowrap'>Base desk hash:</h3>
             <p className='break-words'> {sysInfo['base-hash']}</p>
           </div>
         }
         {sysInfo && Object.keys(sysInfo).length > 0 &&
-          <div>
-            <p>Base desk time {sysInfo['base-time']}</p>
+          <div className='flex items-center space-x-4'>
+            <h3 className='text-md font-bold whitespace-nowrap'>Last Base Update:</h3>
+            <p>{formatToCustomDate(sysInfo['base-time'])}</p>
           </div>
         }
           {systemBlocked ? (
@@ -182,15 +210,22 @@ export const AboutSystem = () => {
             <>
               {runtimeUpToDate ? (
                 <>
-                  <p>Urbit Runtime Version {vereVersion}</p>
+                  <div className='flex items-center space-x-4'>
+                    <h3 className='text-md font-bold whitespace-nowrap'>Urbit Runtime Version: </h3>
+                    <p>{vereVersion}</p>
+                  </div>
                   <p>Your urbit is up to date.</p>
                 </>
               ) : (
                 <>
-                  <p className="text-orange-500">
-                    Your runtime version is {vereVersion}, the latest runtime
-                    version is {latestVereVersion}.
-                  </p>
+                  <div className="flex items-center space-x-4 text-orange">
+                    <h3 className='text-md font-bold whitespace-nowrap'>Your runtime version is </h3>
+                    <p>{vereVersion}</p>
+                  </div>
+                  <div className="flex items-center space-x-4 text-orange-500">
+                    <h3 className='text-md font-bold whitespace-nowrap'>Latest runtime version:</h3>
+                    <p>{latestVereVersion}</p>
+                  </div>
                   <p className="text-orange-500">
                     <a
                       className="font-bold text-blue-500"
