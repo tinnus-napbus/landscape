@@ -126,7 +126,7 @@
         zuse+(numb zuse.sys)
         ota-source+?~(ota-source.sys ~ (dock u.ota-source.sys))
         base-hash+s+(scot %uv base-hash.sys)
-        base-time+s+(scot %da base-time.sys)
+        base-time+(time base-time.sys)
     ==
     ::
     ++  dock
