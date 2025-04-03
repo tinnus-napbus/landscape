@@ -1,6 +1,7 @@
 import React from 'react';
 import { useBossOurInfo, useBossBlocks } from '../state/boss';
 import { Moons } from './about-system/Moons'
+import { Eyre } from './about-system/Eyre'
 
 export const ControlSystemPanel = () => {
   const { data: ourInfo } = useBossOurInfo();
@@ -26,7 +27,7 @@ export const ControlSystemPanel = () => {
   return (
     <>
       <div className="inner-section space-y-8 mb-4">
-        <h2 className="h4">Identity info</h2>
+        <h2 className="h3">Identity information</h2>
         { ourInfo ?
         <>
         <div className="flex items-center space-x-4 justify-between">
@@ -88,6 +89,7 @@ export const ControlSystemPanel = () => {
           null
         }
       </div>
+      <Eyre />
       {ourInfo.rank != 'pawn' ?
         <Moons/> : null
       }

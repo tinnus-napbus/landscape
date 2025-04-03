@@ -70,18 +70,18 @@ export default function SourceSetter({
             </div>
           </>
         ) : (
-          <form className="inner-section relative" onSubmit={onSubmit}>
+          <form className="space-y-3" onSubmit={onSubmit}>
             <label htmlFor="ota-source" className="h4 mb-3">
               Set Update Source
             </label>
             <p className="mb-2">Enter a valid urbit name to receive updates for {appName}.</p>
-            <div className="relative">
+            <div className="relative flex space-x-2 w-[70%]">
               <input
                 id="ota-source"
                 type="text"
                 value={newSyncShip}
                 onChange={handleSourceChange}
-                className="input font-semibold default-ring"
+                className="input font-semibold default-ring bg-gray-50"
               />
               {syncDirty && (
                 <Button type="submit" className="absolute top-1 right-1 py-1 px-3 text-sm">

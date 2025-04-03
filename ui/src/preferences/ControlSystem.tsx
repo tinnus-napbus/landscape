@@ -54,8 +54,10 @@ export const ControlSystem = () => {
         </button>
         {messageMeld && <div className="message">{messageMeld}</div>}
       </div>
-      <button className="button" onClick={()=>{bossExit()}}>
+      <div>
+      <button className="button mt-4" onClick={()=>{bossExit()}}>
       Shut Down ship
       </button>
+      </div>
     </div>)
 }
