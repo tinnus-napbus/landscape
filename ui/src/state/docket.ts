@@ -301,9 +301,9 @@ export function useTreaty(host: string, desk: string) {
     [queryClient, ref]
   );
 
-  if (!treaty) {
-    getTreaty(host, desk);
-  }
+  // if (!treaty) {
+  //   getTreaty(host, desk);
+  // }
 
   return treaty;
 }
