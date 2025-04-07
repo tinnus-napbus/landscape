@@ -1,8 +1,15 @@
 import React, { useState, ChangeEvent } from 'react';
-import { Moon as MoonProps, useBossMoonKey, bossMoon, MoonKey, bossMoonRekey, bossMoonBreach } from '../../state/boss';
+import { useBossMoonKey, bossMoon, MoonKey, bossMoonRekey, bossMoonBreach } from '../../state/boss';
 import { useCopy } from '@/logic/utils';
 
-export const Moon = ({ moon, life, rift }: MoonProps) => {
+interface MoonProps{
+  moon: string,
+  life: number,
+  rift: number,
+  forbidden: string[]
+}
+
+export const Moon = ({ moon, life, rift, forbidden}: MoonProps) => {
     const [code, setCode] = useState('')
     const [breach, setBreach] = useState(false);
     const [messageBreach, setMessageBreach] = useState<string | null>(null)
@@ -10,14 +17,18 @@ export const Moon = ({ moon, life, rift }: MoonProps) => {
     const [messageKeyReset, setMessageKeyReset] = useState<string | null>(null)
     const { didCopy, doCopy } = useCopy(code);
 
+    function isAllowed(poke:string){
+        return !forbidden?.includes(poke)
+    }
+
     async function showKey(moon:string){
         try{
           if(moon !== ''){
             //TODO:: change result.data to data
-            const {data: result} = await useBossMoonKey(moon) ?? { data: null };
-            //const result = {data: {moon: moon, key: moon}}
-            if(result && Object.keys(result).length !== 0){
-              setCode(result.key)
+            //const {data: result} = await useBossMoonKey(moon) ?? { data: null };
+            const result = {data: {moon: moon, key: moon}}
+            if(result && result.data && Object.keys(result).length !== 0){
+              setCode(result.data.key)
             }
           }
         }catch{
@@ -92,16 +103,20 @@ export const Moon = ({ moon, life, rift }: MoonProps) => {
               <button className="button" onClick={()=> showKey(moon)}>Show Access Key</button>
             }
             <div className="flex space-x-3">
-              <button 
-              className="button"
-              onClick={()=>{reKeyMoon(moon)}}>
-                  {!keyReset ? 'Change Key' : 'Changing key...'}
-              </button>
-              <button 
-              className="button"
-              onClick={()=>{breachMoon(moon)}}>
-                  {!breach ? 'Factory reset' : 'Resetting...'}
-              </button>
+              {isAllowed('boss-moon-rekey')  &&
+                <button 
+                className="button"
+                onClick={()=>{reKeyMoon(moon)}}>
+                    {!keyReset ? 'Change Key' : 'Changing key...'}
+                </button>
+              }
+              {isAllowed('boss-moon-breach')  &&
+                <button 
+                className="button"
+                onClick={()=>{breachMoon(moon)}}>
+                    {!breach ? 'Factory reset' : 'Resetting...'}
+                </button>
+              }
             </div>
             {messageBreach ? <p>{messageBreach}</p> : <></>}
             {messageKeyReset ? <p>{messageKeyReset}</p> : <></>}

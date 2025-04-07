@@ -24,7 +24,7 @@ export interface SysInfo {
  interface Point {
     dominion: string,
     own: {
-        ownder: AddrProxy
+        owner: AddrProxy
         'spawn-proxy': AddrProxy,
         'management-proxy': AddrProxy,
         'voting-proxy': AddrProxy,
@@ -122,23 +122,22 @@ export function useBossSysInfo() {
   return { data: data as SysInfo };
 }
 
+export function useBossMoons() {
+  const { data, refetch, ...rest } = useReactQueryScry<Moon[]>({
+    queryKey: ['moons'],
+    app: 'boss',
+    path: `/0/moons`,
+    options: {
+      refetchOnMount: true,
+      retry: 1,
+    },
+  });
 
-export function useBossMoons(){
-    const { data, ...rest } = useReactQueryScry<Moon[]>({
-        queryKey: ['moons'],
-        app: 'boss',
-        path: `/0/moons`,
-        options: {
-            refetchOnMount: true,
-            retry: 1,
-        },
-      });
-    
-      if (rest.isLoading || rest.isError) {
-        return {data: [] as Moon[]}
-      }
-    
-      return {data: data as Moon[]}
+  if (rest.isLoading || rest.isError) {
+    return { data: [] as Moon[], refetch };
+  }
+
+  return { data: data as Moon[], refetch };
 }
 
 export function useBossMoonKey(moon:string){
