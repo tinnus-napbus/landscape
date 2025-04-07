@@ -3,8 +3,8 @@ import { bossMoon, useBossMoons } from '../../state/boss';
 import { Moon } from './Moon'
 import { Button } from '../../components/Button';
 
-export const Moons = () => {
-    const { data: moons } = useBossMoons();
+export const Moons = ({forbidden} : { forbidden:string[] }) => {
+    const { data: moons, refetch } = useBossMoons();
     //const moons = [{moon:'~doznec-salfun-naptul-habrys', life: 1, rift: 1}]
     const [loadingSpawn, setLoadingSpawn] = useState(false);
     const [message, setMessage] = useState<string | null>(null)
@@ -19,7 +19,7 @@ export const Moons = () => {
         if (!result.success) {
           setMessage(result.message);
         } else {
-          // TODO: trigger to refetch moons
+          refetch();
         }
         }catch (error: unknown) {
           if (error instanceof Error) {
@@ -49,22 +49,28 @@ export const Moons = () => {
               <Moon 
               moon={moon.moon}
               life={moon.life}
-              rift={moon.rift}/>
+              rift={moon.rift}
+              forbidden={forbidden}
+              />
             )}
           </div> : null
         }
-        <h2 className="h4">Spawn a moon</h2>
-        <div className="relative flex space-x-2">
-          <input
-          id="new-moon"
-          type="text"
-          value={newMoon}
-          onChange={handleChange}
-          placeholder="~doznec-salfun-naptul-habrys"
-          className="input default-ring bg-gray-50"
-          />
-          <Button className="absolute top-1 right-1 py-1 px-3 text-sm" onClick={()=>{spawnMoon()}}>{!loadingSpawn ? 'Spawn' : 'Spawning a moon...'}</Button>
-        </div>
+        {!forbidden?.includes('boss-moon')  &&
+        <>
+          <h2 className="h4">Spawn a moon</h2>
+          <div className="relative flex space-x-2">
+            <input
+            id="new-moon"
+            type="text"
+            value={newMoon}
+            onChange={handleChange}
+            placeholder="~doznec-salfun-naptul-habrys"
+            className="input default-ring bg-gray-50"
+            />
+            <Button className="absolute top-1 right-1 py-1 px-3 text-sm" onClick={()=>{spawnMoon()}}>{!loadingSpawn ? 'Spawn' : '...'}</Button>
+          </div>
+        </>
+        }
         {message ? <p>{message}</p> : null}
       </div>
     )

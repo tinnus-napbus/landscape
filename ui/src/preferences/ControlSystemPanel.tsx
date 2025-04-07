@@ -1,13 +1,14 @@
 import React from 'react';
-import { useBossOurInfo, useBossBlocks } from '../state/boss';
+import { useBossAllowed, useBossOurInfo, useBossBlocks } from '../state/boss';
 import { Moons } from './about-system/Moons'
 import { Eyre } from './about-system/Eyre'
 
 export const ControlSystemPanel = () => {
+  const { data: allowed } = useBossAllowed()
   const { data: ourInfo } = useBossOurInfo();
   const { data: number } = useBossBlocks();
 
-
+console.log('ourInfo', ourInfo)
 
   function convertRank(rank:string){
     if(rank === 'czar'){
@@ -69,29 +70,45 @@ export const ControlSystemPanel = () => {
               <p className="leading-5">{ourInfo.chain.join(" > ")}</p>
             </div> : null
           }
-          <div className="flex items-center space-x-4 justify-between">
-            <h3 className="text-md font-bold">Ownership Address</h3>
-            <p className="leading-5"></p>
-          </div>
-          <div className="flex items-center space-x-4 justify-between">
-            <h3 className="text-md font-bold">Management Proxy</h3>
-            <p className="leading-5"></p>
-          </div>
-          <div className="flex items-center space-x-4 justify-between">
-            <h3 className="text-md font-bold">Transfer Proxy</h3>
-            <p className="leading-5"></p>
-          </div>
-          <div className="flex items-center space-x-4 justify-between">
-            <h3 className="text-md font-bold">Escape Request</h3>
-            <p className="leading-5"></p>
-          </div>
+          {ourInfo.point !== null && ourInfo.point !== undefined &&
+            <div className="space-y-8">
+              {Object.keys(ourInfo?.point?.own?.owner).length > 0  &&
+                <div className="flex items-center space-x-4 justify-between">
+                  <h3 className="text-md font-bold">Ownership Address</h3>
+                  <p className="leading-5">{ourInfo.point.own.owner.address}</p>
+                </div>
+              }
+              {Object.keys(ourInfo.point.own['management-proxy']).length > 0  &&
+                <div className="flex items-center space-x-4 justify-between">
+                  <h3 className="text-md font-bold">Management Proxy</h3>
+                  <p className="leading-5">{ourInfo.point.own['management-proxy'].address}</p>
+                </div>
+              }
+              {Object.keys(ourInfo.point.own['transfer-proxy']).length > 0  &&
+                <div className="flex items-center space-x-4 justify-between">
+                  <h3 className="text-md font-bold">Transfer Proxy</h3>
+                  <p className="leading-5">{ourInfo.point.own['transfer-proxy'].address}</p>
+                </div>
+              }
+              {ourInfo.point.net.escape !== null &&
+                <div className="flex items-center space-x-4 justify-between">
+                  <h3 className="text-md font-bold">Escape Request</h3>
+                  <p className="leading-5">{ourInfo.point.net.escape}</p>
+                </div>
+              }
+            </div>
+          }
           </> :
           null
         }
       </div>
-      <Eyre />
+      <Eyre 
+      forbidden={allowed.black}
+      />
       {ourInfo.rank != 'pawn' ?
-        <Moons/> : null
+        <Moons
+        forbidden={allowed.black}
+        /> : null
       }
     </>
   );

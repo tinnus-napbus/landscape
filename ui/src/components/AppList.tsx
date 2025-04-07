@@ -44,6 +44,7 @@ export const AppList = <T extends DocketWithDesk>({
         size === 'default' && 'space-y-4',
         size !== 'xs' && '-mx-2',
         size === 'xs' && '-mx-1',
+        'max-h-80 overflow-y-auto',
         listClass
       )}
       aria-labelledby={labelledBy}
