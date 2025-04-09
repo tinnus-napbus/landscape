@@ -360,18 +360,25 @@
     ::  convert yarn map to notification map
     =.  all.s1
       ^-  (map id notification)
-      %-  ~(urn by yarns.s0)
-      |=  [=id:antique =yarn:antique]
-      ^-  notification
-      :*  tim.yarn
+      %-  tail
+      %-  ~(rep by yarns.s0)
+      |=  $:  [=id =yarn:antique]
+              [times=(set @da) new=(map id notification)]
+          ==
+      :: make timestamps unique
+      =/  timestamp=@da
+        |-  ^-  @da
+        ?.  (~(has in times) tim.yarn)
+          tim.yarn
+        $(tim.yarn +(tim.yarn))
+      :-  (~(put in times) timestamp)
+      %+  ~(put by new)  id
+      :*  timestamp
           id
           [des ted gop can]:rop.yarn
           con.yarn
           [%| `wer.yarn ~]
       ==
-    ::  get set of unique yarn timestamps
-    =/  times=(set time)
-      (~(gas in *(set time)) (turn ~(val by all) |=([=time *] time)))
     ::  convert reads & unreads
     |^
     =/  [u=(list [time id]) r=(list [time id])]
@@ -410,12 +417,7 @@
       ^-  (unit [time ^id])
       ?~  nut=(~(get by all.s1) id)
         ~
-      :-  ~
-      :_  id
-      |-  
-      ?.  (~(has in times) time.u.nut)
-        time.u.nut
-      $(time.u.nut +(time.u.nut))
+      `[time.u.nut id]
     --
   --
 --
