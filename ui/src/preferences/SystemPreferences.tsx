@@ -164,7 +164,7 @@ export const SystemPreferences = () => {
                   active={matchSub('controlSystemPanel')}
                 >
                   <SlidersIcon className="mr-3 h-6 w-6 rounded-md text-gray-600" />
-                  Control System Panel
+                  System
                 </SystemPreferencesSection>
                 <SystemPreferencesSection
                   to="privacy"

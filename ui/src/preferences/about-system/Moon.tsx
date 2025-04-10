@@ -1,5 +1,5 @@
-import React, { useState, ChangeEvent } from 'react';
-import { useBossMoonKey, bossMoon, MoonKey, bossMoonRekey, bossMoonBreach } from '../../state/boss';
+import React, { useState } from 'react';
+import { useBossMoonKey, bossMoonRekey, bossMoonBreach } from '../../state/boss';
 import { useCopy } from '@/logic/utils';
 
 interface MoonProps{
@@ -24,11 +24,9 @@ export const Moon = ({ moon, life, rift, forbidden}: MoonProps) => {
     async function showKey(moon:string){
         try{
           if(moon !== ''){
-            //TODO:: change result.data to data
-            //const {data: result} = await useBossMoonKey(moon) ?? { data: null };
-            const result = {data: {moon: moon, key: moon}}
-            if(result && result.data && Object.keys(result).length !== 0){
-              setCode(result.data.key)
+            const {data: result} = await useBossMoonKey(moon) ?? { data: null };
+            if(result && Object.keys(result).length !== 0){
+              setCode(result.key)
             }
           }
         }catch{
@@ -41,7 +39,7 @@ export const Moon = ({ moon, life, rift, forbidden}: MoonProps) => {
           setBreach(true);
           setMessageKeyReset(null);
           setMessageBreach(null);
-          const result = await bossMoonRekey(moonId);
+          const result = await bossMoonBreach(moonId);
           setMessageBreach(result.message);
         } catch (error: unknown) {
             if (error instanceof Error) {
@@ -60,7 +58,7 @@ export const Moon = ({ moon, life, rift, forbidden}: MoonProps) => {
             setCode('')
             setMessageKeyReset(null);
             setMessageBreach(null);
-            const result = await bossMoonBreach(moonId);
+            const result = await bossMoonRekey(moonId);
             setMessageKeyReset(result.message);
         }catch (error: unknown) {
             if (error instanceof Error) {
@@ -72,8 +70,6 @@ export const Moon = ({ moon, life, rift, forbidden}: MoonProps) => {
             setKeyReset(false);
         }
       }
-
-
 
     return(
         <div className="space-y-3" key={moon}>

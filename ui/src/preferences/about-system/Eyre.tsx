@@ -28,7 +28,7 @@ export const Eyre = ({forbidden} : { forbidden:string[] }) => {
     }
 
     return(
-      <div className="inner-section space-y-8 mb-4">
+      <div className="inner-section space-y-8 relative mb-4">
         <h2 className="h3">Eyre</h2>
             {domains.length > 1 && 
             <div className='flex items-center space-x-4'>

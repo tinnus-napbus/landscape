@@ -5,7 +5,7 @@ import { Button } from '../../components/Button';
 
 export const Moons = ({forbidden} : { forbidden:string[] }) => {
     const { data: moons, refetch } = useBossMoons();
-    //const moons = [{moon:'~doznec-salfun-naptul-habrys', life: 1, rift: 1}]
+    // const moons = [{moon:'~doznec-salfun-naptul-habrys', life: 1, rift: 1}]
     const [loadingSpawn, setLoadingSpawn] = useState(false);
     const [message, setMessage] = useState<string | null>(null)
     const [newMoon, setNewMoon] = useState('');
@@ -58,6 +58,9 @@ export const Moons = ({forbidden} : { forbidden:string[] }) => {
         {!forbidden?.includes('boss-moon')  &&
         <>
           <h2 className="h4">Spawn a moon</h2>
+          <p>Moons may be utilized for many purposes: vanity identities, backup identities, identities for children, testing software and bots.
+          </p>
+          <p>To generate a random moon from your planet click spawn button.</p>
           <div className="relative flex space-x-2">
             <input
             id="new-moon"
