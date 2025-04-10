@@ -345,14 +345,14 @@
 ::    abet:gain:(abed any):load:hc
 ++  load
   |_  [cards=(list card) any=versioned-state]
-  ++  abed  |=(v=versioned-state this(any v))
+  ++  abed  |=(v=versioned-state load(any v))
   ++  abet  ?>(?=(%1 -.any) [(flop cards) `state-1`any])
-  ++  emit  |=(=card this(cards [card cards]))
-  ++  this  .
+  ++  emit  |=(=card load(cards [card cards]))
+  ++  load  .
   ++  gain
     ?-  -.any
       %0  (state-0-to-1 any)
-      %1  this
+      %1  load
     ==
   ++  state-0-to-1
     |=  s0=state-0
@@ -360,10 +360,20 @@
     ::  convert yarn map to notification map
     =.  all.s1
       ^-  (map id notification)
-      %-  ~(urn by yarns.s0)
-      |=  [=id:antique =yarn:antique]
-      ^-  notification
-      :*  tim.yarn
+      %-  tail
+      %-  ~(rep by yarns.s0)
+      |=  $:  [=id =yarn:antique]
+              [times=(set @da) new=(map id notification)]
+          ==
+      :: make timestamps unique
+      =/  timestamp=@da
+        |-  ^-  @da
+        ?.  (~(has in times) tim.yarn)
+          tim.yarn
+        $(tim.yarn +(tim.yarn))
+      :-  (~(put in times) timestamp)
+      %+  ~(put by new)  id
+      :*  timestamp
           id
           [des ted gop can]:rop.yarn
           con.yarn
@@ -373,11 +383,9 @@
     |^
     =/  [u=(list [time id]) r=(list [time id])]
       (merge-rugs groups.s0 desks.s0 all.s0)
-    =.  +>.s1
-      [(gas:on-id unread u) (gas:on-id read u)]
-    =.  this
-      (emit %pass /gc-kill %arvo %b %rest next-gc.s0)
-    gain
+    =.  +>.s1  [(gas:on-id unread u) (gas:on-id read r)]
+    =.  any  s1
+    gain:(emit %pass /gc-kill %arvo %b %rest next-gc.s0)
     ::  +merge-rugs: merge rugs & convert to time-id pair lists
     ::
     ++  merge-rugs
@@ -387,19 +395,24 @@
       =/  [uid=(set id) rid=(set id)]
         %+  roll  rugs
         |=  [=rug:antique uid=(set id) rid=(set id)]
-        :-  %+  roll  ~(val by new.rug)
-            |:  [ted=*thread:antique uid]
-            (~(uni in uid) ted)
-        %+  roll  (tap:on:quilt:antique qul.rug)
-        |:  [[*@ud ted=*thread:antique] rid]
-        (~(uni in uid) ted)
-      :-  %+  murn  ~(tap in uid)
-          |=  =id
-          ^-  (unit [time ^id])
-          ?~  nut=(~(get by all.s1) id)
-            ~
-          `[time.u.nut id]
-      %+  murn  ~(tap in uid)
+        :-  =/  teds=(list (set id))  ~(val by new.rug)
+            |-  ^-  (set id)
+            ?~  teds
+              uid
+            $(teds t.teds, uid (~(uni in uid) i.teds))
+        =/  teds=(list (set id))
+          (turn (tap:on:quilt:antique qul.rug) tail)
+        |-  ^-  (set id)
+        ?~  teds
+          rid
+        $(teds t.teds, rid (~(uni in rid) i.teds))
+      [(filter uid) (filter rid)]
+    ::  +filter: check ids actually exist and make timestamp unique
+    ::
+    ++  filter
+      |=  ids=(set id)
+      ^-  (list [time id])
+      %+  murn  ~(tap in ids)
       |=  =id
       ^-  (unit [time ^id])
       ?~  nut=(~(get by all.s1) id)

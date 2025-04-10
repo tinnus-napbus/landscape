@@ -127,7 +127,6 @@
         ota-source+?~(ota-source.sys ~ (dock u.ota-source.sys))
         base-hash+s+(scot %uv base-hash.sys)
         base-time+(time base-time.sys)
-    ==
     ::
     ++  dock
       |=  doc=^dock
