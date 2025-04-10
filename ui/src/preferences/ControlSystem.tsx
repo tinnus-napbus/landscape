@@ -69,6 +69,7 @@ export const ControlSystem = () => {
         }
         {isAllowed('boss-exit') &&
           <div>
+            <p className="leading-5">This action will shut down your ship completely.</p>
             <button className="button mt-4" onClick={()=>{bossExit()}}>
             Shut Down ship
             </button>

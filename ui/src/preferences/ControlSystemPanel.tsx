@@ -1,106 +1,20 @@
 import React from 'react';
-import { useBossAllowed, useBossOurInfo, useBossBlocks } from '../state/boss';
+import { useBossAllowed, useBossOurInfo } from '../state/boss';
 import { Moons } from './about-system/Moons'
 import { Eyre } from './about-system/Eyre'
+import { UpdatePreferences } from './about-system/UpdatePreferences';
+import { ControlSystem } from './ControlSystem';
 
 export const ControlSystemPanel = () => {
   const { data: allowed } = useBossAllowed()
   const { data: ourInfo } = useBossOurInfo();
-  const { data: number } = useBossBlocks();
-
-console.log('ourInfo', ourInfo)
-
-  function convertRank(rank:string){
-    if(rank === 'czar'){
-        return 'galaxy'
-    }else if(rank === 'king'){
-        return 'star'
-    }else if(rank === 'duke'){
-        return 'planet'
-    }else if(rank === 'earl'){
-        return 'moon'
-    }else{
-        return 'comet'
-    }
-  }
-
 
   return (
     <>
-      <div className="inner-section space-y-8 mb-4">
-        <h2 className="h3">Identity information</h2>
-        { ourInfo ?
-        <>
-        <div className="flex items-center space-x-4 justify-between">
-          <h3 className="text-md font-bold whitespace-nowrap">Urbit ID:</h3>
-          <p className="leading-5">{ourInfo.our}</p>
-        </div>
-        <div className="flex items-center space-x-4 justify-between">
-          <h3 className="text-md font-bold">Node Type</h3>
-          <p className="leading-5">{convertRank(ourInfo.rank)}</p>
-        </div>
-          {ourInfo.point ?
-            <div className="flex items-center space-x-4 justify-between">
-              <h3 className="text-md font-bold">Point Number</h3>
-              <p className="leading-5">{ourInfo.point}</p>
-            </div>
-            : null
-            }
-          <div className="flex items-center space-x-4 justify-between">
-            <h3 className="text-md font-bold">Continuity Number</h3>
-            <p className="leading-5">{ourInfo.rift}</p>
-          </div>
-          <div className="flex items-center space-x-4 justify-between">
-            <h3 className="text-md font-bold">Key Revision</h3>
-            <p className="leading-5">{ourInfo.life}</p>
-          </div>
-          { number != 0 ?
-          <div className="flex items-center space-x-4 justify-between">
-            <h3 className="text-md font-bold">Last Block</h3>
-            <p className="leading-5">{new Intl.NumberFormat('de-DE').format(number)}</p>
-          </div> : null 
-          }
-          <div className="flex items-center space-x-4 justify-between">
-            <h3 className="text-md font-bold">Sponsor</h3>
-            <p className="leading-5">{ourInfo.sponsor}</p>
-          </div>
-          {Array.isArray(ourInfo.chain) && ourInfo.chain.length > 0 ?
-            <div className="flex items-center space-x-4 justify-between">
-              <h3 className="text-md font-bold">Sponsor Chain</h3>
-              <p className="leading-5">{ourInfo.chain.join(" > ")}</p>
-            </div> : null
-          }
-          {ourInfo.point !== null && ourInfo.point !== undefined &&
-            <div className="space-y-8">
-              {Object.keys(ourInfo?.point?.own?.owner).length > 0  &&
-                <div className="flex items-center space-x-4 justify-between">
-                  <h3 className="text-md font-bold">Ownership Address</h3>
-                  <p className="leading-5">{ourInfo.point.own.owner.address}</p>
-                </div>
-              }
-              {Object.keys(ourInfo.point.own['management-proxy']).length > 0  &&
-                <div className="flex items-center space-x-4 justify-between">
-                  <h3 className="text-md font-bold">Management Proxy</h3>
-                  <p className="leading-5">{ourInfo.point.own['management-proxy'].address}</p>
-                </div>
-              }
-              {Object.keys(ourInfo.point.own['transfer-proxy']).length > 0  &&
-                <div className="flex items-center space-x-4 justify-between">
-                  <h3 className="text-md font-bold">Transfer Proxy</h3>
-                  <p className="leading-5">{ourInfo.point.own['transfer-proxy'].address}</p>
-                </div>
-              }
-              {ourInfo.point.net.escape !== null &&
-                <div className="flex items-center space-x-4 justify-between">
-                  <h3 className="text-md font-bold">Escape Request</h3>
-                  <p className="leading-5">{ourInfo.point.net.escape}</p>
-                </div>
-              }
-            </div>
-          }
-          </> :
-          null
-        }
+      <UpdatePreferences />
+      <div className="inner-section relative mt-4 space-y-8 mb-4">
+        <h2 className="h3">System Control</h2>
+        <ControlSystem />
       </div>
       <Eyre 
       forbidden={allowed.black}
