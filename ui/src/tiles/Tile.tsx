@@ -75,7 +75,7 @@ export const Tile: FunctionComponent<TileProps> = ({
       onAuxClick={() => addRecentApp(desk)}
     >
       <div>
-        {desk === 'groups' && !hasGroups && (
+        {desk === 'groups' && invite && (
           <Tooltip.Root>
             <Tooltip.Trigger className="absolute top-4 right-4 z-10 sm:top-6 sm:right-6">
               <div className="absolute h-[42px] w-[42px] animate-pulse rounded-full bg-indigo opacity-10 sm:top-0 sm:right-0" />
@@ -88,13 +88,8 @@ export const Tile: FunctionComponent<TileProps> = ({
                 className="z-40 w-[216px] rounded-lg bg-indigo p-4"
               >
                 <p className="text-white">
-                  {invite ? (
+                  {invite && (
                     <>You have an invitation to join {inviteGroupName}.</>
-                  ) : (
-                    <>
-                      Open Groups to create, join, and accept invitations to
-                      communities.
-                    </>
                   )}
                 </p>
               </Tooltip.Content>
@@ -106,7 +101,7 @@ export const Tile: FunctionComponent<TileProps> = ({
           devShip={pike?.sync?.ship}
           className="absolute top-4 left-4 z-10 sm:top-6 sm:left-6"
         />
-        {desk === 'groups' && !hasGroups ? null : (
+        {desk === 'groups' && invite ? null : (
           <TileMenu
             desk={desk}
             chad={chad}

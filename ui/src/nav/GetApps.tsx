@@ -52,18 +52,6 @@ export default function GetApps() {
           </div>
         </div>
       ))}
-      <p className="text-sm">
-        You can find more software in the Urbit Foundation's{' '}
-        <a
-          className="underline"
-          target="_blank"
-          rel="noreferrer"
-          href="https://urbit.org/ecosystem?type=applications"
-        >
-          directory
-        </a>
-        .
-      </p>
     </div>
   );
 }

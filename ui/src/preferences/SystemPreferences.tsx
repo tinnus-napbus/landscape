@@ -19,6 +19,7 @@ import { useCharges } from '../state/docket';
 import { AppPrefs } from './AppPrefs';
 import { StoragePrefs } from './StoragePrefs';
 import { InvitePrefs } from './InvitePrefs';
+import { ControlSystemPanel } from './ControlSystemPanel';
 import { DocketImage } from '../components/DocketImage';
 import { ErrorAlert } from '../components/ErrorAlert';
 import { useIsMobile, useMedia } from '../logic/useMedia';
@@ -159,6 +160,13 @@ export const SystemPreferences = () => {
                   Notifications
                 </SystemPreferencesSection>
                 <SystemPreferencesSection
+                  to="controlSystemPanel"
+                  active={matchSub('controlSystemPanel')}
+                >
+                  <SlidersIcon className="mr-3 h-6 w-6 rounded-md text-gray-600" />
+                  System
+                </SystemPreferencesSection>
+                <SystemPreferencesSection
                   to="privacy"
                   active={matchSub('privacy')}
                 >
@@ -233,6 +241,7 @@ export const SystemPreferences = () => {
               <Route path="appearance" element={<AppearancePrefs />} />
               <Route path="shortcuts" element={<ShortcutPrefs />} />
               <Route path="notifications" element={<NotificationPrefs />} />
+              <Route path="controlSystemPanel" element={<ControlSystemPanel />} />
               <Route path="privacy" element={<AttentionAndPrivacy />} />
               <Route path="storage" element={<StoragePrefs />} />
               <Route path="security" element={<SecurityPrefs />} />

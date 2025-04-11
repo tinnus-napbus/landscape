@@ -146,7 +146,7 @@ export default function LandscapeWayfinding({
           sideOffset={8}
           className="new-dropdown mx-4 flex w-[208px] flex-col space-y-2 rounded-lg bg-white p-4 text-sm font-semibold text-black drop-shadow-lg"
         >
-          <Dropdown.Item asChild className="new-dropdown-item p-2">
+          {/* <Dropdown.Item asChild className="new-dropdown-item p-2">
             <span
               onClick={() => setShowModal(true)}
               className="cursor-pointer text-blue"
@@ -156,7 +156,7 @@ export default function LandscapeWayfinding({
           </Dropdown.Item>
           <Dropdown.Separator asChild>
             <hr className="my-2 border-[1px] border-gray-50" />
-          </Dropdown.Separator>
+          </Dropdown.Separator> */}
           <Dropdown.Item asChild className="new-dropdown-item p-2">
             <a
               className="no-underline"
