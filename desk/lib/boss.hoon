@@ -222,7 +222,7 @@
         zuse+ni
         ota-source+(mu (ot ship+(se %p) desk+so ~))
         base-hash+(se %uv)
-        base-time+(se %da)
+        base-time+di
     ==
   ::
   ++  domains
