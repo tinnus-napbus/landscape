@@ -47,7 +47,7 @@ export const ControlSystem = () => {
       <div className="space-y-3">
         {isAllowed('boss-pack') &&
         <div>
-          <p className="leading-5">Defragment a ship's state. This will reduce the size of a ship's state.</p>
+          <p className="leading-5">Defragment your urbit's state, reducing its size.</p>
           <div className="flex justify-between items-center">
             <button className="button mt-2" onClick={()=>{onPack()}}>
             {loadingPack ? 'Packing...' : 'Pack'}
@@ -58,7 +58,7 @@ export const ControlSystem = () => {
         }
         {isAllowed('boss-meld') &&
           <div>
-            <p className="leading-5">Deduplicate ship state. This can significantly reduce memory usage for ships with large states.</p>
+            <p className="leading-5">Deduplicate your urbit's state. This can significantly reduce its size but may take a long time and a lot of memory.</p>
             <div className="flex justify-between items-center">
               <button className="button mt-2" onClick={()=>{onMeld()}}>
               {loadingMeld ? 'Meld...' : 'Meld'}
@@ -69,9 +69,9 @@ export const ControlSystem = () => {
         }
         {isAllowed('boss-exit') &&
           <div>
-            <p className="leading-5">This action will shut down your ship completely.</p>
+            <p className="leading-5">This action will shut down your urbit completely.</p>
             <button className="button mt-4" onClick={()=>{bossExit()}}>
-            Shut Down ship
+            Shutdown
             </button>
           </div>
         }
