@@ -286,6 +286,18 @@
     ?~  b-got=(~(get by bundles) origin.u.got)
       (~(put by bundles) origin.u.got (put:on-bu *bundle time u.got))
     (~(put by bundles) origin.u.got (put:on-bu u.b-got time u.got))
+  ::
+      [%bundles %read %since @ ~]
+    :^  ~  ~  %ding-bundles
+    !>  ^-  bundles
+    =/  since=@da  +((slav %da i.t.t.t.path))
+    %+  roll  (tap:on-id (lot:on-id read ~ `since))
+    |=  [[=time =id] =bundles]
+    ?~  got=(~(get by all) id)
+      bundles
+    ?~  b-got=(~(get by bundles) origin.u.got)
+      (~(put by bundles) origin.u.got (put:on-bu *bundle time u.got))
+    (~(put by bundles) origin.u.got (put:on-bu u.b-got time u.got))
   ==
 ++  on-arvo  on-arvo:def
 ++  on-fail  on-fail:def

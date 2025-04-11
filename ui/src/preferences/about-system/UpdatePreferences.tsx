@@ -5,7 +5,7 @@ import useKilnState, { usePike } from '../../state/kiln';
 
 export const UpdatePreferences = () => {
   const desk = 'base';
-  const appName = 'your Urbit';
+  const appName = 'the kernel';
   const pike = usePike(desk);
   const srcShip = pike?.sync?.ship;
   const { toggleInstall } = useKilnState();
