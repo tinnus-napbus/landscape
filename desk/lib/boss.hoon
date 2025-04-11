@@ -127,6 +127,7 @@
         ota-source+?~(ota-source.sys ~ (dock u.ota-source.sys))
         base-hash+s+(scot %uv base-hash.sys)
         base-time+(time base-time.sys)
+    ==
     ::
     ++  dock
       |=  doc=^dock
@@ -221,7 +222,7 @@
         zuse+ni
         ota-source+(mu (ot ship+(se %p) desk+so ~))
         base-hash+(se %uv)
-        base-time+(se %da)
+        base-time+di
     ==
   ::
   ++  domains
