@@ -81,16 +81,6 @@ export const APPS = [
   },
   // UTILITIES
   {
-    title: 'Albums',
-    description: 'A photo sharing app.',
-    color: '#9AACBD',
-    link: '/apps/albums',
-    source: '~topdem',
-    section: SECTIONS.UTILITIES,
-    desk: 'albums',
-    image: 'https://files.native.computer/albums/albums.svg'
-  },
-  {
     title: 'Scratch',
     description: 'For writing and sharing bits of text.',
     color: '#50AAEC',
@@ -100,5 +90,14 @@ export const APPS = [
     desk: 'scratch',
     image: 'https://nyc3.digitaloceanspaces.com/hmillerdev/nocsyx-lassul/2023.6.11..05.43.03-scratch.svg'
   },
-  // FUN
+  {
+    title: 'Hawk',
+    description: 'A tree-shaped programming environment.',
+    color: '#4E70A1',
+    link: '/apps/hawk',
+    source: '~dister-migrev-dolseg',
+    section: SECTIONS.UTILITIES,
+    desk: 'hawk',
+    image: 'https://nyc3.digitaloceanspaces.com/drain/hawk-assets/2024.2.09..14.26.28-hawk.png'
+  },
 ];
