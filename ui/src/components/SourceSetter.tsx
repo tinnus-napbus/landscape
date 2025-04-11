@@ -74,7 +74,7 @@ export default function SourceSetter({
             <label htmlFor="ota-source" className="h4 mb-3">
               Set Update Source
             </label>
-            <p className="mb-2">Enter a valid urbit name to receive updates for {appName}.</p>
+            <p className="mb-2">Enter a valid urbit name to receive {appName} updates.</p>
             <div className="relative flex space-x-2 w-[70%]">
               <input
                 id="ota-source"
