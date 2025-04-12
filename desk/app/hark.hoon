@@ -287,10 +287,10 @@
       (~(put by bundles) origin.u.got (put:on-bu *bundle time u.got))
     (~(put by bundles) origin.u.got (put:on-bu u.b-got time u.got))
   ::
-      [%bundles %read %since @ ~]
+      [%bundles %read @ ~]
     :^  ~  ~  %ding-bundles
     !>  ^-  bundles
-    =/  since=@da  +((slav %da i.t.t.t.path))
+    =/  since=@da  +((slav %da i.t.t.path))
     %+  roll  (tap:on-id (lot:on-id read ~ `since))
     |=  [[=time =id] =bundles]
     ?~  got=(~(get by all) id)
