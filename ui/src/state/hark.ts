@@ -7,11 +7,12 @@ import {
   NewYarn,
   Rope,
   Seam,
-  Skein,
   Bundles,
   HarkUpdate,
   Origin,
-  BundleWithOrigin
+  BundleWithOrigin, 
+  YarnContent as Content,
+  Destination
 } from '@/gear';
 import useReactQuerySubscription from '@/logic/useReactQuerySubscription';
 import useReactQueryScry from '@/logic/useReactQueryScry';
@@ -31,45 +32,45 @@ function harkAction(action: HarkAction) {
   };
 }
 
-export function useSkeins() {
-  const queryClient = useQueryClient();
-  const { data, ...rest } = useReactQuerySubscription<Skein[], HarkAction>({
-    queryKey: ['skeins'],
-    app: 'hark',
-    path: '/ui',
-    scry: '/all/skeins',
-    options: {
-      refetchOnMount: true,
-      retry: 1,
-    },
-    onEvent: (event) => {
-      if (!('add-yarn' in event)) {
-        return;
-      }
+// export function useSkeins() {
+//   const queryClient = useQueryClient();
+//   const { data, ...rest } = useReactQuerySubscription<Skein[], HarkAction>({
+//     queryKey: ['skeins'],
+//     app: 'hark',
+//     path: '/ui',
+//     scry: '/all/skeins',
+//     options: {
+//       refetchOnMount: true,
+//       retry: 1,
+//     },
+//     onEvent: (event) => {
+//       if (!('add-yarn' in event)) {
+//         return;
+//       }
 
-      const settings = queryClient.getQueryData<SettingsState>([
-        'settings',
-        window.desk,
-      ]);
-      const doNotDisturb = settings?.display?.doNotDisturb || false;
-      if (!isNewNotificationSupported() || doNotDisturb) {
-        return;
-      }
+      // const settings = queryClient.getQueryData<SettingsState>([
+      //   'settings',
+      //   window.desk,
+      // ]);
+      // const doNotDisturb = settings?.display?.doNotDisturb || false;
+      // if (!isNewNotificationSupported() || doNotDisturb) {
+      //   return;
+      // }
 
-      if (Notification.permission === 'granted') {
-        makeBrowserNotification(event['add-yarn'].yarn);
-      }
-      if (Notification.permission === 'default') {
-        Notification.requestPermission();
-      }
-    },
-  });
+  //     if (Notification.permission === 'granted') {
+  //       makeBrowserNotification(event['add-yarn'].yarn);
+  //     }
+  //     if (Notification.permission === 'default') {
+  //       Notification.requestPermission();
+  //     }
+  //   },
+  // });
 
-  return {
-    data: data as Skein[],
-    ...rest,
-  };
-}
+//   return {
+//     data: data as Skein[],
+//     ...rest,
+//   };
+// }
 
 export function useSawRopeMutation() {
   const queryClient = useQueryClient();
@@ -112,7 +113,6 @@ export function useSawSeamMutation() {
 
 export function useHasInviteToGroup(): BundleWithOrigin | undefined {
   const { newBundles: bundles, status } = useBundles()
-  console.log('got bundles', bundles)
   if (!bundles) {
     return undefined;
   }
@@ -171,6 +171,7 @@ function harkAction2(action: HarkAction2) {
 
 export function useBundles() {
   const queryClient = useQueryClient();
+
   const { data: dataNew, ...restNew } = useReactQuerySubscription<Bundles, HarkUpdate>({
     queryKey: ['bundles-unread'],
     app: 'hark',
@@ -181,16 +182,64 @@ export function useBundles() {
       retry: 1,
     },
     onEvent: (event) => {
-      console.log('got new event', event)
 
       if (!('new' in event) && !('read' in event)) {
-        console.log('some other event', event)
         return;
       }
 
       if ('read' in event) {
-        console.log('read event');
-        queryClient.invalidateQueries(['bundles-read']);
+        queryClient.removeQueries({
+          predicate: (query) => {
+            return Array.isArray(query.queryKey) && 
+                  query.queryKey[0] === 'bundles-read-since';
+          }
+        });
+
+        const allQueries = queryClient.getQueryCache().getAll();
+
+        const numericQueries = allQueries
+          .filter(query => 
+            Array.isArray(query.queryKey) && 
+            query.queryKey[0] === 'bundles-read' && 
+            typeof query.queryKey[1] === 'string' &&
+            query.queryKey[1] !== '~' && 
+            !isNaN(Number(query.queryKey[1]))
+          );
+        
+        const lastKey = numericQueries.length > 0 
+          ? numericQueries.reduce((oldest, current) => 
+              Number(current.queryKey[1]) < Number(oldest.queryKey[1]) 
+                ? current 
+                : oldest
+            ).queryKey
+          : ['bundles-read', '~'];
+            
+          if(typeof lastKey[1] === 'string' && lastKey[1] !== '~'){
+            fetchBundlesReadData({
+              path: `/1/bundles/read/${lastKey[1].toString()}`
+            }).then(data => {
+              queryClient.setQueryData(['bundles-read-since', lastKey[1]], data);
+            }).catch(error => {
+              console.error('Failed to fetch bundle data:', error);
+            });
+          } else if(typeof lastKey[1] === 'string' && lastKey[1] === '~'){
+            fetchBundlesReadData({
+              path: `/1/bundles/read/~/51`
+            }).then(data => {
+              queryClient.setQueryData(['bundles-read-since', '~'], data);
+            }).catch(error => {
+              console.error('Failed to fetch bundle data:', error);
+            });
+          }
+          queryClient.removeQueries({
+            predicate: (query) => {
+              return Array.isArray(query.queryKey) && 
+                    query.queryKey[0] === 'bundles-read' 
+                    && 
+                    (query.queryKey.length < 2 || query.queryKey[1] !== lastKey[1]);
+            }
+          });
+        
         return;
       }
 
@@ -228,21 +277,32 @@ export function useBundles() {
   };
 }
 
+const fetchBundlesReadData = async ({path}: {path: string}) => {
+  try {
+    const response = await api.scry({
+      app: 'hark',
+      path: path,
+    });
+
+    return response;
+  } catch (error) {
+    console.error('Error fetching bundle data:', error);
+    throw error;
+  }
+};
+
+
 export function useBundlesRead(date: string){
-  // Track if this is a pagination request
-  const isPagination = date !== '~';
-
-
-  console.log('scy at', `/bundles/read/${date}/30`)
-  // Include date in query key to differentiate between requests
   const { data: dataRead, ...rest } = useReactQueryScry<Bundles>({
-    queryKey: ['bundles-read', date], // Include date in query key
+    queryKey: ['bundles-read', date],
     app: 'hark',
-    path: `/1/bundles/read/${date}/30`,
+    path: `/1/bundles/read/${date}/50`,
     options: {
-      refetchOnMount: !isPagination,
+      refetchOnMount: false,
       retry: 1,
-      refetchOnWindowFocus: false
+      refetchOnWindowFocus: false,
+      staleTime: 0,
+      cacheTime: 5 * 60 * 1000
     }
   })
 
@@ -255,8 +315,6 @@ export function useBundlesRead(date: string){
 
   const readBundles = dataRead && 'bundles' in dataRead ? dataRead.bundles as Bundles : [] as Bundles;
 
-  console.log(readBundles)
-
   return {
     read: readBundles as Bundles,
     ...rest,
@@ -264,7 +322,6 @@ export function useBundlesRead(date: string){
 }
 
 export function useReadOrigin(){
-  const queryClient = useQueryClient();
   const mutationFn = async (props: { origin: Origin; update?: boolean }) =>
     api.poke({...harkAction2({
         'read-origin': props.origin,
@@ -272,12 +329,8 @@ export function useReadOrigin(){
 
   return useMutation(mutationFn, {
     onMutate: async () => {
-      await queryClient.cancelQueries(['bundles-read']);
-      await queryClient.cancelQueries(['bundles-un;read']);
     },
     onSettled: async (_data, _error) => {
-      await queryClient.invalidateQueries(['bundles-read']);
-      await queryClient.invalidateQueries(['bundles-unread']);
     },
   })
 }
@@ -293,11 +346,9 @@ export function useReadId(){
 
   return useMutation(mutationFn, {
     onMutate: async () => {
-      await queryClient.cancelQueries(['bundles-read']);
       await queryClient.cancelQueries(['bundles-unread']);
     },
     onSettled: async (_data, _error) => {
-      await queryClient.invalidateQueries(['bundles-read']);
       await queryClient.invalidateQueries(['bundles-unread']);
     },
   });
@@ -312,14 +363,13 @@ export function useReadAll(){
 
   return useMutation(mutationFn, {
     onMutate: async () => {
-      await queryClient.cancelQueries(['bundles-read']);
+      await queryClient.cancelQueries(['bundles-read', '~']);
       await queryClient.cancelQueries(['bundles-unread']);
     },
     onError: (error) => {
       console.error('Mutation failed:', error);
     },
     onSettled: async (_data, _error) => {
-      await queryClient.invalidateQueries(['bundles-read']);
       await queryClient.invalidateQueries(['bundles-unread']);
     },
   })
