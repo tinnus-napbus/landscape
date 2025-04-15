@@ -398,8 +398,7 @@ function setupInfiniteScroll(loadMoreFunction: () => Promise<any>) {
             new Array(15)
               .fill(true)
               .map((_, i) => <NotificationPlaceholder key={i} />)
-          )
-        }
+          )}
         </section>
         {loadingMore && (
           <div className="flex justify-center items-center p-4">

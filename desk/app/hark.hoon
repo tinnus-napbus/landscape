@@ -173,7 +173,6 @@
   ?>  =(our.bowl src.bowl)
   ::  versioned: must be /1/...
   ?>  ?=([%'1' *] path)
-  ~&  >>  ['subscribtion on path' t.path]
   =>  .(path t.path)
   ?+    path  (on-watch:def path)
       [%all ~]            `this
@@ -277,7 +276,7 @@
     ?~  b-got=(~(get by bundles) origin.u.got)
       (~(put by bundles) origin.u.got (put:on-bu *bundle time u.got))
     (~(put by bundles) origin.u.got (put:on-bu u.b-got time u.got))
-    ::
+  ::
       [%bundles %read @ @ ~]
     :^  ~  ~  %hark-bundles
     !>  ^-  bundles
@@ -292,10 +291,10 @@
     (~(put by bundles) origin.u.got (put:on-bu u.b-got time u.got))
   ::
       [%bundles %read @ ~]
-    :^  ~  ~  %ding-bundles
+    :^  ~  ~  %hark-bundles
     !>  ^-  bundles
-    =/  since=@da  +((slav %da i.t.t.path))
-    %+  roll  (tap:on-id (lot:on-id read ~ `since))
+    =/  since=(unit @da)  (di:dejs-soft:format [%n p=i.t.t.path])
+    %+  roll  (tap:on-id (lot:on-id read ~ since))
     |=  [[=time =id] =bundles]
     ?~  got=(~(get by all) id)
       bundles

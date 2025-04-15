@@ -41,7 +41,7 @@ function makePrettyTime(date: Date) {
 
 
 const NotificationContext: React.FC<NotificationContextProps> = ({origin, groups}) => {
-  const charge = useCharge('groups')
+  const charge = useCharge(origin.desk)
   const app = getAppName(charge);
 
   if(origin.group !=  null){
@@ -87,10 +87,9 @@ const NotificationContent: React.FC<NotificationContentProps>  = ({channel, cont
   const replyRe = new RegExp('replied');
 
   const isMention = isChannel && mentionRe.test(line);
-  console.log('isMention', isMention, contents)
   const isReply = isChannel && replyRe.test(line);
 
-  function renderContent(content: Content) {
+  function renderContent(content: Content, i: number) {
     if (typeof content === 'string') {
       const PATP_REGEX = /(~[a-z0-9-]+)/i;
       const URL_REGEX = /(http(s?):\/\/[^\s]+)/i;
@@ -127,7 +126,7 @@ const NotificationContent: React.FC<NotificationContentProps>  = ({channel, cont
     if ('ship' in content) {
       return (
         <ShipName
-          key={content.ship}
+          key={i}
           name={content.ship}
           className="font-semibold text-gray-800"
           showAlias={true}
@@ -135,7 +134,7 @@ const NotificationContent: React.FC<NotificationContentProps>  = ({channel, cont
       );
     }
 
-    return <span key={content.emph}>&ldquo;{content.emph}&rdquo;</span>;
+    return <span key={i}>&ldquo;{content.emph}&rdquo;</span>;
   
   }
 
@@ -143,10 +142,10 @@ const NotificationContent: React.FC<NotificationContentProps>  = ({channel, cont
     return (
       <div className="flex-col">
         <p className="leading-5 text-gray-400 line-clamp-2">
-          {_.map(_.slice(contents, 0, 2), (c: Content) => renderContent(c))}
+          {_.map(_.slice(contents, 0, 2), (c: Content, index: number) => renderContent(c, index))}
         </p>
         <p className="leading-5 text-gray-800 line-clamp-2">
-          {_.map(_.slice(contents, 2), (c: Content) => renderContent(c))}
+          {_.map(_.slice(contents, 2), (c: Content, index: number) => renderContent(c, index))}
         </p>
       </div>
     );
@@ -156,10 +155,10 @@ const NotificationContent: React.FC<NotificationContentProps>  = ({channel, cont
     return (
       <div className="flex-col">
         <p className="leading-5 text-gray-400 line-clamp-1">
-          {_.map(_.slice(contents, 0, 4), (c: Content) => renderContent(c))}
+          {_.map(_.slice(contents, 0, 4), (c: Content, index: number) => renderContent(c, index))}
         </p>
         <p className="leading-5 text-gray-800 line-clamp-2">
-          {_.map(_.slice(contents, 6), (c: Content) => renderContent(c))}
+          {_.map(_.slice(contents, 6), (c: Content, index: number) => renderContent(c, index))}
         </p>
       </div>
     );
@@ -167,7 +166,7 @@ const NotificationContent: React.FC<NotificationContentProps>  = ({channel, cont
 
   return (
     <p className="leading-5 text-gray-800 line-clamp-2 w-80">
-      {_.map(contents, (c: Content) => renderContent(c))}
+      {_.map(contents, (c: Content, index: number) => renderContent(c, index))}
     </p>
     );
   };
@@ -206,21 +205,24 @@ export const NotificationItem: React.FC<NotificationProps> = ({
     e.preventDefault();
     e.stopPropagation();
     let origin = firstNotification.origin
-    readOrigin({ origin });
+    if (isMounted.current) {
+      readOrigin({ origin });
+    }
   }, [firstNotification?.origin, readOrigin]);
 
   const onNotificationClick = useCallback((id) => {
-    readId({ id },
-        {onSuccess: () => {
-            console.log('on read of single notification, array length is ', currentCount)
-            if(currentCount > 2){
-                setCurrentCount(currentCount - 1)
-                setExpanded(expandedRef.current);
-            }else{
-                setExpanded(false);
-            }
-        }}
-    );
+    if (isMounted.current) {
+      readId({ id },
+          {onSuccess: () => {
+              if(currentCount > 2){
+                  setCurrentCount(currentCount - 1)
+                  setExpanded(expandedRef.current);
+              }else{
+                  setExpanded(false);
+              }
+          }}
+      );
+    }
   }, [readId, currentCount]);
   
   return (
@@ -237,8 +239,7 @@ export const NotificationItem: React.FC<NotificationProps> = ({
         <DeskLink
           onClick={isUnread ? (e) => onOriginClick(e) : undefined}
           to={firstNotification.destination}
-          desk={'groups'}
-          // desk={firstNotification.origin.desk || ''}
+          desk={firstNotification.origin.desk || ''}
           className="flex-col flex-1 space-x-3"
         >
           <div className="flex space-x-2">
@@ -247,7 +248,7 @@ export const NotificationItem: React.FC<NotificationProps> = ({
                 <GroupAvatar image={groups?.[firstNotification.origin.group]?.meta?.image} />
                 : 
                 (() => {
-                  const charge = useCharge('groups');
+                  const charge = useCharge(firstNotification.origin.desk);
                   return <DocketImage {...charge} size="default" />;
                 })()
               }
@@ -318,7 +319,7 @@ export const NotificationItem: React.FC<NotificationProps> = ({
                 (notification.origin.group != null ?
                   <GroupAvatar image={groups?.[notification.origin.group]?.meta?.image} /> : 
                   (() => {
-                    const charge = useCharge('groups');
+                    const charge = useCharge(notification.origin.desk);
                     return <DocketImage {...charge} size="default" className=""/>;
                   })()
                 ) : <div className="w-12"></div>}

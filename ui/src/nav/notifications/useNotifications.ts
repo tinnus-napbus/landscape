@@ -261,7 +261,7 @@ export const useNotifications = () => {
       };
     }
 
-
+    const groupedNewNotifications = newBundles ? groupBundlesByDate({bundles: newBundles, isUnread: true}) : [];
 
     return {
       new: groupedNewNotifications,
