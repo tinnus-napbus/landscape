@@ -27,7 +27,7 @@ function MoonKeyButton({ moon }: MoonKeyButtonProps) {
         
         const link = document.createElement('a');
         link.href = url;
-        link.download = `${moon}.key`;
+        link.download = `${moon.slice(1)}.key`;
         
         document.body.appendChild(link);
         link.click();
@@ -45,13 +45,13 @@ function MoonKeyButton({ moon }: MoonKeyButtonProps) {
   };
 
   return (
-    <Button
-      variant="alt-primary"
+    <button
+      className="button"
       onClick={handleExportKey}
       disabled={isLoading}
     >
       {isLoading ? 'Loading...' : 'Export Key'}
-    </Button>
+    </button>
   );
 }
 

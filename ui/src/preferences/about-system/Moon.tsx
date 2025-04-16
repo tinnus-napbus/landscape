@@ -67,10 +67,10 @@ export const Moon = ({ moon, life, rift, forbidden}: MoonProps) => {
               <h3 className='text-md font-bold whitespace-nowrap'>Rift:</h3>
               <p className="leading-5">{rift}</p>
             </div>
+            <div className="flex space-x-3">
             <MoonKeyButton 
             moon={moon}
             />
-            <div className="flex space-x-3">
               {isAllowed('boss-moon-rekey')  &&
                 <button 
                 className="button"
