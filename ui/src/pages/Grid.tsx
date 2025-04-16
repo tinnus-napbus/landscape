@@ -55,9 +55,9 @@ export const Grid: FunctionComponent = () => {
             <Route path="app/:desk/remove" element={<RemoveApp/>}/>
           </Routes>
         </ErrorBoundary>
-        {!disableWayfinding && (
+        {/* {!disableWayfinding && (
           <LandscapeWayfinding className="hidden sm:fixed sm:bottom-4 sm:left-4 sm:z-[100] sm:block" />
-        )}
+        )} */}
       </main>
     </div>
   );

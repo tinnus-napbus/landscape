@@ -301,9 +301,11 @@ export function useTreaty(host: string, desk: string) {
     [queryClient, ref]
   );
 
-  // if (!treaty) {
-  //   getTreaty(host, desk);
-  // }
+  useEffect(() => {
+    if (!treaty) {
+      getTreaty(host, desk);
+    }
+  }, [treaty, getTreaty, host, desk]);
 
   return treaty;
 }
