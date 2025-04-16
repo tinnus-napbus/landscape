@@ -172,7 +172,7 @@
       (~(del by by-base) base.href.docket)
     =*  cha  ~(. ch desk)
     :_  state
-    ~[del-fact:cha uninstall:cha]
+    [del-fact:cha uninstall:cha (clear-cache:cha `charge)]
   --
 ::
 ++  on-watch
@@ -406,16 +406,18 @@
         `state
       ?-    zest
           %live
-        ?.  ?=(%glob -.href.docket.charge)
-          =.  charges  (new-chad:cha %site ~)
-          :_(state [add-fact:cha (new-cache:cha `charge)])
-        :_(state ~[add-fact:cha])
+        =?  charges  !=(%glob -.href.docket.charge)
+          (new-chad:cha %site ~)
+        :_(state [add-fact:cha (new-cache:cha `charge)])
       ::
           ?(%held %dead)
         =/  glob=(unit glob)
-          ?:(?=(%glob -.chad.charge) `glob.chad.charge ~)
+          ?+  -.chad.charge  ~
+            %glob  `glob.chad.charge
+            %suspend  glob.chad.charge
+          ==
         =.  charges  (new-chad:cha %suspend glob)
-        :_(state [add-fact:cha (new-cache:cha `charge)])
+        :_(state [add-fact:cha (clear-cache:cha `charge)])
       ==
     [[card-1 cards-2] state]
   ::
@@ -435,9 +437,9 @@
         ::          !=(%kids desk)
         ::      ==
         ::    [dap.bowl %no-docket-file-for desk]
-        ?.  (~(has by charges) desk)
+        ?~  pre=(~(get by charges) desk)
           `state
-        :-  ~[del-fact:cha]
+        :-  [del-fact:cha (clear-cache:cha pre)]
         state(charges (~(del by charges) desk))
       ::  always update the docket in state to match clay's
       ::
@@ -778,6 +780,30 @@
     %+  ~(put by charges)  desk
     [d chad:(~(gut by charges) desk *charge)]
   ++  new-chad  |=(c=chad (~(jab by charges) desk |=(charge +<(chad c))))
+  ++  clear-cache
+    |=  old=(unit charge)
+    ^-  (list card)
+    %+  turn  ~(tap by (null-cache-map old))
+    |=  [url=@t entry=(unit cache-entry:eyre)]
+    (arvo:(pass /cache) %e %set-response url entry)
+  ++  null-cache-map
+    |=  old=(unit charge)
+    ^-  (map @t (unit cache-entry:eyre))
+    ?~  old  ~
+    ?.  ?=(%glob -.href.docket.u.old)  ~
+    ?.  ?=(?([%glob *] [%suspend ^]) chad.u.old)  ~
+    =/  =glob
+      ?-  chad.u.old
+        [%glob *]  glob.chad.u.old
+        [%suspend ^]  u.glob.chad.u.old
+      ==
+    =/  base=@t
+      (cat 3 '/apps/' base.href.docket.u.old)
+    ::  cache map with null values to clear entries
+    ::
+    %-  ~(rep by glob)
+    |=  [[=path *] out=(map @t (unit cache-entry:eyre))]
+    (~(put by out) (rap 3 base (spat (snip path)) '.' (rear path) ~) ~)
   ++  new-cache
     |=  old=(unit charge)
     ^-  (list card)
@@ -788,18 +814,9 @@
       %+  turn  ~(tap by caches)
       |=  [url=@t entry=(unit cache-entry:eyre)]
       (arvo:(pass /cache) %e %set-response url entry)
-    %-  %~  gas  by
-        ^-  (map @t (unit cache-entry:eyre))
-        ::  clear old cache entries, if any
-        ::
-        ?~  old  ~
-        ?.  ?=(%glob -.chad.u.old)  ~
-        ?.  ?=(%glob -.href.docket.u.old)  ~
-        =/  base=@t
-          (cat 3 '/apps/' base.href.docket.u.old)
-        %-  ~(rep by glob.chad.u.old)
-        |=  [[=path *] out=(map @t (unit cache-entry:eyre))]
-        (~(put by out) (rap 3 base (spat (snip path)) '.' (rear path) ~) ~)
+    ::  clear old cache entries, if any
+    ::
+    %-  ~(gas by (null-cache-map old))
     ::  overwrite with new cache entries, if needed
     ::
     =/  new  (~(got by charges) desk)

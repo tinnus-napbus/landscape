@@ -48,7 +48,6 @@
   |=  [=mark =vase]
   |^  ^-  (quip card _this)
   ?>  =(our.bowl src.bowl)
-  ~&  >  ['got poke' mark]
   =^  cards  state
     ?+  mark  (on-poke:def mark vase)
       %hark-action-2  (hark-action-2 !<(action vase))
@@ -57,14 +56,13 @@
     ==
   [cards this]
   ::
-++  hark-action-2
+  ++  hark-action-2
     |=  act=action
     ^-  (quip card _state)
-    ~&  >>>  act
     ?-    act
         [%create *]
       ?:  (~(has by all) id.act)  (on-poke:def mark vase)
-      =/  n=notification  [unique:hc +.act]
+      =/  n=notification  [unique +.act]
       =.  all  (~(put by all) id.act n)
       =.  unread  (put:on-id unread time.n id.n)
       =/  paths=(list path)  (origin-to-paths:hc origin.act) 
@@ -263,7 +261,6 @@
     ``atom+!>(api-version)
   :: versioned: must be /x/1/...
   ?>  ?=([%x %'1' *] path)
-  ~&  t.t.path
   =>  .(path t.t.path)
   ?+    path  [~ ~]
       [%bundles %unread ~]
@@ -436,3 +433,4 @@
     --
   --
 --
+

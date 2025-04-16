@@ -15,7 +15,6 @@ export const Moon = ({ moon, life, rift, forbidden}: MoonProps) => {
     const [keyReset, setKeyReset] = useState(false);
     const [messageKeyReset, setMessageKeyReset] = useState<string | null>(null)
 
-
     function isAllowed(poke:string){
         return !forbidden?.includes(poke)
     }
@@ -54,7 +53,8 @@ export const Moon = ({ moon, life, rift, forbidden}: MoonProps) => {
         } finally {
             setKeyReset(false);
         }
-    }
+      }
+
 
     return(
         <div className="space-y-3" key={moon}>
