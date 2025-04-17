@@ -17,7 +17,6 @@ const URL = 'http://localhost:8080/'
 //(import.meta.env.VITE_MOCK_URL ||
   //import.meta.env.VITE_VERCEL_URL) as string;
 
-  console.log('URL', URL)
 
 type Hook = (event: any, mark: string) => boolean;
 
@@ -265,6 +264,5 @@ class API {
 }
 
 const api = new API();
-console.log(api)
 
 export default api;
