@@ -1,8 +1,10 @@
-import { useMemo, useRef } from 'react';
+import { useMemo } from 'react';
 import { useBundles, useBundlesRead } from '@/state/hark';
 import _ from 'lodash';
 import { Bundles, Origin, Notification } from '@/gear'
 import { makePrettyDay } from '@/logic/utils';
+import moment from 'moment';
+import { daToUnix, parseDa, unixToDa, formatDa } from '@urbit/aura'
 
 export interface DayGrouping {
   date: string;
@@ -18,7 +20,7 @@ export interface GroupingNotification {
     day: string;
 }
 
-export function oldestInGrouping(groupings: DayGrouping[]): number | null {
+export function oldestInGrouping(groupings: DayGrouping[]): string | null {
   if (!groupings || groupings.length === 0) {
     return null;
   }
@@ -32,12 +34,7 @@ export function oldestInGrouping(groupings: DayGrouping[]): number | null {
         let notificationTime: number | null = null;
         
         if (notification.time) {
-          // Handle both string and number timestamp formats
-          notificationTime = typeof notification.time === 'string' 
-            ? (notification.time.includes('T') 
-                ? new Date(notification.time).getTime() 
-                : Number(notification.time))
-            : Number(notification.time);
+          notificationTime = moment(daToUnix(parseDa(notification.time))).toDate().getTime() 
         }
         
         if (notificationTime && !isNaN(notificationTime) && notificationTime < oldestTime) {
@@ -48,7 +45,7 @@ export function oldestInGrouping(groupings: DayGrouping[]): number | null {
     }
   }
   
-  return foundValidTime ? oldestTime : null;
+  return foundValidTime ? formatDa(unixToDa(oldestTime)) : null;
 }
 
 
@@ -68,8 +65,8 @@ export function groupBundlesByDate({bundles, isUnread}: {bundles: Bundles, isUnr
     
     // Group this origin's notifications by date
     const notificationsByDay = _.groupBy(bundleWithOrigin.bundle, bundle => {
-      const time = bundle.notification.time || 0;
-      const date = new Date(time);
+      const time = bundle.notification.time;
+      const date = moment(daToUnix(parseDa(time))).toDate()
       return makePrettyDay(date);
     });
     
@@ -77,7 +74,7 @@ export function groupBundlesByDate({bundles, isUnread}: {bundles: Bundles, isUnr
     Object.entries(notificationsByDay).forEach(([day, dayBundles]) => {
       // Sort the day's bundles by time (newest first)
       const sortedDayBundles = _.sortBy(dayBundles, bundle => 
-        -(bundle.notification.time || 0)
+        makePrettyDay(moment(daToUnix(parseDa(bundle.notification.time))).toDate())
       );
       
       // Use the newest notification as the first notification
@@ -102,8 +99,8 @@ export function groupBundlesByDate({bundles, isUnread}: {bundles: Bundles, isUnr
     return {
       date,
       notifications: notifications.sort((a, b) => {
-        const timeA = a.firstNotification.time || 0;
-        const timeB = b.firstNotification.time || 0;
+        const timeA = +moment(daToUnix(parseDa(a.firstNotification.time)));
+        const timeB = +moment(daToUnix(parseDa(b.firstNotification.time)));
         return timeB - timeA; // Sort descending (newest first)
       })
     };
@@ -163,7 +160,7 @@ function sortGroupingsByDate(groupings: DayGrouping[]): DayGrouping[] {
     }
     
     // Fallback: Try to parse as regular date
-    const fallbackDate = new Date(dateString);
+    const fallbackDate = moment(daToUnix(parseDa(dateString))).toDate();
     if (!isNaN(fallbackDate.getTime())) {
       return fallbackDate.getTime();
     }
@@ -204,8 +201,8 @@ export function organizeGroupings(groupings: DayGrouping[]): DayGrouping[] {
   // Sort notifications within each grouping by time (newest first)
   organizedGroupings.forEach(grouping => {
     grouping.notifications.sort((a, b) => {
-      const timeA = a.firstNotification.time || 0;
-      const timeB = b.firstNotification.time || 0;
+      const timeA = +moment(daToUnix(parseDa(a.firstNotification.time))) || 0;
+      const timeB = +moment(daToUnix(parseDa(b.firstNotification.time))) || 0;
       return timeB - timeA;
     });
   });
@@ -283,7 +280,6 @@ export const useReadNotifications = (date: string) => {
 
   // Force the date to be a direct value
   const actualDate = String(date);
-  console.log('fetching bundles at:', actualDate)
   
   // Call useBundlesRead with query option to not refetch unnecessarily
   const {read: readBundles, status: bundleStatus} = useBundlesRead(actualDate);
@@ -298,6 +294,7 @@ export const useReadNotifications = (date: string) => {
   const totalNotifications = readBundles ? countNotifications(readBundles) : 0;
   const groupedReadNotifications = readBundles ? 
     groupBundlesByDate({bundles: readBundles, isUnread: false}) : [];
+
   
   return {
     read: groupedReadNotifications,

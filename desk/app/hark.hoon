@@ -277,8 +277,9 @@
       [%bundles %read @ @ ~]
     :^  ~  ~  %hark-bundles
     !>  ^-  bundles
-    =/  after=(unit @da)  (di:dejs-soft:format [%n p=i.t.t.path])
+    =/  after=(unit @da)   (slaw %da i.t.t.path)
     =/  max=@ud    (slav %ud i.t.t.t.path)
+    ~&  >>  ['after' after]
     %+  roll  (tab:on-id read after max)
     |=  [[=time =id] =bundles]
     ?~  got=(~(get by all) id)
@@ -290,8 +291,8 @@
       [%bundles %read @ ~]
     :^  ~  ~  %hark-bundles
     !>  ^-  bundles
-    =/  since=(unit @da)  (di:dejs-soft:format [%n p=i.t.t.path])
-    %+  roll  (tap:on-id (lot:on-id read ~ since))
+    =/  since=@da  +((slav %da i.t.t.path))
+    %+  roll  (tap:on-id (lot:on-id read ~ `since))
     |=  [[=time =id] =bundles]
     ?~  got=(~(get by all) id)
       bundles

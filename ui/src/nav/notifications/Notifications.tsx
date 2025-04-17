@@ -108,7 +108,6 @@ export const Notifications = React.memo(() => {
   // This ensures we capture data from both loadMore and cache invalidation
   if (read?.length === 0) {
     if (hasMore && isPaginationData) {
-      console.log('No data but hasMore is true, setting hasMore to false', read);
       setLoadingMore(false);
       setHasMore(false);
     }

@@ -66,7 +66,7 @@
   ++  notification
     |=  n=notification:h
     %-  pairs
-    :~  time+(time time.n)
+    :~  time+s+(scot %da time.n)
         id+s+(scot %uv id.n)
         origin+(origin origin.n)
         contents+a+(turn contents.n content)
@@ -87,7 +87,7 @@
           |=  [t=@da n=notification:h]
           ^-  json
           %-  pairs 
-          :~  time+(time t)
+          :~  time+s+(scot %da time.n)
               notification+(notification n)
         ==
     ==  ==
@@ -134,7 +134,7 @@
   ::
   ++  notification
     %-  ot
-    :~  time+di
+    :~  time+(se %da)
         id+(se %uv)
         origin+org
         contents+(ar content)

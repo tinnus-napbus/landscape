@@ -13,6 +13,9 @@ import { DocketImage } from '../../components/DocketImage';
 import GroupAvatar from '../../components/GroupAvatar';
 import { useReadOrigin, useReadId } from '@/state/hark';
 
+import moment from 'moment';
+import { daToUnix, parseDa } from '@urbit/aura'
+
 interface NotificationProps {
   firstNotification: Notification;
   isUnread: boolean,
@@ -278,7 +281,7 @@ export const NotificationItem: React.FC<NotificationProps> = ({
                   )}
                   <div className="flex items-center">
                     <span className="font-semibold text-gray-400 items-end w-100">
-                      {makePrettyTime(firstNotification.time ? new Date(firstNotification.time) : new Date())}
+                      {moment(daToUnix(parseDa(firstNotification.time))).format('HH:mm')}
                     </span>
                   </div>
                 </div>
@@ -351,7 +354,7 @@ export const NotificationItem: React.FC<NotificationProps> = ({
                     )}
                     <div className="flex items-center">
                       <span className={`font-semibold text-gray-400 ${isUnread ? 'group-hover:hidden' : ''}`}>
-                      {makePrettyTime(notification.time ? new Date(notification.time) : new Date())}
+                      {moment(daToUnix(parseDa(notification.time))).format('HH:mm')}
                       </span>
                       {isUnread && (
                       <button 

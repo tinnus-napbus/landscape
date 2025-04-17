@@ -65,7 +65,6 @@ export const AppInfo: FC<AppInfoProps> = ({
   const treaty = useTreaty(ship, desk);
   const { mutate: installDocketMutation } = useInstallDocketMutation();
 
-  console.log('docket', docket)
 
   const installApp = async () => {
     if (installStatus === 'installed') {
