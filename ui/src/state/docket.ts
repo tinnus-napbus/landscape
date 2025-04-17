@@ -23,7 +23,7 @@ import { ConnectionStatus, useConnectivityCheck } from './vitals';
 import useReactQuerySubscription from '@/logic/useReactQuerySubscription';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import useReactQueryScry from '@/logic/useReactQueryScry';
-import { useCreateDingNotification } from './hark'
+import { useCreateNotification } from './hark'
 import { useWatcherStore } from './watcher';
 
 const NOTIFICATION_TIMEOUT = 60 * 1000; // if an action hasn't completed in 60 seconds, show a notification when it does.
@@ -63,7 +63,7 @@ export function normalizeDockets<T extends Docket>(
 }
 
 export function useCharges(): ChargesWithDesks {
-  const { mutate } = useCreateDingNotification();
+  const { mutate } = useCreateNotification();
   const { data, ...rest } = useReactQuerySubscription<
     ChargeUpdateInitial,
     ChargeUpdate

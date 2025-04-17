@@ -1,7 +1,7 @@
 import { 
   isContentEmph, 
   isContentShip, 
-  Notification as DingNotification, 
+  Notification as Notification2, 
   Docket,
   DocketHref,
   Treaty, } from '@/gear'
@@ -107,7 +107,7 @@ export function isColor(color: string): boolean {
   }
 }
 
-export const makeBrowserNotification = (notification: DingNotification) => {
+export const makeBrowserNotification = (notification: Notification2) => {
   const origin = notification.origin;
   // need to capitalize desk name
   const app = origin

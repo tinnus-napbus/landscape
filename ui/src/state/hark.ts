@@ -380,7 +380,7 @@ interface NotificationData {
   destination: Destination;
 }
 
-export function useCreateDingNotification(){
+export function useCreateNotification(){
 
   function dateNowToUnsignedBase32() {
     const timestamp = Date.now();
