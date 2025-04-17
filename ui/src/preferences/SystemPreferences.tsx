@@ -37,6 +37,7 @@ import ForwardSlashIcon from '../components/icons/ForwardSlashIcon';
 import SlidersIcon from '../components/icons/SlidersIcon';
 import Sig16Icon from '../components/icons/Sig16Icon';
 import InvitesIcom from '../components/icons/InvitesIcon';
+import SigCircleIcon from '@/components/icons/SigCircleIcon';
 import { useSystemUpdate } from '../logic/useSystemUpdate';
 import { Bullet } from '../components/icons/Bullet';
 import SearchSystemPreferences from './SearchSystemPrefences';
@@ -119,7 +120,7 @@ export const SystemPreferences = () => {
                   to="system-updates"
                   active={matchSub('system-updates')}
                 >
-                  <TlonIcon className="mr-3 h-6 w-6 rounded-md text-gray-600" />
+                  <SigCircleIcon className="mr-3 h-6 w-6 rounded-md text-gray-600" />
                   About System
                   {systemBlocked && (
                     <Bullet className="ml-auto h-5 w-5 text-orange-500" />
