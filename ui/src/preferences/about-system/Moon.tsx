@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { useBossMoonKey, bossMoonRekey, bossMoonBreach } from '../../state/boss';
-import { useCopy } from '@/logic/utils';
+import { bossMoonRekey, bossMoonBreach } from '../../state/boss';
+import MoonKeyButton from './MoonKey';
 
 interface MoonProps{
   moon: string,
@@ -10,29 +10,14 @@ interface MoonProps{
 }
 
 export const Moon = ({ moon, life, rift, forbidden}: MoonProps) => {
-    const [code, setCode] = useState('')
     const [breach, setBreach] = useState(false);
     const [messageBreach, setMessageBreach] = useState<string | null>(null)
     const [keyReset, setKeyReset] = useState(false);
     const [messageKeyReset, setMessageKeyReset] = useState<string | null>(null)
-    const { didCopy, doCopy } = useCopy(code);
 
     function isAllowed(poke:string){
         return !forbidden?.includes(poke)
     }
-
-    async function showKey(moon:string){
-        try{
-          if(moon !== ''){
-            const {data: result} = await useBossMoonKey(moon) ?? { data: null };
-            if(result && Object.keys(result).length !== 0){
-              setCode(result.key)
-            }
-          }
-        }catch{
-          console.error(`failed to fetch key for ${moon}`)
-        }
-      }
 
     async function breachMoon(moonId: string){
       try {
@@ -55,7 +40,6 @@ export const Moon = ({ moon, life, rift, forbidden}: MoonProps) => {
     async function reKeyMoon(moonId: string){
         try {
             setKeyReset(true);
-            setCode('')
             setMessageKeyReset(null);
             setMessageBreach(null);
             const result = await bossMoonRekey(moonId);
@@ -71,6 +55,7 @@ export const Moon = ({ moon, life, rift, forbidden}: MoonProps) => {
         }
       }
 
+
     return(
         <div className="space-y-3" key={moon}>
             <h3 className="text-md font-bold whitespace-nowrap">{moon}</h3>
@@ -82,23 +67,10 @@ export const Moon = ({ moon, life, rift, forbidden}: MoonProps) => {
               <h3 className='text-md font-bold whitespace-nowrap'>Rift:</h3>
               <p className="leading-5">{rift}</p>
             </div>
-            {code ? (
-              <div>
-                <div className="flex items-center justify-between rounded bg-gray-100 p-3">
-                  <pre>{code}</pre>
-                  <button
-                    className="small-button"
-                    onClick={() => {doCopy();}}
-                  >
-                    {didCopy ? 'Copied!' : 'Copy'}
-                  </button>
-                </div>
-              </div>
-              )
-              :
-              <button className="button" onClick={()=> showKey(moon)}>Show Access Key</button>
-            }
             <div className="flex space-x-3">
+            <MoonKeyButton 
+            moon={moon}
+            />
               {isAllowed('boss-moon-rekey')  &&
                 <button 
                 className="button"

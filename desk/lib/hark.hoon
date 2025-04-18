@@ -19,7 +19,7 @@
     :~  id+s+(scot %uv id)
         origin+(origin o)
         contents+a+(turn c content)
-        destination+quri
+        destination+(quri d)
     ==
   ::
   ++  origin
@@ -49,11 +49,11 @@
     ==
   ::
   ++  quri
-    |=  =quri:eyre
+    |=  d=destination:h
     ^-  json
-    ?:  -.quri
-      (frond ext+s+(crip (apex:en-purl:html quri)))
-    (frond int+s+(crip (apex:en-purl:html quri)))
+    ?:  -.d
+      (frond ext+s+(crip (apex:en-purl:html d)))
+    (frond int+s+(crip (apex:en-purl:html d)))
   ::
   ++  update
     |=  upd=update:h
@@ -70,7 +70,7 @@
         id+s+(scot %uv id.n)
         origin+(origin origin.n)
         contents+a+(turn contents.n content)
-        destination+quri
+        destination+(quri destination.n)
     ==
   ::
   ++  bundles
@@ -81,14 +81,15 @@
     |=  [o=origin:h =bundle:h]
     %-  pairs
     :~  origin+(origin o)
-        :-  %bundle
-        :-  %a
-        %+  turn  (tap:on-bu bundle)
-        |=  [t=@da n=notification:h]
-        ^-  json
-        %-  pairs 
-        :~  time+(scot %da t)
-            notification+(notification n)
+        :*  %bundle
+            %a
+          %+  turn  (tap:on-bu bundle)
+          |=  [t=@da n=notification:h]
+          ^-  json
+          %-  pairs 
+          :~  time+s+(scot %da time.n)
+              notification+(notification n)
+        ==
     ==  ==
   --
 ::
@@ -100,26 +101,44 @@
     (of action-tags)
   ::
   ++  action-tags
-    :~  create+create
+    :~  
         read+(ot ~[id+(se %uv)])
-        read-origin+origin
+        read-origin+org
         read-all+ul
+        create+create-note
     ==
   ::
-  ++  create
+  ++  update
+    (of update-tags)
+  ::
+  ++  update-tags
+    :~  new+notification
+        read+(ot ~[id+(se %uv)])
+    ==
+  ::
+  ++  create-note
     %-  ot
     :~  id+(se %uv)
-        origin+origin
+        origin+org
         contents+(ar content)
         destination+quri
     ==
   ::
-  ++  origin 
+  ++  org
     %-  ot
-    :~  desk+(se %tas)
+    :~  desk+so
         path+pa
         group+(mu flag)
         channel+(mu nest)
+    ==
+  ::
+  ++  notification
+    %-  ot
+    :~  time+(se %da)
+        id+(se %uv)
+        origin+org
+        contents+(ar content)
+        destination+(+:quri)
     ==
   ::
   ++  flag  (su ;~((glue fas) ;~(pfix sig fed:ag) sym))
@@ -138,12 +157,11 @@
     ==
   ::
   ++  quri
-    |=  j=json
-    ^-  quri:eyre
-    %+  cu  tail
-    %-  of
-    :~  ext+(su zest:de-purl:html)
-        int+(su zest:de-purl:html)
+  %+  cu  tail
+    %-  of 
+    :~
+      ext+(su zest:de-purl:html)
+      int+(su zest:de-purl:html)
     ==
   --
 --

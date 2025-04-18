@@ -28,12 +28,14 @@ export const Tile: FunctionComponent<TileProps> = ({
   const groups = useGroups(desk === 'groups');
   const hasGroups = groups && Object.entries(groups).length > 0;
   const invite = useHasInviteToGroup();
+
   const inviteGroupName =
-    invite &&
-    typeof invite.top.con[2] === 'object' &&
-    'emph' in invite.top.con[2]
-      ? invite.top.con[2].emph
-      : 'a group';
+  invite &&
+  invite.bundle.find((bundle) => 
+    typeof bundle.notification.contents[2] === 'object' &&
+    'emph' in bundle.notification.contents[2]
+  )?.notification.contents[2] as {emph: string} | undefined;
+  const groupName = inviteGroupName?.emph || 'a group';
   const addRecentApp = useRecentsStore((state) => state.addRecentApp);
   const { title, image, color, chad, href } = charge;
   const pike = usePike(desk);
@@ -88,8 +90,13 @@ export const Tile: FunctionComponent<TileProps> = ({
                 className="z-40 w-[216px] rounded-lg bg-indigo p-4"
               >
                 <p className="text-white">
-                  {invite && (
-                    <>You have an invitation to join {inviteGroupName}.</>
+                  {invite ? (
+                    <>You have an invitation to join {groupName}.</>
+                  ) : (
+                    <>
+                      Open Groups to create, join, and accept invitations to
+                      communities.
+                    </>
                   )}
                 </p>
               </Tooltip.Content>

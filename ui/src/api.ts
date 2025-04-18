@@ -13,8 +13,10 @@ import useSchedulerStore from './state/scheduler';
 
 export const IS_MOCK =
   import.meta.env.MODE === 'mock' || import.meta.env.MODE === 'staging';
-const URL = (import.meta.env.VITE_MOCK_URL ||
-  import.meta.env.VITE_VERCEL_URL) as string;
+const URL = 'http://localhost:8080/'
+//(import.meta.env.VITE_MOCK_URL ||
+  //import.meta.env.VITE_VERCEL_URL) as string;
+
 
 type Hook = (event: any, mark: string) => boolean;
 

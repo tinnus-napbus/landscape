@@ -16,6 +16,7 @@ import {
 import { getAppHref, getAppName } from '@/logic/utils';
 import { addRecentApp } from '../nav/search/Home';
 import { TreatyMeta } from './TreatyMeta';
+import { Attribute } from './Attribute';
 
 type InstallStatus = 'uninstalled' | 'installing' | 'installed';
 
@@ -63,6 +64,7 @@ export const AppInfo: FC<AppInfoProps> = ({
   const [copied, setCopied] = useState(false);
   const treaty = useTreaty(ship, desk);
   const { mutate: installDocketMutation } = useInstallDocketMutation();
+
 
   const installApp = async () => {
     if (installStatus === 'installed') {
@@ -185,6 +187,27 @@ export const AppInfo: FC<AppInfoProps> = ({
             <TreatyMeta treaty={treaty} />
           </>
         )}
+        {!treaty && docket ?
+        (<>
+          <hr className="-mx-5 border-gray-50 sm:-mx-8" />
+            <div className="mt-5 sm:mt-8 space-y-5 sm:space-y-8">
+              <Attribute title="Developer Desk" attr="desk">
+                {docket.desk}
+              </Attribute>
+              <Attribute title="License" attr="license">
+                {docket.license}
+              </Attribute>
+              <Attribute title="Website" attr="website">
+                {docket.website}
+              </Attribute>
+              <Attribute title="Version" attr="version">
+                {docket.version}
+              </Attribute>
+            </div>
+        </>
+        )
+        : null
+        }
       </div>
     </div>
   );

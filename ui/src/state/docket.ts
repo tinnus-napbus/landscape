@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import {
   Allies,
   Charge,
@@ -23,7 +23,7 @@ import { ConnectionStatus, useConnectivityCheck } from './vitals';
 import useReactQuerySubscription from '@/logic/useReactQuerySubscription';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import useReactQueryScry from '@/logic/useReactQueryScry';
-import { useAddYarnMutation } from './hark';
+import { useCreateNotification } from './hark'
 import { useWatcherStore } from './watcher';
 
 const NOTIFICATION_TIMEOUT = 60 * 1000; // if an action hasn't completed in 60 seconds, show a notification when it does.
@@ -63,7 +63,7 @@ export function normalizeDockets<T extends Docket>(
 }
 
 export function useCharges(): ChargesWithDesks {
-  const { mutate } = useAddYarnMutation();
+  const { mutate } = useCreateNotification();
   const { data, ...rest } = useReactQuerySubscription<
     ChargeUpdateInitial,
     ChargeUpdate
@@ -82,15 +82,14 @@ export function useCharges(): ChargesWithDesks {
         }
         if (watcher && Date.now() - watcher.time > NOTIFICATION_TIMEOUT) {
           mutate({
-            newYarn: {
-              con: [
+            newNote: { 
+              contents: [
                 'App ',
                 { emph: data['add-charge'].desk },
                 ' has been installed',
               ],
-              wer: `/grid/app/${desk}`,
-              but: null,
-            },
+              destination: {int: `/grid/app/${desk}`},
+            }
           });
           useWatcherStore.getState().removeWatcher(`install-${desk}`);
         }
@@ -302,9 +301,11 @@ export function useTreaty(host: string, desk: string) {
     [queryClient, ref]
   );
 
-  // if (!treaty) {
-  //   getTreaty(host, desk);
-  // }
+  useEffect(() => {
+    if (!treaty) {
+      getTreaty(host, desk);
+    }
+  }, [treaty, getTreaty, host, desk]);
 
   return treaty;
 }

@@ -4,8 +4,6 @@ import { useBossHttpPorts, useBossDomains, bossMoonConfigDNS } from '../../state
 export const Eyre = ({forbidden} : { forbidden:string[] }) => {
     const {data: httpPorts} = useBossHttpPorts()
     const {data: domains} = useBossDomains()
-    console.log('domains', domains)
-    console.log('httpPorts', httpPorts)
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState<string | null>(null)
 
@@ -28,6 +26,7 @@ export const Eyre = ({forbidden} : { forbidden:string[] }) => {
     }
 
     return(
+    (domains.length > 1) || (httpPorts && Object.keys(httpPorts).length > 0) ? (
       <div className="inner-section space-y-8 relative mb-4">
         <h2 className="h3">Eyre</h2>
             {domains.length > 1 && 
@@ -44,7 +43,7 @@ export const Eyre = ({forbidden} : { forbidden:string[] }) => {
             <p className="leading-5">{httpPorts.http}</p>
         </div>
         }
-        {httpPorts && Object.keys(httpPorts).length >0 && httpPorts?.https !== null && httpPorts?.https !== undefined &&
+        {httpPorts && Object.keys(httpPorts).length > 0 && httpPorts?.https !== null && httpPorts?.https !== undefined &&
         <div className='flex items-center space-x-4'>
             <h3 className='text-md font-bold whitespace-nowrap'>HTTPS Port:</h3>
             <p className="leading-5">{httpPorts?.https}</p>
@@ -59,6 +58,7 @@ export const Eyre = ({forbidden} : { forbidden:string[] }) => {
           {message ? <p>{message}</p> : <></>}
           </div>
         }
-      </div>
+      </div> )
+      : <></>
     )
 }

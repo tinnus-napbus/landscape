@@ -36,7 +36,7 @@ const textSize = (size: string) => {
 
 export default function GroupAvatar({
   image,
-  size = 'h-6 w-6',
+  size = 'h-12 w-12',
   className,
   title,
   loadImage = true,

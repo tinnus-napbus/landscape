@@ -35,8 +35,8 @@ export const NotificationsLink = ({
   notificationsOpen,
 }: NotificationsLinkProps) => {
   const { doNotDisturb } = useDisplay();
-  const { count } = useNotifications();
-  const state = getNotificationsState(notificationsOpen, count, doNotDisturb);
+  const { countNew } = useNotifications();
+  const state = getNotificationsState(notificationsOpen, countNew, doNotDisturb);
   const select = useAppSearchStore((s) => s.select);
   const clearSelection = useCallback(() => select(null), [select]);
 

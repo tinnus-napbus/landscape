@@ -58,7 +58,7 @@ export const AppLink = <T extends DocketWithDesk>({
     );
   return link(
     <>
-      <DocketImage color={app.color} image={app.image} size={size} />
+      <DocketImage color={app.color} image={app.image} size={size} className='mr-3'/>
       <div className="flex-1 text-black">
         <p>{getAppName(app)}</p>
         {app.info && size === 'default' && (

@@ -114,13 +114,12 @@ export const Help = () => {
         <span className="text-lg font-bold">Submit Feedback</span>
         <p className="leading-5">
           Notice a bug? Have a suggestion? Want a feature? Use the button below
-          to submit feedback directly to Tlon’s product development team.
+          to submit feedback directly to Urbit Foundation product development team.
         </p>
         <Button
           variant="alt-primary"
           as="a"
-          href="https://airtable.com/shrflFkf5UyDFKhmW"
-          target="_blank"
+          href="mailto:support@urbit.org?subject=Feedback"
         >
           Submit Feedback
         </Button>

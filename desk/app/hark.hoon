@@ -264,7 +264,7 @@
   =>  .(path t.t.path)
   ?+    path  [~ ~]
       [%bundles %unread ~]
-    :^  ~  ~  %ding-bundles
+    :^  ~  ~  %hark-bundles
     !>  ^-  bundles
     %+  roll  (tap:on-id unread)
     |=  [[=time =id] =bundles]
@@ -275,11 +275,11 @@
     (~(put by bundles) origin.u.got (put:on-bu u.b-got time u.got))
   ::
       [%bundles %read @ @ ~]
-    :^  ~  ~  %ding-bundles
+    :^  ~  ~  %hark-bundles
     !>  ^-  bundles
-    =/  after=@da   (slav %da i.t.t.path)
+    =/  after=(unit @da)   (slaw %da i.t.t.path)
     =/  max=@ud    (slav %ud i.t.t.t.path)
-    %+  roll  (tab:on-id read `after max)
+    %+  roll  (tab:on-id read after max)
     |=  [[=time =id] =bundles]
     ?~  got=(~(get by all) id)
       bundles
@@ -288,7 +288,7 @@
     (~(put by bundles) origin.u.got (put:on-bu u.b-got time u.got))
   ::
       [%bundles %read @ ~]
-    :^  ~  ~  %ding-bundles
+    :^  ~  ~  %hark-bundles
     !>  ^-  bundles
     =/  since=@da  +((slav %da i.t.t.path))
     %+  roll  (tap:on-id (lot:on-id read ~ `since))
@@ -318,7 +318,7 @@
   ^-  (list path)
   =/  paths=(list path)
     :~  /desk/[des.origin]
-        /all
+        /1/all
     ==
   =?  paths  ?=(^ pax.origin)
     :_  paths  [%path des.origin pax.origin]

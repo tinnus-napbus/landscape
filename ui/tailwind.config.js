@@ -44,6 +44,9 @@ const config = resolveConfig({
         snug: 1.33334,
         relaxed: 1.66667,
       },
+      spacing: {
+        '0.5': '0.125rem',
+      },
     },
   },
 });
