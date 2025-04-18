@@ -4,8 +4,6 @@ import { useBossHttpPorts, useBossDomains, bossMoonConfigDNS } from '../../state
 export const Eyre = ({forbidden} : { forbidden:string[] }) => {
     const {data: httpPorts} = useBossHttpPorts()
     const {data: domains} = useBossDomains()
-    console.log('domains', domains)
-    console.log('httpPorts', httpPorts)
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState<string | null>(null)
 

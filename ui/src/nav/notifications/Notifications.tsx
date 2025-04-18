@@ -149,7 +149,6 @@ export const Notifications = React.memo(() => {
       
       setHasMore(countRead === 50);
     } else {
-      console.log('No new notification IDs detected, skipping merge');
     }
   } else if (oldestNote === '~') {
     // For initial data, replace existing data

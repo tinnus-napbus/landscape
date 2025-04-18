@@ -36,7 +36,6 @@ export const Tile: FunctionComponent<TileProps> = ({
     'emph' in bundle.notification.contents[2]
   )?.notification.contents[2] as {emph: string} | undefined;
   const groupName = inviteGroupName?.emph || 'a group';
-  console.log('invite from', groupName)
   const addRecentApp = useRecentsStore((state) => state.addRecentApp);
   const { title, image, color, chad, href } = charge;
   const pike = usePike(desk);
