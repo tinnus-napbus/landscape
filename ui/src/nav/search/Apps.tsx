@@ -119,9 +119,12 @@ export const Apps = () => {
               labelledBy="developed-by"
               matchAgainst={selectedMatch}
               to={getAppPath}
-              status={status}
-              awaiting={awaiting}
             />
+            {status === 'finished' ? (
+              null
+            ) : (
+              <p>Awaiting {awaiting} more</p>
+            )}
           </>
         ) : (
           <div id="developed-by">

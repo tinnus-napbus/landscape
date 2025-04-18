@@ -113,7 +113,7 @@ export function useSawSeamMutation() {
 
 export function useHasInviteToGroup(): BundleWithOrigin | undefined {
   const { newBundles: bundles, status } = useBundles()
-  if (!bundles) {
+  if (!Array.isArray(bundles)) {
     return undefined;
   }
 
@@ -172,7 +172,7 @@ function harkAction2(action: HarkAction2) {
 export function useBundles() {
   const queryClient = useQueryClient();
 
-  const { data: dataNew, ...restNew } = useReactQuerySubscription<Bundles, HarkUpdate>({
+  const { data: dataNew, ...restNew } = useReactQuerySubscription<{bundles: Bundles}, HarkUpdate>({
     queryKey: ['bundles-unread'],
     app: 'hark',
     path: '/1/all',
@@ -267,6 +267,7 @@ export function useBundles() {
       ...restNew,
     };
   }
+  console.log('got bundles', dataNew)
 
   const newBundles = dataNew && 'bundles' in dataNew ? dataNew.bundles as Bundles : [] as Bundles;
 
@@ -293,7 +294,7 @@ const fetchBundlesReadData = async ({path}: {path: string}) => {
 
 
 export function useBundlesRead(date: string){
-  const { data: dataRead, ...rest } = useReactQueryScry<Bundles>({
+  const { data: dataRead, ...rest } = useReactQueryScry<{bundles: Bundles}>({
     queryKey: ['bundles-read', date],
     app: 'hark',
     path: `/1/bundles/read/${date}/50`,
@@ -312,6 +313,7 @@ export function useBundlesRead(date: string){
       ...rest,
     };
   }
+  console.log('got data', dataRead)
 
   const readBundles = dataRead && 'bundles' in dataRead ? dataRead.bundles as Bundles : [] as Bundles;
 

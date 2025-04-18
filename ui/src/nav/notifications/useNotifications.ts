@@ -51,7 +51,7 @@ export function oldestInGrouping(groupings: DayGrouping[]): string | null {
 
 export function groupBundlesByDate({bundles, isUnread}: {bundles: Bundles, isUnread: boolean}): DayGrouping[] {
 
-  if (!bundles || bundles.length === 0) {
+  if (!bundles || bundles.length === 0 || !Array.isArray(bundles)) {
     return [];
   }
   
@@ -213,7 +213,7 @@ export function organizeGroupings(groupings: DayGrouping[]): DayGrouping[] {
 
 
 export function countNotifications(bundles: Bundles): number {
-  if (!bundles) {
+  if (!bundles || !Array.isArray(bundles)) {
     return 0;
   }
   
