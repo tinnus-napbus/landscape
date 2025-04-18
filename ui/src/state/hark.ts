@@ -267,7 +267,6 @@ export function useBundles() {
       ...restNew,
     };
   }
-  console.log('got bundles', dataNew)
 
   const newBundles = dataNew && 'bundles' in dataNew ? dataNew.bundles as Bundles : [] as Bundles;
 
@@ -313,7 +312,6 @@ export function useBundlesRead(date: string){
       ...rest,
     };
   }
-  console.log('got data', dataRead)
 
   const readBundles = dataRead && 'bundles' in dataRead ? dataRead.bundles as Bundles : [] as Bundles;
 
