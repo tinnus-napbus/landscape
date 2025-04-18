@@ -279,7 +279,6 @@
     !>  ^-  bundles
     =/  after=(unit @da)   (slaw %da i.t.t.path)
     =/  max=@ud    (slav %ud i.t.t.t.path)
-    ~&  >>  ['after' after]
     %+  roll  (tab:on-id read after max)
     |=  [[=time =id] =bundles]
     ?~  got=(~(get by all) id)
