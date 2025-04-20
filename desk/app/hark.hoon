@@ -259,6 +259,10 @@
   ^-  (unit (unit cage))
   ?:  ?=([%x %api-version ~] path)
     ``atom+!>(api-version)
+  :: to not break tlon %channels
+  ?:  ?=([%x %desk @ %latest ~] path)
+    =/  =desk  i.t.t.path
+    ``hark-carpet+!>(`carpet:antique`[desk+desk ~ ~ 0])
   :: versioned: must be /x/1/...
   ?>  ?=([%x %'1' *] path)
   =>  .(path t.t.path)
