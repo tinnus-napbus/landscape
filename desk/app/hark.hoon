@@ -62,7 +62,7 @@
     ?-    act
         [%create *]
       ?:  (~(has by all) id.act)  (on-poke:def mark vase)
-      =/  n=notification  [unique +.act]
+      =/  n=notification  [unique:hc +.act]
       =.  all  (~(put by all) id.act n)
       =.  unread  (put:on-id unread time.n id.n)
       =/  paths=(list path)  (origin-to-paths:hc origin.act) 
