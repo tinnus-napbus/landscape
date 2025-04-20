@@ -321,19 +321,36 @@
   |=  =origin
   ^-  (list path)
   =/  paths=(list path)
-    :~  /desk/[des.origin]
+    :~  /1/desk/[des.origin]
         /1/all
+        /1/init/desk/[des.origin]
+        /1/init/all
     ==
   =?  paths  ?=(^ pax.origin)
-    :_  paths  [%path des.origin pax.origin]
+    :*  [%1 %path des.origin pax.origin]
+        [%1 %init %path des.origin pax.origin]
+        paths
+    ==
   =?  paths  ?=(^ gop.origin)
-    :_  paths  [%group (scot %p p.u.gop.origin) q.u.gop.origin ~]
+    :*  [%1 %group (scot %p p.u.gop.origin) q.u.gop.origin ~]
+        [%1 %init %group (scot %p p.u.gop.origin) q.u.gop.origin ~]
+        paths
+    ==
   =?  paths  ?=(^ can.origin)
-    :_  paths
-    :~  %channel
-        p.u.can.origin
-        (scot %p p.q.u.can.origin)
-        q.q.u.can.origin
+    :*  :~  %1
+            %channel
+            p.u.can.origin
+            (scot %p p.q.u.can.origin)
+            q.q.u.can.origin
+        ==
+        :~  %1
+            %init
+            %channel
+            p.u.can.origin
+            (scot %p p.q.u.can.origin)
+            q.q.u.can.origin
+        ==
+        paths
     ==
   paths
 ::  +match-origin: see if origin ref (a) encompasses (b)
