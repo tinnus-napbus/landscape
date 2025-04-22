@@ -33,8 +33,14 @@ export function oldestInGrouping(groupings: DayGrouping[]): string | null {
       for (const notification of item.allNotifications) {
         let notificationTime: number | null = null;
         
-        if (notification.time) {
-          notificationTime = moment(daToUnix(parseDa(notification.time))).toDate().getTime() 
+        if (notification.time && typeof notification.time === 'string') {
+          try {
+            const parsedDa = parseDa(notification.time);
+            const unixTime = daToUnix(parsedDa);
+            notificationTime = moment(unixTime).toDate().getTime();
+          } catch (error) {
+            console.error(`Failed to parse time: ${notification.time}`, error);
+          }
         }
         
         if (notificationTime && !isNaN(notificationTime) && notificationTime < oldestTime) {
@@ -65,16 +71,43 @@ export function groupBundlesByDate({bundles, isUnread}: {bundles: Bundles, isUnr
     
     // Group this origin's notifications by date
     const notificationsByDay = _.groupBy(bundleWithOrigin.bundle, bundle => {
-      const time = bundle.notification.time;
-      const date = moment(daToUnix(parseDa(time))).toDate()
-      return makePrettyDay(date);
+      try {
+        const time = bundle.notification.time;
+        
+        if (!time || typeof time !== 'string') {
+          return 'Unknown Date';
+        }
+        
+        const parsedDa = parseDa(time);
+        const unixTime = daToUnix(parsedDa);
+        const date = moment(unixTime).toDate();
+        return makePrettyDay(date);
+      } catch (error) {
+        console.error(`Failed to parse notification time: ${bundle.notification?.time}`, error);
+        return 'Unknown Date';
+      }
     });
     
     // For each day, create a separate bundle entry but preserve origin
     Object.entries(notificationsByDay).forEach(([day, dayBundles]) => {
       // Sort the day's bundles by time (newest first)
-      const sortedDayBundles = _.sortBy(dayBundles, bundle => 
-        makePrettyDay(moment(daToUnix(parseDa(bundle.notification.time))).toDate())
+      const sortedDayBundles = _.sortBy(dayBundles, bundle => { 
+        try {
+          const time = bundle.notification.time;
+          
+          if (!time || typeof time !== 'string') {
+            return 'Unknown Date';
+          }
+          
+          const parsedDa = parseDa(time);
+          const unixTime = daToUnix(parsedDa);
+          const date = moment(unixTime).toDate();
+          return makePrettyDay(date);
+        } catch (error) {
+          console.error(`Failed to parse notification time: ${bundle.notification?.time}`, error);
+
+          return 'Unknown Date';
+        }}
       );
       
       // Use the newest notification as the first notification
@@ -159,13 +192,15 @@ function sortGroupingsByDate(groupings: DayGrouping[]): DayGrouping[] {
       }
     }
     
-    // Fallback: Try to parse as regular date
-    const fallbackDate = moment(daToUnix(parseDa(dateString))).toDate();
-    if (!isNaN(fallbackDate.getTime())) {
-      return fallbackDate.getTime();
+    try {
+      const fallbackDate = moment(daToUnix(parseDa(dateString))).toDate();
+      if (!isNaN(fallbackDate.getTime())) {
+        return fallbackDate.getTime();
+      }
+    } catch (error) {
+      console.error(`Failed to parse date: ${dateString}`, error);
     }
-    
-    // If all else fails, return a very old date to sort it at the end
+  
     return 0;
   };
 
