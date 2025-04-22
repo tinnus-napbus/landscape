@@ -207,6 +207,14 @@ useEffect(() => {
       const queryKey = event.query.queryKey;
       
       if (Array.isArray(queryKey) && queryKey[0] === 'bundles-read-since') {
+        if(queryKey[1] === '~'){
+          queryClient.removeQueries({
+            predicate: (query) => {
+              return Array.isArray(query.queryKey) && 
+                    query.queryKey[0] === 'bundles-read';
+            }
+          });
+        }
           
         // Get bundle data from the event
         const readBundles = event.query.state.data && 'bundles' in event.query.state.data 

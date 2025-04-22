@@ -1,4 +1,4 @@
-import React, { ReactNode } from 'react';
+import React, { ReactNode, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCharge } from '../state/docket';
 import { Destination } from '@/gear';
@@ -20,6 +20,13 @@ export function DeskLink({
 }: DeskLinkProps) {
   const navigate = useNavigate();
   const charge = useCharge(desk);
+  const isMounted = useRef(true);
+  
+  useEffect(() => {
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
 
   if (!charge) {
     return null;

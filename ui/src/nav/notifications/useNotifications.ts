@@ -35,13 +35,11 @@ export function oldestInGrouping(groupings: DayGrouping[]): string | null {
         
         if (notification.time && typeof notification.time === 'string') {
           try {
-            // Parse the @da timestamp safely
             const parsedDa = parseDa(notification.time);
             const unixTime = daToUnix(parsedDa);
             notificationTime = moment(unixTime).toDate().getTime();
           } catch (error) {
             console.error(`Failed to parse time: ${notification.time}`, error);
-            // Continue execution rather than failing
           }
         }
         
@@ -76,9 +74,7 @@ export function groupBundlesByDate({bundles, isUnread}: {bundles: Bundles, isUnr
       try {
         const time = bundle.notification.time;
         
-        // Check if time exists and is a string
         if (!time || typeof time !== 'string') {
-          // Return a fallback date or special category for notifications without valid dates
           return 'Unknown Date';
         }
         
@@ -88,8 +84,7 @@ export function groupBundlesByDate({bundles, isUnread}: {bundles: Bundles, isUnr
         return makePrettyDay(date);
       } catch (error) {
         console.error(`Failed to parse notification time: ${bundle.notification?.time}`, error);
-        // Return a fallback category for notifications with invalid dates
-        return 'Invalid Date';
+        return 'Unknown Date';
       }
     });
     
@@ -100,9 +95,7 @@ export function groupBundlesByDate({bundles, isUnread}: {bundles: Bundles, isUnr
         try {
           const time = bundle.notification.time;
           
-          // Check if time exists and is a string
           if (!time || typeof time !== 'string') {
-            // Return a fallback date or special category for notifications without valid dates
             return 'Unknown Date';
           }
           
@@ -112,8 +105,8 @@ export function groupBundlesByDate({bundles, isUnread}: {bundles: Bundles, isUnr
           return makePrettyDay(date);
         } catch (error) {
           console.error(`Failed to parse notification time: ${bundle.notification?.time}`, error);
-          // Return a fallback category for notifications with invalid dates
-          return 'Invalid Date';
+
+          return 'Unknown Date';
         }}
       );
       
@@ -199,7 +192,6 @@ function sortGroupingsByDate(groupings: DayGrouping[]): DayGrouping[] {
       }
     }
     
-    // Fallback: Try to parse as regular date
     try {
       const fallbackDate = moment(daToUnix(parseDa(dateString))).toDate();
       if (!isNaN(fallbackDate.getTime())) {
@@ -207,10 +199,8 @@ function sortGroupingsByDate(groupings: DayGrouping[]): DayGrouping[] {
       }
     } catch (error) {
       console.error(`Failed to parse date: ${dateString}`, error);
-      // Continue execution rather than failing
     }
-    
-    // If all else fails, return a very old date to sort it at the end
+  
     return 0;
   };
 
