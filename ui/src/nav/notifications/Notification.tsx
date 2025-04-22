@@ -281,7 +281,20 @@ export const NotificationItem: React.FC<NotificationProps> = ({
                   )}
                   <div className="flex items-center">
                     <span className="font-semibold text-gray-400 items-end w-100">
-                      {moment(daToUnix(parseDa(firstNotification.time))).format('HH:mm')}
+                    {(() => {
+    try {
+      if (!firstNotification.time || typeof firstNotification.time !== 'string') {
+        console.log(firstNotification.time)
+        return '--:--'; // Fallback for missing time
+      }
+      const parsedDa = parseDa(firstNotification.time);
+      const unixTime = daToUnix(parsedDa);
+      return moment(unixTime).format('HH:mm');
+    } catch (error) {
+      console.error(`Failed to parse time: ${firstNotification.time}`, error);
+      return '--:--'; // Fallback for invalid time
+    }
+  })()}
                     </span>
                   </div>
                 </div>
